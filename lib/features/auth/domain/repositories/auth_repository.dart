@@ -103,10 +103,17 @@ class AuthRepository implements AuthRepoInterface{
 
   Future<String?> _getDeviceToken() async {
     String? deviceToken;
-    if(Platform.isIOS) {
-      deviceToken = await FirebaseMessaging.instance.getToken();
-    }else {
-      deviceToken = await FirebaseMessaging.instance.getToken();
+    try {
+      if (Platform.isIOS) {
+        String? apnsToken = await FirebaseMessaging.instance.getAPNSToken();
+        if (apnsToken != null) {
+          deviceToken = await FirebaseMessaging.instance.getToken();
+        }
+      } else {
+        deviceToken = await FirebaseMessaging.instance.getToken();
+      }
+    } catch (e) {
+      log('--------Device Token Error---------- $e--');
     }
     if (deviceToken != null) {
       log('--------Device Token---------- $deviceToken--');

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:drift/drift.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -110,10 +111,18 @@ class SplashController extends ChangeNotifier {
 
       String? currencyCode = splashServiceInterface!.getCurrency();
 
-      try{
-        await FirebaseMessaging.instance.getToken();
-        await FirebaseMessaging.instance.subscribeToTopic(AppConstants.maintenanceModeTopic);
-      }catch (e) {
+      try {
+        if (Platform.isIOS) {
+          String? apnsToken = await FirebaseMessaging.instance.getAPNSToken();
+          if (apnsToken != null) {
+            await FirebaseMessaging.instance.getToken();
+            await FirebaseMessaging.instance.subscribeToTopic(AppConstants.maintenanceModeTopic);
+          }
+        } else {
+          await FirebaseMessaging.instance.getToken();
+          await FirebaseMessaging.instance.subscribeToTopic(AppConstants.maintenanceModeTopic);
+        }
+      } catch (e) {
         debugPrint("====FirebaseException===>>$e");
       }
 

@@ -2,7 +2,7 @@ name: kk_thotix_m3aak
 description: A new Flutter setup application for starting a project.
 
 publish_to: 'none'
-version: 1.0.1+1
+version: 2.0.1+2
 environment:
   sdk: ^3.6.2
 
@@ -102,13 +102,13 @@ dev_dependencies:
   icons_launcher:
 
 icons_launcher:
-  image_path: "assets/images/2026-02-26-699f9fecc4ffb.png"
+  image_path: "assets/images/img_1.png"
   platforms:
 #    android:
 #      enable: true
     ios:
       enable: true
-      image_path: "assets/images/2026-02-26-699f9fecc4ffb.png" # transparent areas are flattened to white on iOS
+      image_path: "assets/images/img_1.png" # transparent areas are flattened to white on iOS
 
 flutter:
   uses-material-design: true

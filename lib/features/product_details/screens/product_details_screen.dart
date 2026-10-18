@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:kk_thotix_m3aak/theme/app_palette.dart';
+import 'package:kk_thotix_m3aak/common/glass/glass_widgets.dart';
 import 'package:kk_thotix_m3aak/features/deal/controllers/flash_deal_controller.dart';
 import 'package:kk_thotix_m3aak/features/product/controllers/product_controller.dart';
 import 'package:kk_thotix_m3aak/features/product/controllers/seller_product_controller.dart';
@@ -11,7 +14,6 @@ import 'package:kk_thotix_m3aak/features/product_details/widgets/promise_widget.
 import 'package:kk_thotix_m3aak/features/product_details/widgets/related_product_widget.dart';
 import 'package:kk_thotix_m3aak/features/product_details/widgets/review_and_specification_widget.dart';
 import 'package:kk_thotix_m3aak/features/product_details/widgets/shop_info_widget.dart';
-import 'package:kk_thotix_m3aak/features/product_details/widgets/youtube_video_widget.dart';
 import 'package:kk_thotix_m3aak/features/review/controllers/review_controller.dart';
 import 'package:kk_thotix_m3aak/common/basewidget/custom_app_bar_widget.dart';
 import 'package:kk_thotix_m3aak/features/home/shimmers/product_details_shimmer.dart';
@@ -81,6 +83,24 @@ class _ProductDetailsState extends State<ProductDetails> {
       child: Scaffold(
         appBar: CustomAppBar(
           title: getTranslated('product_details', context),
+          showResetIcon: true,
+          reset: Padding(
+            padding: const EdgeInsetsDirectional.only(end: 12),
+            child: Consumer<ProductDetailsController>(builder: (context, details, _) => IconButton(
+              tooltip: getTranslated('share', context),
+              onPressed: details.sharableLink == null ? null
+                  : () => SharePlus.instance.share(ShareParams(text: details.sharableLink!)),
+              style: IconButton.styleFrom(
+                minimumSize: const Size(44, 44),
+                backgroundColor: Theme.of(context).cardColor,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15),
+                  side: BorderSide(color: AppPalette.glassBorder(context)),
+                ),
+              ),
+              icon: Icon(Icons.ios_share_rounded, size: 19, color: Theme.of(context).textTheme.bodyLarge?.color),
+            )),
+          ),
           onBackPressed: () {
             if(Navigator.of(context).canPop()){
               Navigator.of(context).pop();
@@ -111,6 +131,7 @@ class _ProductDetailsState extends State<ProductDetails> {
 
               return SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
+                padding: const EdgeInsets.only(bottom: 110),
                 child: !details.isDetails ?
                 Column(children: [
 
@@ -222,40 +243,44 @@ class _ProductDetailsState extends State<ProductDetails> {
                       )),
                     ) : const SizedBox(),
 
-                    ReviewAndSpecificationSectionWidget(
-                      averageReview: double.tryParse(details.productDetailsModel?.averageReview ?? '0'),
-                    ),
-
-                    details.isReviewSelected?
-                    Column(children: [
-                      ReviewSection(details: details),
-                      _ProductDetailsProductListWidget(scrollController: scrollController),
-                    ]):
+                    Builder(builder: (context) {
+                      final bool hasDetails = details.productDetailsModel?.details != null && details.productDetailsModel!.details!.isNotEmpty;
+                      final bool hasReviews = (double.tryParse(details.productDetailsModel?.averageReview ?? '0') ?? 0) > 0;
+                      if (!hasDetails && !hasReviews) return const SizedBox(height: 4);
+                      return GlassContainer(
+                        blur: false,
+                        radius: 26,
+                        margin: const EdgeInsets.fromLTRB(Dimensions.homePagePadding, 14, Dimensions.homePagePadding, 0),
+                        padding: const EdgeInsets.fromLTRB(6, 6, 6, 10),
+                        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                          ReviewAndSpecificationSectionWidget(
+                            averageReview: double.tryParse(details.productDetailsModel?.averageReview ?? '0'),
+                          ),
+                          const SizedBox(height: 12),
+                          if (details.isReviewSelected && hasReviews)
+                            ReviewSection(details: details)
+                          else if (hasDetails)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 10),
+                              child: ProductSpecificationWidget(
+                                productSpecification: ProductHelper.removeIframe(details.productDetailsModel!.details ?? ''),
+                              ),
+                            ),
+                        ]),
+                      );
+                    }),
 
                     Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      (details.productDetailsModel?.details != null && details.productDetailsModel!.details!.isNotEmpty) ?
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).cardColor,
-                        ),
-                        margin: const EdgeInsets.only(top: Dimensions.paddingSizeSmall),
-                        padding: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeSmall, horizontal: Dimensions.paddingSizeDefault),
-                        child: ProductSpecificationWidget(
-                          productSpecification: ProductHelper.removeIframe(details.productDetailsModel!.details ?? ''),
-                        ),
-                      ) : const SizedBox(),
-
                       // (details.productDetailsModel?.videoUrl != null && details.isValidYouTubeUrl(details.productDetailsModel!.videoUrl!))?
                       // YoutubeVideoWidget(url: details.productDetailsModel!.videoUrl) : const SizedBox(),
 
                       (details.productDetailsModel != null) ?
                       ShopInfoWidget(sellerId: details.productDetailsModel!.addedBy == 'seller'? details.productDetailsModel!.userId.toString() : "0") : const SizedBox.shrink(),
-                      const SizedBox(height: Dimensions.paddingSizeSmall),
+                      const SizedBox(height: 14),
 
-                      Container(
-                        padding: const EdgeInsets.only(top: Dimensions.paddingSizeLarge, bottom: Dimensions.paddingSizeDefault),
-                        decoration: BoxDecoration(color: Theme.of(context).cardColor),
-                        child: const PromiseWidget()
+                      const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: Dimensions.homePagePadding),
+                        child: PromiseWidget(),
                       ),
 
                       _ProductDetailsProductListWidget(scrollController: scrollController),
@@ -270,6 +295,7 @@ class _ProductDetailsState extends State<ProductDetails> {
           ),
         ),
 
+        extendBody: true,
         bottomNavigationBar: Consumer<ProductDetailsController>(
           builder: (context, details, child) {
             return !details.isDetails?
@@ -302,9 +328,7 @@ class _ProductDetailsProductListWidget extends StatelessWidget {
                 }
             ),
             const SizedBox(height: 5),
-            const Padding(padding: EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeExtraSmall),
-              child: RelatedProductWidget(),
-            ),
+            const RelatedProductWidget(),
 
 
             Consumer<SellerProductController>(

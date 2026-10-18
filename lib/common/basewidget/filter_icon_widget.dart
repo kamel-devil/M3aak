@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:kk_thotix_m3aak/common/basewidget/custom_asset_image_widget.dart';
+import 'package:kk_thotix_m3aak/localization/language_constrants.dart';
+import 'package:kk_thotix_m3aak/theme/app_palette.dart';
 import 'package:kk_thotix_m3aak/utill/custom_themes.dart';
 import 'package:kk_thotix_m3aak/utill/dimensions.dart';
-import 'package:kk_thotix_m3aak/utill/images.dart';
 
 class FilterIconWidget extends StatelessWidget {
   final int filterCount;
@@ -14,22 +14,41 @@ class FilterIconWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(onTap: onTap, child: Stack(children: [
-      CustomAssetImageWidget(Images.productFilterIcon, width: width, height: height),
-
-      if(filterCount > 0) Positioned(right: 0, top: 0, child: Container(
-        width: 17, height: 17,
-        transform: Matrix4.translationValues(6, -6, 0),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.error,
-          border: Border.all(color: Theme.of(context).highlightColor, width: 2,),
-          borderRadius: BorderRadius.circular(Dimensions.paddingSizeOverLarge),
-        ),
-        child: Center(child: Text('$filterCount', style: textRegular.copyWith(
-          fontSize: Dimensions.paddingSizeSmall,
-          color: Theme.of(context).highlightColor,
-        ))),
-      )),
-    ]));
+    return Semantics(
+      button: true,
+      label: getTranslated('filter', context),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: Stack(clipBehavior: Clip.none, children: [
+          Container(
+            constraints: const BoxConstraints(minHeight: 40, minWidth: 44),
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            decoration: BoxDecoration(
+              color: Theme.of(context).cardColor,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: Theme.of(context).primaryColor.withValues(alpha: .25), width: 1.2),
+            ),
+            child: Icon(Icons.tune_rounded, size: 20, color: Theme.of(context).primaryColor),
+          ),
+          if (filterCount > 0)
+            PositionedDirectional(
+              top: -6,
+              end: -6,
+              child: Container(
+                constraints: const BoxConstraints(minWidth: 20, minHeight: 20),
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  gradient: AppPalette.brandGradient,
+                  border: Border.all(color: Colors.white, width: 2),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text('$filterCount',
+                    style: textBold.copyWith(fontSize: Dimensions.fontSizeExtraSmall, color: Colors.white)),
+              ),
+            ),
+        ]),
+      ),
+    );
   }
 }

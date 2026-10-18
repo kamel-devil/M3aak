@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:kk_thotix_m3aak/common/basewidget/custom_asset_image_widget.dart';
+import 'package:kk_thotix_m3aak/theme/app_palette.dart';
 import 'package:kk_thotix_m3aak/helper/route_healper.dart';
 import 'package:kk_thotix_m3aak/localization/language_constrants.dart';
 import 'package:kk_thotix_m3aak/utill/custom_themes.dart';
@@ -27,8 +27,7 @@ class _SupportTicketTypeWidgetState extends State<SupportTicketTypeWidget> {
     return Container(height: MediaQuery.of(context).size.height/2,
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
-        borderRadius: const BorderRadius.only(topRight : Radius.circular(Dimensions.paddingSizeDefault),
-          topLeft: Radius.circular(Dimensions.paddingSizeDefault))),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(30))),
       child: Padding(padding: const EdgeInsets.fromLTRB(Dimensions.paddingSizeSmall,
           Dimensions.paddingSizeLarge, Dimensions.paddingSizeSmall, Dimensions.paddingSizeDefault),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
@@ -39,7 +38,7 @@ class _SupportTicketTypeWidgetState extends State<SupportTicketTypeWidget> {
 
           Padding(padding: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeDefault),
             child: Text(getTranslated('select_your_category', context)!,
-                style: textRegular.copyWith(fontSize: Dimensions.fontSizeLarge)),),
+                style: textBold.copyWith(fontSize: Dimensions.fontSizeExtraLarge)),),
 
           Expanded(child: GridView.builder(
               shrinkWrap: true,
@@ -94,24 +93,36 @@ class TypeButton extends StatelessWidget {
   final String? title;
   const TypeButton({super.key, this.icon, this.title});
 
+  static (IconData, Color) _style(String? title) {
+    switch (title) {
+      case 'website_problem': return (Icons.bug_report_outlined, AppPalette.secondary);
+      case 'partner_request': return (Icons.handshake_outlined, AppPalette.warning);
+      case 'complaint': return (Icons.report_gmailerrorred_rounded, AppPalette.error);
+      default: return (Icons.help_outline_rounded, AppPalette.primary);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final (IconData iconData, Color color) = _style(title);
     return Container(
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        boxShadow: [BoxShadow(color: Theme.of(context).primaryColor.withValues(alpha:.1), blurRadius: 5, spreadRadius:1, offset: const Offset(1,0))],
-          borderRadius: BorderRadius.circular(Dimensions.paddingSizeSmall),
-        border: Border.all(width: .5, color: Theme.of(context).primaryColor.withValues(alpha:.1))
+        color: AppPalette.tint(context),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppPalette.glassBorder(context)),
       ),
-
-      child: Padding(padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
-        child: Column(mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center, children: [
-        SizedBox(height: 20, child: CustomAssetImageWidget(icon!)),
-        const SizedBox(height: Dimensions.paddingSizeSmall),
-        Text(getTranslated(title, context)!, style: textMedium.copyWith(fontSize: Dimensions.fontSizeLarge)),
-    ],),
-      ),);
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.center, children: [
+        Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(color: color.withValues(alpha: .14), borderRadius: BorderRadius.circular(13)),
+          child: Icon(iconData, color: color, size: 20),
+        ),
+        const SizedBox(height: 10),
+        Text(getTranslated(title, context) ?? '', maxLines: 1, overflow: TextOverflow.ellipsis,
+            style: textBold.copyWith(fontSize: Dimensions.fontSizeDefault, color: Theme.of(context).textTheme.bodyLarge?.color)),
+      ]),
+    );
   }
 }

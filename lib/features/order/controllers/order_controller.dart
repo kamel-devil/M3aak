@@ -41,9 +41,11 @@ class OrderController with ChangeNotifier {
     }
     ApiResponseModel apiResponse = await orderServiceInterface.getOrderList(offset, status, type: type);
     if (apiResponse.response != null && apiResponse.response!.statusCode == 200) {
+      final OrderModel parsedOrderModelResponse = OrderModel.fromJson(apiResponse.response?.data);
       if(offset == 1){
-        orderModel = OrderModel.fromJson(apiResponse.response?.data);
+        orderModel = parsedOrderModelResponse;
         if(type == 'reorder'){
+          // A separate instance: orderModel is mutated by pagination below.
           deliveredOrderModel = OrderModel.fromJson(apiResponse.response?.data);
 
           if(localData != null) {
@@ -63,9 +65,9 @@ class OrderController with ChangeNotifier {
           }
         }
       }else {
-        orderModel!.orders!.addAll(OrderModel.fromJson(apiResponse.response?.data).orders!);
-        orderModel!.offset = OrderModel.fromJson(apiResponse.response?.data).offset;
-        orderModel!.totalSize = OrderModel.fromJson(apiResponse.response?.data).totalSize;
+        orderModel!.orders!.addAll(parsedOrderModelResponse.orders!);
+        orderModel!.offset = parsedOrderModelResponse.offset;
+        orderModel!.totalSize = parsedOrderModelResponse.totalSize;
       }
     }else{
       ApiChecker.checkApi(apiResponse);

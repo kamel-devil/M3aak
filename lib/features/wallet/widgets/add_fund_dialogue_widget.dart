@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:kk_thotix_m3aak/helper/price_converter.dart';
 import 'package:flutter/services.dart';
 import 'package:kk_thotix_m3aak/features/checkout/controllers/checkout_controller.dart';
 import 'package:kk_thotix_m3aak/features/splash/controllers/splash_controller.dart';
@@ -59,7 +60,7 @@ class AddFundDialogueWidget extends StatelessWidget {
                               child: Row(mainAxisAlignment: MainAxisAlignment.center,crossAxisAlignment: CrossAxisAlignment.center, children: [
                                   Padding(
                                     padding: const EdgeInsets.only(top: 2.0),
-                                    child: Text(configProvider.myCurrency!.symbol!,
+                                    child: Text(PriceConverter.currencySymbol(context),
                                         style: textBold.copyWith(fontSize: Dimensions.fontSizeExtraLarge,
                                             color:  Theme.of(context).textTheme.bodyLarge?.color?.withValues(alpha:.75) )),
                                   ),

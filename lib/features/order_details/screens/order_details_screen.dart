@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:kk_thotix_m3aak/theme/app_palette.dart';
+import 'package:kk_thotix_m3aak/common/glass/glass_widgets.dart';
+import 'package:kk_thotix_m3aak/common/basewidget/custom_app_bar_widget.dart';
 import 'package:kk_thotix_m3aak/common/basewidget/custom_asset_image_widget.dart';
 import 'package:kk_thotix_m3aak/common/basewidget/custom_image_widget.dart';
 import 'package:kk_thotix_m3aak/common/basewidget/image_diaglog_widget.dart';
@@ -101,25 +104,16 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
         }
       },
       child: Scaffold(
-          appBar: AppBar(
-              flexibleSpace: Material(
-                elevation: 10.0,
-                shadowColor:
-                    Theme.of(context).primaryColor.withValues(alpha: 0.2),
-                child: Container(),
-              ),
-              elevation: 0,
-              backgroundColor: Theme.of(context).highlightColor,
-              toolbarHeight: 120,
-              leadingWidth: 0,
-              automaticallyImplyLeading: false,
-              title: Consumer<OrderDetailsController>(
-                  builder: (context, orderProvider, _) {
-                return (orderProvider.orderDetails != null &&
-                        orderProvider.orders != null)
-                    ? const OrderDetailsStatusWidget()
-                    : const SizedBox();
-              })),
+          appBar: CustomAppBar(
+            title: getTranslated('order_details', context),
+            onBackPressed: () {
+              if (Navigator.of(context).canPop()) {
+                Navigator.of(context).pop();
+              } else {
+                RouterHelper.getDashboardRoute(action: RouteAction.pushNamedAndRemoveUntil);
+              }
+            },
+          ),
           body: RefreshIndicator(
             onRefresh: () async {
               _loadData(context);
@@ -193,68 +187,47 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                                 children: [
                                   Expanded(
                                     child: ListView(
-                                        padding: const EdgeInsets.all(0),
+                                        padding: const EdgeInsets.only(bottom: Dimensions.paddingSizeDefault),
                                         children: [
-                                          const SizedBox(
-                                              height: Dimensions
-                                                  .paddingSizeDefault),
-
-                                          const OrderPaymentInfoWidget(),
-
-                                          Container(
-                                            height: Dimensions.fontSizeDefault,
-                                            color: Theme.of(context)
-                                                .primaryColor
-                                                .withValues(alpha: 0.05),
+                                          const Padding(
+                                            padding: EdgeInsets.fromLTRB(16, 12, 16, 6),
+                                            child: OrderDetailsStatusWidget(),
                                           ),
 
-                                          ShippingAndBillingWidget(
-                                              orderProvider: orderProvider),
+                                          const _DetailsSection(index: 1, child: OrderPaymentInfoWidget()),
 
-                                          orderProvider.orders != null &&
-                                                  orderProvider
-                                                          .orders!.orderNote !=
-                                                      null
-                                              ? Padding(
-                                                  padding: const EdgeInsets.all(
-                                                      Dimensions
-                                                          .marginSizeSmall),
-                                                  child: Text.rich(
-                                                      TextSpan(children: [
-                                                    TextSpan(
-                                                        text:
-                                                            '${getTranslated('order_note', context)} : ',
-                                                        style: robotoBold.copyWith(
-                                                            fontSize: Dimensions
-                                                                .fontSizeLarge,
-                                                            color: Theme.of(
-                                                                    context)
-                                                                .shadowColor)),
-                                                    TextSpan(
-                                                        text: orderProvider
-                                                                    .orders!
-                                                                    .orderNote !=
-                                                                null
-                                                            ? orderProvider
-                                                                    .orders!
-                                                                    .orderNote ??
-                                                                ''
-                                                            : "",
-                                                        style: titilliumRegular
-                                                            .copyWith(
-                                                                fontSize: Dimensions
-                                                                    .fontSizeSmall,
-                                                                color: Theme.of(
-                                                                        context)
-                                                                    .textTheme
-                                                                    .bodyLarge
-                                                                    ?.color)),
-                                                  ])))
-                                              : const SizedBox(),
-                                          const SizedBox(
-                                              height:
-                                                  Dimensions.paddingSizeSmall),
+                                          if (orderProvider.orders?.shippingAddressData != null || orderProvider.orders?.orderType == 'POS')
+                                          _DetailsSection(
+                                              index: 2,
+                                              child: ShippingAndBillingWidget(
+                                                  orderProvider: orderProvider)),
 
+                                          if ((orderProvider.orders?.orderNote ?? '').trim().isNotEmpty)
+                                            Padding(
+                                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                                              child: GlassContainer(
+                                                blur: false,
+                                                radius: 20,
+                                                padding: const EdgeInsets.all(14),
+                                                child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                                                  const Padding(
+                                                    padding: EdgeInsets.only(top: 2),
+                                                    child: Icon(Icons.sticky_note_2_outlined, size: 19, color: AppPalette.primaryDeep),
+                                                  ),
+                                                  const SizedBox(width: 10),
+                                                  Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                                                    Text(getTranslated('your_note', context) ?? '',
+                                                        style: textBold.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).hintColor)),
+                                                    const SizedBox(height: 2),
+                                                    Text(orderProvider.orders!.orderNote!,
+                                                        style: textRegular.copyWith(fontSize: Dimensions.fontSizeDefault,
+                                                            color: Theme.of(context).textTheme.bodyLarge?.color)),
+                                                  ])),
+                                                ]),
+                                              ),
+                                            ),
+
+                                          _DetailsSection(index: 3, child: Column(children: [
                                           SellerSectionWidget(
                                               order: orderProvider),
 
@@ -268,11 +241,9 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                                               orderId: orderProvider.orders!.id
                                                   .toString(),
                                             ),
-                                          const SizedBox(
-                                              height:
-                                                  Dimensions.marginSizeDefault),
+                                          ])),
 
-                                          OrderAmountCalculation(
+                                          _DetailsSection(index: 4, child: OrderAmountCalculation(
                                               orderProvider: orderProvider,
                                               itemTotalAmount: itemTotalAmount,
                                               discount: discount,
@@ -280,7 +251,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                                               shippingCost: shippingCost,
                                               tax: tax,
                                               referAndEarnDiscount:
-                                                  referAndEarnDiscount),
+                                                  referAndEarnDiscount)),
                                           const SizedBox(
                                             height: Dimensions.paddingSizeSmall,
                                           ),
@@ -289,22 +260,15 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                                           orderProvider.orders!.deliveryMan !=
                                                   null
                                               ? Container(
+                                                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                                                   padding: const EdgeInsets.all(
                                                       Dimensions
                                                           .paddingSizeDefault),
                                                   decoration: BoxDecoration(
-                                                      color: Theme.of(context)
-                                                          .highlightColor,
-                                                      boxShadow: [
-                                                        BoxShadow(
-                                                            color: Theme.of(
-                                                                    context)
-                                                                .hintColor
-                                                                .withValues(
-                                                                    alpha: 0.2),
-                                                            spreadRadius: 2,
-                                                            blurRadius: 10)
-                                                      ]),
+                                                      color: Theme.of(context).cardColor,
+                                                      borderRadius: BorderRadius.circular(24),
+                                                      border: Border.all(color: AppPalette.glassBorder(context), width: 1.2),
+                                                      boxShadow: AppPalette.softShadow(context)),
                                                   child: Column(
                                                       crossAxisAlignment:
                                                           CrossAxisAlignment
@@ -372,7 +336,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                                                                             Text(orderProvider.orderDetails?[0].order?.deliveryManReview != null ? '${getTranslated('update_review', context)}' : '${getTranslated('review', context)}',
                                                                                 style: textBold.copyWith(
                                                                                   fontSize: Dimensions.fontSizeSmall,
-                                                                                  color: Theme.of(context).scaffoldBackgroundColor,
+                                                                                  color: Theme.of(context).canvasColor,
                                                                                 )),
                                                                           ]),
                                                                     ),
@@ -604,13 +568,9 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                                               showSupport: true),
                                         ]),
                                   ),
-                                  const SizedBox(
-                                      height: Dimensions.paddingSizeSmall),
-                                  Container(
-                                      color: Theme.of(context).cardColor,
-                                      child: CancelAndSupportWidget(
-                                          orderModel: orderProvider.orders,
-                                          showSupport: false)),
+                                  CancelAndSupportWidget(
+                                      orderModel: orderProvider.orders,
+                                      showSupport: false),
                                 ],
                               )
                             : const OrderDetailsShimmer();
@@ -619,6 +579,29 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                   : const OrderDetailsShimmer();
             }),
           )),
+    );
+  }
+}
+
+/// Frosted card wrapping one section of the order details.
+class _DetailsSection extends StatelessWidget {
+  const _DetailsSection({required this.child, this.index = 0});
+  final Widget child;
+  final int index;
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeSlideIn(
+      index: index,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        child: GlassContainer(
+          blur: false,
+          radius: 24,
+          padding: EdgeInsets.zero,
+          child: ClipRRect(borderRadius: BorderRadius.circular(23), child: child),
+        ),
+      ),
     );
   }
 }

@@ -1,5 +1,7 @@
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:kk_thotix_m3aak/features/auth/widgets/auth_ui.dart';
+import 'package:kk_thotix_m3aak/theme/app_palette.dart';
 import 'package:kk_thotix_m3aak/common/basewidget/custom_button_widget.dart';
 import 'package:kk_thotix_m3aak/common/basewidget/custom_textfield_widget.dart';
 import 'package:kk_thotix_m3aak/common/basewidget/show_custom_snakbar_widget.dart';
@@ -121,13 +123,10 @@ class SignUpWidgetState extends State<SignUpWidget> {
           return Form(
             key: signUpFormKey,
             child: Column(children: [
-              const SizedBox(
-                height: Dimensions.paddingSizeExtraSmall,
-              ),
-              Container(
-                  margin: const EdgeInsets.only(
-                      left: Dimensions.marginSizeDefault,
-                      right: Dimensions.marginSizeDefault),
+              AuthFormCard(child: Column(children: [
+              Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Expanded(child: Container(
+                  margin: EdgeInsets.zero,
                   child: CustomTextFieldWidget(
                       hintText: getTranslated('first_name', context),
                       labelText: getTranslated('first_name', context),
@@ -138,17 +137,15 @@ class SignUpWidgetState extends State<SignUpWidget> {
                       required: true,
                       focusNode: _fNameFocus,
                       nextFocus: _lNameFocus,
-                      prefixIcon: Images.username,
                       capitalization: TextCapitalization.words,
                       controller: _firstNameController,
                       validator: (value) => ValidateCheck.validateEmptyText(
-                          value, "first_name_field_is_required"))),
+                          value, "first_name_field_is_required")))),
+              const SizedBox(width: 10),
+              Expanded(child: 
 
               Container(
-                  margin: const EdgeInsets.only(
-                      left: Dimensions.marginSizeDefault,
-                      right: Dimensions.marginSizeDefault,
-                      top: Dimensions.marginSizeSmall),
+                  margin: EdgeInsets.zero,
                   child: CustomTextFieldWidget(
                       hintText: getTranslated('last_name', context),
                       labelText: getTranslated('last_name', context),
@@ -156,19 +153,16 @@ class SignUpWidgetState extends State<SignUpWidget> {
                           fontSize: Dimensions.fontSizeDefault,
                           color: Theme.of(context).textTheme.bodyLarge!.color),
                       focusNode: _lNameFocus,
-                      prefixIcon: Images.username,
                       nextFocus: _emailFocus,
                       required: true,
                       capitalization: TextCapitalization.words,
                       controller: _lastNameController,
                       validator: (value) => ValidateCheck.validateEmptyText(
-                          value, "last_name_field_is_required"))),
+                          value, "last_name_field_is_required")))),
+              ]),
 
               Container(
-                  margin: const EdgeInsets.only(
-                      left: Dimensions.marginSizeDefault,
-                      right: Dimensions.marginSizeDefault,
-                      top: Dimensions.marginSizeSmall),
+                  margin: const EdgeInsets.only(top: Dimensions.marginSizeSmall),
                   child: CustomTextFieldWidget(
                       hintText: getTranslated('enter_your_email', context),
                       labelText: getTranslated('enter_your_email', context),
@@ -185,10 +179,7 @@ class SignUpWidgetState extends State<SignUpWidget> {
                           ValidateCheck.validateEmail(value))),
 
               Container(
-                  margin: const EdgeInsets.only(
-                      left: Dimensions.marginSizeDefault,
-                      right: Dimensions.marginSizeDefault,
-                      top: Dimensions.marginSizeSmall),
+                  margin: const EdgeInsets.only(top: Dimensions.marginSizeSmall),
                   child: CustomTextFieldWidget(
                       hintText: getTranslated('enter_mobile_number', context),
                       labelText: getTranslated('enter_mobile_number', context),
@@ -215,10 +206,7 @@ class SignUpWidgetState extends State<SignUpWidget> {
                       inputType: TextInputType.phone)),
 
               Container(
-                  margin: const EdgeInsets.only(
-                      left: Dimensions.marginSizeDefault,
-                      right: Dimensions.marginSizeDefault,
-                      top: Dimensions.marginSizeSmall),
+                  margin: const EdgeInsets.only(top: Dimensions.marginSizeSmall),
                   child: CustomTextFieldWidget(
                       hintText:
                           getTranslated('minimum_password_length', context),
@@ -235,14 +223,12 @@ class SignUpWidgetState extends State<SignUpWidget> {
                       validator: (value) => ValidateCheck.validatePassword(
                           value, "password_must_be_required"),
                       prefixIcon: Images.pass)),
+              _PasswordStrength(controller: _passwordController),
 
               Hero(
                   tag: 'user',
                   child: Container(
-                      margin: const EdgeInsets.only(
-                          left: Dimensions.marginSizeDefault,
-                          right: Dimensions.marginSizeDefault,
-                          top: Dimensions.marginSizeSmall),
+                      margin: const EdgeInsets.only(top: Dimensions.marginSizeSmall),
                       child: CustomTextFieldWidget(
                           isPassword: true,
                           required: true,
@@ -267,10 +253,7 @@ class SignUpWidgetState extends State<SignUpWidget> {
               if (splashProvider.configModel?.refEarningStatus != null &&
                   splashProvider.configModel?.refEarningStatus == "1")
                 Container(
-                    margin: const EdgeInsets.only(
-                        left: Dimensions.marginSizeDefault,
-                        right: Dimensions.marginSizeDefault,
-                        top: Dimensions.marginSizeSmall),
+                    margin: const EdgeInsets.only(top: Dimensions.marginSizeSmall),
                     child: CustomTextFieldWidget(
                         hintText: getTranslated('enter_refer_code', context),
                         labelText: getTranslated('referral_code', context),
@@ -284,11 +267,11 @@ class SignUpWidgetState extends State<SignUpWidget> {
                         prefixColor: Theme.of(context).primaryColor,
                         inputAction: TextInputAction.done)),
 
-              const SizedBox(height: Dimensions.paddingSizeDefault),
+              const SizedBox(height: Dimensions.paddingSizeSmall),
               const ConditionCheckBox(),
 
               Container(
-                  margin: const EdgeInsets.all(Dimensions.paddingSizeDefault),
+                  margin: const EdgeInsets.only(top: Dimensions.paddingSizeDefault),
                   child: Hero(
                     tag: 'onTap',
                     child: CustomButton(
@@ -325,28 +308,11 @@ class SignUpWidgetState extends State<SignUpWidget> {
                       buttonText: getTranslated('sign_up', context),
                     ),
                   )),
+              ])),
+              const SizedBox(height: Dimensions.paddingSizeLarge),
 
               if (isSocialLoginEnabled && !isOtpLoginEnabled)
-                Row(
-                  children: [
-                    Expanded(
-                        child: Divider(color: Theme.of(context).hintColor)),
-                    const SizedBox(width: Dimensions.paddingSizeSmall),
-                    Text(
-                      getTranslated('or_sign_in_with', context)!,
-                      style: Theme.of(context)
-                          .textTheme
-                          .displayMedium!
-                          .copyWith(
-                              fontSize: Dimensions.fontSizeDefault,
-                              color: Theme.of(context).hintColor,
-                              fontWeight: FontWeight.w400),
-                    ),
-                    const SizedBox(width: Dimensions.paddingSizeSmall),
-                    Expanded(
-                        child: Divider(color: Theme.of(context).hintColor)),
-                  ],
-                ),
+                AuthDivider(text: getTranslated('or_sign_in_with', context)!),
 
               if (isSocialLoginEnabled)
                 const SizedBox(height: Dimensions.paddingSizeSmall),
@@ -368,24 +334,21 @@ class SignUpWidgetState extends State<SignUpWidget> {
                           authProvider.getGuestIdUrl();
                           Navigator.pop(context);
                         },
-                        child: Column(children: [
-                          Text(getTranslated('already_have_account', context)!,
-                              style: titleRegular.copyWith(
-                                  fontSize: Dimensions.fontSizeDefault)),
-                          Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Text(getTranslated('sign_in', context)!,
-                                    style: titilliumRegular.copyWith(
-                                      fontSize: Dimensions.fontSizeDefault,
-                                      color: Theme.of(context).primaryColor,
-                                    )),
-                                Icon(Icons.arrow_forward,
-                                    size: Dimensions.iconSizeExtraSmall,
-                                    color: Theme.of(context).primaryColor)
-                              ]),
-                        ]),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          child: Text.rich(TextSpan(children: [
+                            TextSpan(
+                                text: '${getTranslated('already_have_account', context)!} ',
+                                style: textRegular.copyWith(
+                                    fontSize: Dimensions.fontSizeDefault,
+                                    color: Theme.of(context).hintColor)),
+                            TextSpan(
+                                text: getTranslated('sign_in', context)!,
+                                style: textBold.copyWith(
+                                    fontSize: Dimensions.fontSizeDefault,
+                                    color: Theme.of(context).primaryColor)),
+                          ])),
+                        ),
                       ),
                     )),
             ]),
@@ -393,5 +356,61 @@ class SignUpWidgetState extends State<SignUpWidget> {
         });
       }),
     ]);
+  }
+}
+
+/// Four-segment password strength bar that updates as the user types.
+class _PasswordStrength extends StatelessWidget {
+  const _PasswordStrength({required this.controller});
+  final TextEditingController controller;
+
+  static int _score(String v) {
+    int score = 0;
+    if (v.length >= 8) score++;
+    if (RegExp(r'[A-Z]').hasMatch(v) && RegExp(r'[a-z]').hasMatch(v)) score++;
+    if (RegExp(r'[0-9]').hasMatch(v)) score++;
+    if (RegExp(r'[^A-Za-z0-9]').hasMatch(v)) score++;
+    return score;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<TextEditingValue>(
+      valueListenable: controller,
+      builder: (context, value, _) {
+        if (value.text.isEmpty) return const SizedBox(height: 4);
+        final int score = _score(value.text);
+        final Color color = score <= 1
+            ? AppPalette.error
+            : score == 2
+                ? AppPalette.warning
+                : AppPalette.success;
+        final String label = getTranslated(
+                score <= 1 ? 'password_weak' : score == 2 ? 'password_medium' : 'password_strong', context) ??
+            '';
+        return Padding(
+          padding: const EdgeInsets.only(top: 8, left: 4, right: 4),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Row(children: [
+              for (int i = 0; i < 4; i++) ...[
+                if (i > 0) const SizedBox(width: 4),
+                Expanded(
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 250),
+                    height: 5,
+                    decoration: BoxDecoration(
+                      color: i < score ? color : AppPalette.tint(context),
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                  ),
+                ),
+              ],
+            ]),
+            const SizedBox(height: 4),
+            Text(label, style: textMedium.copyWith(fontSize: Dimensions.fontSizeSmall, color: color)),
+          ]),
+        );
+      },
+    );
   }
 }

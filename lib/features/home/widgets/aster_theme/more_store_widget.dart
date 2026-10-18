@@ -63,9 +63,9 @@ class _MoreStoreWidgetState extends State<MoreStoreWidget> {
             width: MediaQuery.of(context).size.width / 5.8,
             height: MediaQuery.of(context).size.width / 5.8,
               decoration: BoxDecoration(
-                border: Border.all(color: const Color(0xFF5B4CF0).withValues(alpha: .10),width: 1),
+                border: Border.all(color: const Color(0xFF0E9F8E).withValues(alpha: .10),width: 1),
                 borderRadius: BorderRadius.circular(20),
-                color: const Color(0xFFF1F3FA),
+                color: const Color(0xFFE3F6F2),
                 boxShadow: const [
                   BoxShadow(
                     color: Color(0x14000000),

@@ -1,52 +1,142 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:kk_thotix_m3aak/common/glass/glass_widgets.dart';
+import 'package:kk_thotix_m3aak/theme/app_palette.dart';
 
-Color _primaryColor = const Color(0xFF427eb2);
-Color _secondaryColor = const Color(0xFFf68d3f);
+const String _fontFamily = 'SF-Pro-Rounded-Regular';
 
+ThemeData light({Color? primaryColor, Color? secondaryColor}) {
+  final Color primary = primaryColor ?? AppPalette.primary;
+  final Color secondary = secondaryColor ?? AppPalette.secondary;
 
-ThemeData light({Color? primaryColor, Color? secondaryColor})=> ThemeData(
-  fontFamily: 'TitilliumWeb',
-  primaryColor: primaryColor ?? const Color(0xFF427eb2),
-  brightness: Brightness.light,
-  highlightColor: Colors.white,
-  hintColor: const Color(0xFFA7A7A7), //Border Color
-  splashColor: Colors.transparent,
-  cardColor: Colors.white,
+  return ThemeData(
+    fontFamily: _fontFamily,
+    primaryColor: primary,
+    brightness: Brightness.light,
+    highlightColor: Colors.white,
+    hintColor: AppPalette.lightHint, // Border / hint colour
+    splashColor: Colors.transparent,
+    disabledColor: const Color(0xFFC3D3D5),
+    dividerColor: const Color(0x1A0A6F6B),
+    cardColor: AppPalette.lightGlass,
+    canvasColor: const Color(0xFFF7FCFC),
 
-  scaffoldBackgroundColor: const Color(0xFFF7F8FA),
+    // Routes paint the pharmacy backdrop (see GlassPageTransitionsBuilder).
+    scaffoldBackgroundColor: Colors.transparent,
 
-  textTheme: TextTheme(
-    bodyLarge: const TextStyle(color: Color(0xFF222324)),  // Text color primary
-    bodyMedium: TextStyle(color: _primaryColor), // Text color Secondary
-    bodySmall: const TextStyle(color: Color(0xFFA7A7A7)),  // Text color Light grey
+    textTheme: const TextTheme(
+      bodyLarge: TextStyle(color: AppPalette.lightInk), // Text colour primary
+      bodyMedium: TextStyle(color: AppPalette.lightInk), // Text colour secondary
+      bodySmall: TextStyle(color: AppPalette.lightHint), // Light grey
+      titleMedium: TextStyle(color: AppPalette.lightInkSoft),
+    ),
 
-    titleMedium: const TextStyle(color: Color(0xFF656566)),
+    colorScheme: ColorScheme.light(
+      primary: primary,
+      secondary: secondary,
+      tertiary: AppPalette.warning, // Warning colour
+      tertiaryContainer: const Color(0xFFBFE6F5),
+      onTertiaryContainer: AppPalette.success, // Success colour
+      onPrimary: Colors.white,
+      surface: const Color(0xFFF3FBFA),
+      onSecondary: AppPalette.accent,
+      error: AppPalette.error, // Danger colour
+      onSecondaryContainer: const Color(0xFFEFF9F8),
+      outline: AppPalette.info, // Info colour
+      onTertiary: AppPalette.lightTint,
+      shadow: AppPalette.lightInkSoft,
+      primaryContainer: const Color(0xFFBDF0E6),
+      secondaryContainer: const Color(0xFFE4EEF0),
+    ),
 
-  ),
+    appBarTheme: const AppBarTheme(
+      backgroundColor: Colors.transparent,
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
+      foregroundColor: AppPalette.lightInk,
+      iconTheme: IconThemeData(color: AppPalette.lightInk),
+    ),
 
-  colorScheme:  ColorScheme.light(
-    primary: _primaryColor,  // Primary Color
-    secondary: _secondaryColor,  // Secondary Color
-    tertiary: const Color(0xFFFFBB38), // Warning Color
-    tertiaryContainer: const Color(0xFFADC9F3),
-    onTertiaryContainer: const Color(0xFF04BB7B), // Success Color
-    onPrimary: const Color(0xFF7FBBFF),
-    surface: const Color(0xFFF4F8FF),
-    onSecondary: secondaryColor ?? const Color(0xFFF88030),
-    error: const Color(0xFFFF4040), // Danger Color
-    onSecondaryContainer: const Color(0xFFF3F9FF),
-    outline: const Color(0xff5C8FFC), // Info Color
-    onTertiary: const Color(0xFFE9F3FF),
-    shadow: const Color(0xFF66717C),
+    cardTheme: CardThemeData(
+      color: AppPalette.lightGlass,
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+        side: const BorderSide(color: AppPalette.lightGlassBorder),
+      ),
+    ),
 
-    primaryContainer: const Color(0xFF9AECC6),
-    secondaryContainer: const Color(0xFFE9EEF4),
-  ),
+    bottomSheetTheme: const BottomSheetThemeData(
+      backgroundColor: Color(0xFFF7FCFC),
+      surfaceTintColor: Colors.transparent,
+      modalBarrierColor: Color(0x660A2A2E),
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
+    ),
 
-  pageTransitionsTheme: const PageTransitionsTheme(builders: {
-    TargetPlatform.android: CupertinoPageTransitionsBuilder(),
-    TargetPlatform.iOS: ZoomPageTransitionsBuilder(),
-    TargetPlatform.fuchsia: ZoomPageTransitionsBuilder(),
-  }),
-);
+    dialogTheme: DialogThemeData(
+      backgroundColor: const Color(0xFFF7FCFC),
+      surfaceTintColor: Colors.transparent,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(26)),
+    ),
+
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: Colors.white.withValues(alpha: .75),
+      hintStyle: const TextStyle(color: AppPalette.lightHint),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: const BorderSide(color: Color(0x1F0A6F6B)),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: const BorderSide(color: Color(0x1F0A6F6B)),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: BorderSide(color: primary, width: 1.4),
+      ),
+    ),
+
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: primary,
+        foregroundColor: Colors.white,
+        elevation: 0,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      ),
+    ),
+
+    chipTheme: ChipThemeData(
+      backgroundColor: AppPalette.lightGlass,
+      selectedColor: primary.withValues(alpha: .15),
+      side: const BorderSide(color: Color(0x1F0A6F6B)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+    ),
+
+    progressIndicatorTheme: ProgressIndicatorThemeData(color: primary),
+    floatingActionButtonTheme: FloatingActionButtonThemeData(
+      backgroundColor: primary,
+      foregroundColor: Colors.white,
+    ),
+    tabBarTheme: TabBarThemeData(
+      labelColor: primary,
+      indicatorColor: primary,
+      unselectedLabelColor: AppPalette.lightInkSoft,
+      dividerColor: Colors.transparent,
+    ),
+    checkboxTheme: CheckboxThemeData(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+    ),
+
+    pageTransitionsTheme: const PageTransitionsTheme(builders: {
+      TargetPlatform.android:
+          GlassPageTransitionsBuilder(CupertinoPageTransitionsBuilder()),
+      TargetPlatform.iOS:
+          GlassPageTransitionsBuilder(CupertinoPageTransitionsBuilder()),
+      TargetPlatform.fuchsia:
+          GlassPageTransitionsBuilder(FadeForwardsPageTransitionsBuilder()),
+    }),
+  );
+}

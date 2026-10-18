@@ -2,9 +2,9 @@ import 'dart:async';
 
 
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:kk_thotix_m3aak/features/splash/controllers/splash_controller.dart';
-import 'package:kk_thotix_m3aak/localization/language_constrants.dart';
+import 'package:kk_thotix_m3aak/common/basewidget/show_custom_snakbar_widget.dart';
 import 'package:kk_thotix_m3aak/main.dart';
 import 'package:provider/provider.dart';
 
@@ -24,16 +24,17 @@ class NetworkInfo {
       if(Provider.of<SplashController>(Get.context!, listen: false).firstTimeConnectionCheck) {
         Provider.of<SplashController>(Get.context!, listen: false).setFirstTimeConnectionCheck(false);
       }else {
-        bool isConnected = result.contains(ConnectivityResult.wifi)  || result.contains(ConnectivityResult.mobile);
-        !isConnected ? const SizedBox() : ScaffoldMessenger.of(Get.context!).hideCurrentSnackBar();
-        ScaffoldMessenger.of(Get.context!).showSnackBar(SnackBar(
-          backgroundColor: !isConnected ? Colors.red : Colors.green,
-          duration: Duration(seconds: !isConnected ? 6000 : 3),
-          content: Text(
-            !isConnected ? getTranslated('no_connection', Get.context!)! : getTranslated('connected', Get.context!)!,
-            textAlign: TextAlign.center,
-          ),
-        ));
+        final bool isConnected = result.contains(ConnectivityResult.wifi) ||
+            result.contains(ConnectivityResult.mobile);
+        showConnectionToast(
+          connected: isConnected,
+          onRetry: () async {
+            final List<ConnectivityResult> now = await Connectivity().checkConnectivity();
+            final bool back = now.contains(ConnectivityResult.wifi) ||
+                now.contains(ConnectivityResult.mobile);
+            if (back) showConnectionToast(connected: true);
+          },
+        );
       }
     });
   }

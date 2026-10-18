@@ -11,14 +11,18 @@ class HomeCategoryProductWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<ProductController>(
       builder: (context, homeCategoryProductController, child) {
-        return homeCategoryProductController.homeCategoryProductList.isNotEmpty ?
+        // Categories without products would only show a lonely title.
+        final categories = homeCategoryProductController.homeCategoryProductList
+            .where((c) => c.products?.isNotEmpty ?? false)
+            .toList();
+        return categories.isNotEmpty ?
         SliverList(
           delegate: SliverChildBuilderDelegate(
             (context, index) {
-              return HomeCategoryProductItemWidget(homeCategoryProduct: homeCategoryProductController.homeCategoryProductList[index],
+              return HomeCategoryProductItemWidget(homeCategoryProduct: categories[index],
                 index: index, isHomePage: isHomePage);
             },
-            childCount: homeCategoryProductController.homeCategoryProductList.length,
+            childCount: categories.length,
           ),
         ) : SliverToBoxAdapter(child: const SizedBox());
       },

@@ -1,5 +1,6 @@
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:kk_thotix_m3aak/features/auth/widgets/auth_ui.dart';
 import 'package:kk_thotix_m3aak/common/basewidget/show_custom_snakbar_widget.dart';
 import 'package:kk_thotix_m3aak/data/model/response_model.dart';
 import 'package:kk_thotix_m3aak/features/splash/domain/models/config_model.dart';
@@ -9,10 +10,7 @@ import 'package:kk_thotix_m3aak/localization/language_constrants.dart';
 import 'package:kk_thotix_m3aak/features/auth/controllers/auth_controller.dart';
 import 'package:kk_thotix_m3aak/features/splash/controllers/splash_controller.dart';
 import 'package:kk_thotix_m3aak/main.dart';
-import 'package:kk_thotix_m3aak/utill/custom_themes.dart';
 import 'package:kk_thotix_m3aak/utill/dimensions.dart';
-import 'package:kk_thotix_m3aak/utill/images.dart';
-import 'package:kk_thotix_m3aak/common/basewidget/custom_app_bar_widget.dart';
 import 'package:kk_thotix_m3aak/common/basewidget/custom_button_widget.dart';
 import 'package:kk_thotix_m3aak/common/basewidget/custom_textfield_widget.dart';
 import 'package:provider/provider.dart';
@@ -55,28 +53,26 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
     return Scaffold(
       key: _key,
 
-      appBar: CustomAppBar(title: getTranslated('forget_password', context)),
-      body: Consumer<AuthController>(
+      body: SafeArea(child: Consumer<AuthController>(
         builder: (context, authProvider,_) {
           return Consumer<SplashController>(
             builder: (context, splashProvider, _) {
               return Form(
                 key: forgetFormKey,
-                child: ListView(padding: const EdgeInsets.all(Dimensions.paddingSizeDefault), children: [
+                child: ListView(padding: const EdgeInsets.fromLTRB(20, 14, 20, 24), children: [
 
-                  Center(child: Padding(padding: const EdgeInsets.all(50), child: Image.asset(Images.logoWithNameImage, height: 150, width: 150))),
+                  AuthStepHeader(step: 1, total: 3, onBack: () => Navigator.pop(context)),
+                  const SizedBox(height: 36),
 
-                  Text(getTranslated('forget_password', context)!, textAlign: TextAlign.center, style: textBold.copyWith(
-                      fontSize: Dimensions.fontSizeLarge,
-                      color: Theme.of(context).textTheme.bodyLarge?.color
-                  )),
+                  AuthIllustration(
+                    icon: Icons.lock_reset_rounded,
+                    title: getTranslated('forget_password', context)!,
+                    description: Text(getTranslated('enter_phone_number_for_password_reset', context)!),
+                  ),
+                  const SizedBox(height: 28),
 
-                  Text(getTranslated('enter_phone_number_for_password_reset', context)!, textAlign: TextAlign.center, style: textRegular.copyWith(
-                    color: Theme.of(context).hintColor,
-                    fontSize: Dimensions.fontSizeDefault,
-                  )),
-                 const SizedBox(height: Dimensions.marginSizeAuthSmall),
-
+                  AuthFormCard(child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                  AuthFieldLabel(getTranslated('phone', context) ?? ''),
 
                   Selector<AuthController, bool>(
                     selector: (context, authProvider) => authProvider.isNumberLogin,
@@ -110,11 +106,11 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                         isShowBorder: true,
                         controller: _userInputController,
                         inputType: TextInputType.number,
-                        labelText: getTranslated('phone', context),
+                        showLabelText: false,
                       );
                     },
                   ),
-                  const SizedBox(height: Dimensions.bannerPadding),
+                  const SizedBox(height: Dimensions.paddingSizeDefault),
 
                   CustomButton(
                     isLoading: (authProvider.isLoading || authProvider.isForgotPasswordLoading),
@@ -159,12 +155,13 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                       }
                     },
                   ),
+                  ])),
                 ]),
               );
             }
           );
         }
-      ),
+      )),
     );
   }
 }

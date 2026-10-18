@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:kk_thotix_m3aak/features/product/domain/models/home_category_product_model.dart';
+import 'package:kk_thotix_m3aak/common/glass/glass_widgets.dart';
 import 'package:kk_thotix_m3aak/helper/responsive_helper.dart';
 import 'package:kk_thotix_m3aak/utill/dimensions.dart';
 import 'package:kk_thotix_m3aak/common/basewidget/product_widget.dart';
@@ -15,12 +16,11 @@ class HomeCategoryProductItemWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: index.isEven ? Theme.of(context).cardColor : Theme.of(context).colorScheme.onTertiary,
+    return FadeSlideIn(
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
 
         if(isHomePage) ...[
-          const SizedBox(height: Dimensions.paddingSizeSmall),
+          const SizedBox(height: Dimensions.paddingSizeDefault),
 
           TitleRowWidget(
             title: homeCategoryProduct.name,
@@ -45,15 +45,12 @@ class HomeCategoryProductItemWidget extends StatelessWidget {
               child: MasonryGridView.count(
                   itemCount: (isHomePage && homeCategoryProduct.products!.length > 4) ? 4
                       : homeCategoryProduct.products!.length,
-                  padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSmall),
+                  padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeEight),
                   physics: const BouncingScrollPhysics(),
                   crossAxisCount: ResponsiveHelper.isTab(context) ? 3 : 2,
                   shrinkWrap: true,
                   itemBuilder: (BuildContext context, int i) {
-                    return InkWell(onTap: () {
-                      RouterHelper.getProductDetailsRoute(action: RouteAction.push, productId: homeCategoryProduct.products![i].id! , slug: homeCategoryProduct.products![i].slug!);
-                    },
-                        child: ProductWidget(productModel: homeCategoryProduct.products![i]));
+                    return ProductWidget(productModel: homeCategoryProduct.products![i]);
                   }),
             ),
         ),

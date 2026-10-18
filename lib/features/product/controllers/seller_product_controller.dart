@@ -36,12 +36,13 @@ class SellerProductController extends ChangeNotifier {
     );
 
     if (apiResponse.response != null && apiResponse.response!.statusCode == 200) {
+      final ProductModel parsedProductModelResponse = ProductModel.fromJson(apiResponse.response!.data);
       if(offset == 1){
-        sellerProduct = ProductModel.fromJson(apiResponse.response!.data);
+        sellerProduct = parsedProductModelResponse;
       }else{
-        sellerProduct?.products?.addAll(ProductModel.fromJson(apiResponse.response!.data).products!);
-        sellerProduct?.offset = (ProductModel.fromJson(apiResponse.response!.data).offset!);
-        sellerProduct?.totalSize = ProductModel.fromJson(apiResponse.response!.data).totalSize;
+        sellerProduct?.products?.addAll(parsedProductModelResponse.products!);
+        sellerProduct?.offset = (parsedProductModelResponse.offset!);
+        sellerProduct?.totalSize = parsedProductModelResponse.totalSize;
       }
     } else {
       ApiChecker.checkApi(apiResponse);
@@ -72,13 +73,14 @@ class SellerProductController extends ChangeNotifier {
   Future<void> getSellerWiseBestSellingProductList(String sellerId, int offset) async {
     ApiResponseModel apiResponse = await sellerProductServiceInterface!.getSellerWiseBestSellingProductList(sellerId, offset.toString());
     if (apiResponse.response != null && apiResponse.response!.statusCode == 200) {
+      final ProductModel parsedProductModelResponse = ProductModel.fromJson(apiResponse.response!.data);
       if(offset == 1){
         productModel = null;
-        productModel = ProductModel.fromJson(apiResponse.response!.data);
+        productModel = parsedProductModelResponse;
       }else {
-        productModel!.products!.addAll(ProductModel.fromJson(apiResponse.response!.data).products!);
-        productModel!.offset = ProductModel.fromJson(apiResponse.response!.data).offset;
-        productModel!.totalSize = ProductModel.fromJson(apiResponse.response!.data).totalSize;
+        productModel!.products!.addAll(parsedProductModelResponse.products!);
+        productModel!.offset = parsedProductModelResponse.offset;
+        productModel!.totalSize = parsedProductModelResponse.totalSize;
       }
     } else {
       ApiChecker.checkApi( apiResponse);
@@ -92,14 +94,15 @@ class SellerProductController extends ChangeNotifier {
   Future<void> getSellerWiseFeaturedProductList(String sellerId, int offset) async {
     ApiResponseModel apiResponse = await sellerProductServiceInterface!.getSellerWiseFeaturedProductList(sellerId, offset.toString());
     if (apiResponse.response != null && apiResponse.response!.statusCode == 200) {
+      final ProductModel parsedProductModelResponse = ProductModel.fromJson(apiResponse.response!.data);
       if(offset == 1){
         sellerWiseFeaturedProduct = null;
-        sellerWiseFeaturedProduct = ProductModel.fromJson(apiResponse.response!.data);
+        sellerWiseFeaturedProduct = parsedProductModelResponse;
 
       }else {
-        sellerWiseFeaturedProduct!.products!.addAll(ProductModel.fromJson(apiResponse.response!.data).products!);
-        sellerWiseFeaturedProduct!.offset = ProductModel.fromJson(apiResponse.response!.data).offset;
-        sellerWiseFeaturedProduct!.totalSize = ProductModel.fromJson(apiResponse.response!.data).totalSize;
+        sellerWiseFeaturedProduct!.products!.addAll(parsedProductModelResponse.products!);
+        sellerWiseFeaturedProduct!.offset = parsedProductModelResponse.offset;
+        sellerWiseFeaturedProduct!.totalSize = parsedProductModelResponse.totalSize;
       }
     } else {
       ApiChecker.checkApi(apiResponse);
@@ -112,13 +115,14 @@ class SellerProductController extends ChangeNotifier {
   Future<void> getSellerWiseRecommendedProductList(String sellerId, int offset) async {
     ApiResponseModel apiResponse = await sellerProductServiceInterface!.getSellerWiseRecomendedProductList(sellerId, offset.toString());
     if (apiResponse.response != null && apiResponse.response!.statusCode == 200) {
+      final ProductModel parsedProductModelResponse = ProductModel.fromJson(apiResponse.response!.data);
       if(offset == 1){
         sellerWiseRecommendedProduct = null;
-        sellerWiseRecommendedProduct = ProductModel.fromJson(apiResponse.response!.data);
+        sellerWiseRecommendedProduct = parsedProductModelResponse;
       }else {
-        sellerWiseRecommendedProduct!.products!.addAll(ProductModel.fromJson(apiResponse.response!.data).products!);
-        sellerWiseRecommendedProduct!.offset = ProductModel.fromJson(apiResponse.response!.data).offset;
-        sellerWiseRecommendedProduct!.totalSize = ProductModel.fromJson(apiResponse.response!.data).totalSize;
+        sellerWiseRecommendedProduct!.products!.addAll(parsedProductModelResponse.products!);
+        sellerWiseRecommendedProduct!.offset = parsedProductModelResponse.offset;
+        sellerWiseRecommendedProduct!.totalSize = parsedProductModelResponse.totalSize;
       }
     } else {
       ApiChecker.checkApi( apiResponse);

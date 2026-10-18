@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kk_thotix_m3aak/theme/app_palette.dart';
 import 'package:kk_thotix_m3aak/features/notification/domain/models/notification_model.dart';
 import 'package:kk_thotix_m3aak/helper/date_converter.dart';
 import 'package:kk_thotix_m3aak/features/notification/controllers/notification_controller.dart';
@@ -25,98 +26,94 @@ class NotificationItemWidget extends StatelessWidget {
                   context: context, builder: (context) => NotificationDialogWidget(notificationModel: notificationItem),
               );
             },
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
 
               if(_willShowDate(index, notificationController.notificationModel?.notification)) ...[
-
                 const SizedBox(height: Dimensions.paddingSizeDefault),
-
-                Padding(
-                  padding: const EdgeInsets.only(
-                      left: Dimensions.paddingSizeDefault,
-                  ),
-                  child: Text(
-                    DateConverter.getRelativeDateStatus(notificationController.notificationModel?.notification?[index].createdAt ?? '', context),
-                    style: textRegular.copyWith(
-                      fontSize: Dimensions.fontSizeSmall,
-                      fontWeight: FontWeight.w400,
-                      color: Theme.of(context).textTheme.bodyLarge!.color!.withValues(alpha:0.70),
+                Center(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).cardColor,
+                      borderRadius: BorderRadius.circular(999),
+                      border: Border.all(color: AppPalette.glassBorder(context)),
                     ),
-                    textDirection: TextDirection.ltr,
+                    child: Text(
+                      DateConverter.getRelativeDateStatus(notificationController.notificationModel?.notification?[index].createdAt ?? '', context),
+                      style: textMedium.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).hintColor),
+                      textDirection: TextDirection.ltr,
+                    ),
                   ),
                 ),
                 const SizedBox(height: Dimensions.paddingSizeSmall),
-
               ],
 
               Container(
-                padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
+                padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: Theme.of(context).cardColor,
-                  boxShadow: [
-                    BoxShadow(
-                        color: Colors.black.withValues(alpha:0.05),
-                        spreadRadius: 0,
-                        blurRadius: 7,
-                        offset: const Offset(0, 1)
-                    ),
-                  ],
+                  borderRadius: BorderRadius.circular(22),
+                  border: Border.all(
+                    color: notificationItem.seen == null
+                        ? Theme.of(context).primaryColor.withValues(alpha: .30)
+                        : AppPalette.glassBorder(context),
+                    width: 1.2,
+                  ),
+                  boxShadow: notificationItem.seen == null ? AppPalette.softShadow(context) : null,
                 ),
-                child: Row(children: [
-
-                  Stack(children: [
-                    Container(
-                      decoration: BoxDecoration(border: Border.all(
-                          color: Colors.black.withValues(alpha: 0.05), width: 2),
-                          shape: BoxShape.circle
-                      ),
-                      child: ClipRRect(borderRadius: BorderRadius.circular(100),
-                        child: CustomImageWidget(width: 45, height: 45, image: '${notificationItem.imageFullUrl?.path}', fit: BoxFit.cover),
-                      ),
+                child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  ClipRRect(borderRadius: BorderRadius.circular(18),
+                    child: Container(
+                      color: AppPalette.tint(context),
+                      child: CustomImageWidget(width: 56, height: 56, image: '${notificationItem.imageFullUrl?.path}', fit: BoxFit.cover),
                     ),
+                  ),
+                  const SizedBox(width: 12),
 
-                    if(notificationItem.seen == null)
-                      CircleAvatar(backgroundColor: Theme.of(context).colorScheme.error.withValues(alpha:.75), radius: 3),
-                  ]),
-                  const SizedBox(width: Dimensions.paddingSizeSmall),
-
-                  Expanded(child: SizedBox(height: 45, child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  Expanded(child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-
-                      Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
                         Expanded(child: Text(
                           notificationItem.title ?? '',
                           style: textBold.copyWith(
                             fontSize: Dimensions.fontSizeDefault,
-                            color: Theme.of(context).textTheme.bodyLarge?.color?.withValues(alpha: 0.60),
+                            color: Theme.of(context).textTheme.bodyLarge?.color,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         )),
-                        const SizedBox(width: Dimensions.paddingSizeExtraSmall),
-
-                        Text(DateConverter.getLocalTimeWithAMPM(notificationItem.createdAt ?? ''), style: textRegular.copyWith(
-                          fontSize: Dimensions.fontSizeExtraSmall,
-                          color: Theme.of(context).primaryColor,
-                        )),
+                        if (notificationItem.seen == null)
+                          Container(
+                            width: 9, height: 9,
+                            margin: const EdgeInsetsDirectional.only(start: 6),
+                            decoration: const BoxDecoration(color: AppPalette.accent, shape: BoxShape.circle),
+                          ),
                       ]),
-
-                      Text( notificationItem.description ?? '',
-                        maxLines: 1,
+                      const SizedBox(height: 3),
+                      Text(notificationItem.description ?? '',
+                        maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: textRegular.copyWith(
-                          fontSize: Dimensions.fontSizeSmall,
-                          color: Theme.of(context).textTheme.bodyLarge?.color?.withValues(alpha: 0.50),
-                        )
+                          fontSize: Dimensions.fontSizeSmall + 1,
+                          height: 1.45,
+                          color: Theme.of(context).hintColor,
+                        ),
                       ),
-
+                      const SizedBox(height: 4),
+                      Text(DateConverter.getLocalTimeWithAMPM(notificationItem.createdAt ?? ''),
+                        textDirection: TextDirection.ltr,
+                        style: textMedium.copyWith(
+                          fontSize: Dimensions.fontSizeExtraSmall + 1,
+                          color: Theme.of(context).primaryColor,
+                        )),
                     ],
-                  ))),
+                  )),
                 ]),
               ),
-            ]),
+            ])),
         );
       }
     );

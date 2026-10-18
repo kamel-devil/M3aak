@@ -144,7 +144,7 @@ class ProductController extends ChangeNotifier {
         },
       );
     }else {
-      final ApiResponseModel? apiResponse = await productServiceInterface?.getProductModelByType<Response>(offset: offset , productType: ProductType.latestProduct, source: DataSourceEnum.client);
+      final ApiResponseModel? apiResponse = await productServiceInterface?.getProductModelByType<Response>(offset: offset , productType: type, source: DataSourceEnum.client);
 
       if (apiResponse?.response?.statusCode == 200) {
         final ProductModel parsedProductModel = ProductModel.fromJson(apiResponse?.response?.data);
@@ -243,13 +243,14 @@ class ProductController extends ChangeNotifier {
     ApiResponseModel apiResponse = await productServiceInterface!.getBrandOrCategoryProductList(isBrand: isBrand, id: id!, searchProduct: searchProduct, offset: offset);
 
     if (apiResponse.response?.statusCode == 200) {
+      final ProductModel parsedProductModelResponse = ProductModel.fromJson(apiResponse.response?.data);
       if(offset == 1){
-        _brandOrCategoryProductList = ProductModel.fromJson(apiResponse.response?.data);
+        _brandOrCategoryProductList = parsedProductModelResponse;
 
       } else {
-        _brandOrCategoryProductList?.products?.addAll(ProductModel.fromJson(apiResponse.response?.data).products ?? []);
-        _brandOrCategoryProductList?.offset = ProductModel.fromJson(apiResponse.response?.data).offset;
-        _brandOrCategoryProductList?.totalSize = ProductModel.fromJson(apiResponse.response?.data).totalSize;
+        _brandOrCategoryProductList?.products?.addAll(parsedProductModelResponse.products ?? []);
+        _brandOrCategoryProductList?.offset = parsedProductModelResponse.offset;
+        _brandOrCategoryProductList?.totalSize = parsedProductModelResponse.totalSize;
 
       }
     } else {
@@ -535,12 +536,13 @@ class ProductController extends ChangeNotifier {
     ApiResponseModel apiResponse = await productServiceInterface!.getFilteredProductList(Get.context!, offset.toString(), ProductType.discountedProduct);
 
     if (apiResponse.response?.data != null && apiResponse.response?.statusCode == 200) {
+      final ProductModel parsedProductModelResponse = ProductModel.fromJson(apiResponse.response?.data);
       if(offset == 1){
-        _discountedProductModel = ProductModel.fromJson(apiResponse.response?.data);
+        _discountedProductModel = parsedProductModelResponse;
       } else {
-        _discountedProductModel?.totalSize = ProductModel.fromJson(apiResponse.response?.data).totalSize;
-        _discountedProductModel?.offset = ProductModel.fromJson(apiResponse.response?.data).offset;
-        _discountedProductModel?.products?.addAll(ProductModel.fromJson(apiResponse.response?.data).products ?? []);
+        _discountedProductModel?.totalSize = parsedProductModelResponse.totalSize;
+        _discountedProductModel?.offset = parsedProductModelResponse.offset;
+        _discountedProductModel?.products?.addAll(parsedProductModelResponse.products ?? []);
       }
 
       notifyListeners();
@@ -614,13 +616,14 @@ class ProductController extends ChangeNotifier {
 
     ApiResponseModel apiResponse = await productServiceInterface!.getClearanceSearchProducts(query, categoryIds, brandIds, authorIds, publishingIds, sort, priceMin, priceMax, offset, productType, offerType);
     if (apiResponse.response != null && apiResponse.response!.statusCode == 200) {
+      final ProductModel parsedProductModelResponse = ProductModel.fromJson(apiResponse.response!.data);
       if(offset == 1){
         // clearanceSearchProductModel = null;
-        clearanceSearchProductModel = ProductModel.fromJson(apiResponse.response!.data);
+        clearanceSearchProductModel = parsedProductModelResponse;
       }else{
-        clearanceSearchProductModel?.products?.addAll(ProductModel.fromJson(apiResponse.response!.data).products!);
-        clearanceSearchProductModel?.offset = (ProductModel.fromJson(apiResponse.response!.data).offset!);
-        clearanceSearchProductModel?.totalSize = ProductModel.fromJson(apiResponse.response!.data).totalSize;
+        clearanceSearchProductModel?.products?.addAll(parsedProductModelResponse.products!);
+        clearanceSearchProductModel?.offset = (parsedProductModelResponse.offset!);
+        clearanceSearchProductModel?.totalSize = parsedProductModelResponse.totalSize;
       }
     } else {
       ApiChecker.checkApi( apiResponse);

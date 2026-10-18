@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:kk_thotix_m3aak/common/basewidget/discount_tag_widget.dart';
+import 'package:kk_thotix_m3aak/common/basewidget/pharmacy_product_parts.dart';
+import 'package:kk_thotix_m3aak/common/glass/glass_widgets.dart';
 import 'package:kk_thotix_m3aak/features/compare/controllers/compare_controller.dart';
 import 'package:kk_thotix_m3aak/features/product_details/controllers/product_details_controller.dart';
 import 'package:kk_thotix_m3aak/features/product_details/domain/models/product_details_model.dart';
@@ -11,10 +12,10 @@ import 'package:kk_thotix_m3aak/features/product_details/widgets/image_preview.d
 import 'package:kk_thotix_m3aak/features/product_details/widgets/pdf_preview_flutter.dart';
 import 'package:kk_thotix_m3aak/features/product_details/widgets/video_preview.dart';
 import 'package:kk_thotix_m3aak/features/splash/controllers/splash_controller.dart';
+import 'package:kk_thotix_m3aak/helper/price_converter.dart';
 import 'package:kk_thotix_m3aak/localization/language_constrants.dart';
 import 'package:kk_thotix_m3aak/features/auth/controllers/auth_controller.dart';
-import 'package:kk_thotix_m3aak/localization/controllers/localization_controller.dart';
-import 'package:kk_thotix_m3aak/theme/controllers/theme_controller.dart';
+import 'package:kk_thotix_m3aak/theme/app_palette.dart';
 import 'package:kk_thotix_m3aak/utill/custom_themes.dart';
 import 'package:kk_thotix_m3aak/utill/dimensions.dart';
 import 'package:kk_thotix_m3aak/utill/images.dart';
@@ -22,300 +23,224 @@ import 'package:kk_thotix_m3aak/common/basewidget/custom_image_widget.dart';
 import 'package:kk_thotix_m3aak/common/basewidget/not_logged_in_bottom_sheet_widget.dart';
 import 'package:kk_thotix_m3aak/features/product_details/widgets/favourite_button_widget.dart';
 import 'package:provider/provider.dart';
-import 'package:share_plus/share_plus.dart';
 
-
+/// Product gallery: large frosted stage with swipeable images, floating
+/// actions and a thumbnail strip.
 class ProductImageWidget extends StatelessWidget {
   final ProductDetailsModel? productModel;
   final bool fromFlashDeals;
   ProductImageWidget({super.key, required this.productModel, required this.fromFlashDeals});
 
   final PageController _controller = PageController();
+
   @override
   Widget build(BuildContext context) {
-    final splashController = Provider.of<SplashController>(context,listen: false);
-    final bool isDarkTheme = Provider.of<ThemeController>(context).darkTheme;
+    if (productModel == null || productModel!.imagesFullUrl == null) {
+      return const SizedBox();
+    }
+    final splashController = Provider.of<SplashController>(context, listen: false);
+    final images = productModel!.imagesFullUrl!;
+    final double stageHeight = MediaQuery.of(context).size.width * .86;
+    final bool hasDiscount = (productModel?.discount ?? 0) > 0 ||
+        (productModel?.clearanceSale?.discountAmount ?? 0) > 0;
 
-    return productModel != null?
-    Consumer<ProductDetailsController>(
-        builder: (context, productController,_) {
-          return Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
+    return Consumer<ProductDetailsController>(builder: (context, productController, _) {
+      final int selected = productController.imageSliderIndex ?? 0;
 
-            InkWell(
-              onTap: ()=> productModel!.productImagesNull!
-                  ? null
-                  : Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (BuildContext context) {
-                          return ProductImageScreen(
+      return Column(mainAxisSize: MainAxisSize.min, children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(
+              Dimensions.homePagePadding, Dimensions.paddingSizeSmall, Dimensions.homePagePadding, 0),
+          child: GlassContainer(
+            blur: false,
+            radius: 30,
+            padding: const EdgeInsets.all(10),
+            color: AppPalette.isDark(context) ? AppPalette.darkGlass : Colors.white.withValues(alpha: .92),
+            child: Column(mainAxisSize: MainAxisSize.min, children: [
+            SizedBox(height: stageHeight - 20, child: ClipRRect(
+              borderRadius: BorderRadius.circular(22),
+              child: Stack(children: [
+                // Images
+                PageView.builder(
+                  controller: _controller,
+                  itemCount: images.length,
+                  onPageChanged: productController.setImageSliderSelectedIndex,
+                  itemBuilder: (context, index) => GestureDetector(
+                    onTap: () {
+                      if (!(productModel!.productImagesNull ?? false)) {
+                        Navigator.of(context).push(MaterialPageRoute(
+                          builder: (_) => ProductImageScreen(
                             title: getTranslated('product_image', context),
-                            imageList: productModel!.imagesFullUrl,
-                          );
-                        },
+                            imageList: images,
+                          ),
+                        ));
+                      }
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(28, 28, 28, 40),
+                      child: CustomImageWidget(
+                        image: '${images[index].path}',
+                        fit: BoxFit.contain,
                       ),
                     ),
-              child: (productModel != null && productModel!.imagesFullUrl !=null) ?
-              Padding(
-                padding: const EdgeInsets.only(
-                  left: Dimensions.homePagePadding,
-                  top: Dimensions.homePagePadding,
-                  right: Dimensions.homePagePadding,
-                  bottom: Dimensions.paddingSizeEight,
-                ),
-                child: ClipRRect(borderRadius: BorderRadius.circular(Dimensions.paddingSizeSmall),
-                  child: Container(decoration:  BoxDecoration(
-                      color: Theme.of(context).cardColor,
-                      border: Border.all(color: Provider.of<ThemeController>(context, listen: false).darkTheme?
-                      Theme.of(context).hintColor.withValues(alpha:.25) : Theme.of(context).primaryColor.withValues(alpha:.25)),
-                      borderRadius: BorderRadius.circular(Dimensions.paddingSizeSmall)),
-                    child: Stack(children: [
-                      SizedBox(
-                          height: MediaQuery.of(context).size.width * 0.9,
-                          child: productModel!.imagesFullUrl != null?
-
-                          PageView.builder(
-                            controller: _controller,
-                            itemCount: productModel!.imagesFullUrl!.length,
-                            itemBuilder: (context, index) {
-                              return ClipRRect(
-                                borderRadius:BorderRadius.circular(Dimensions.paddingSizeSmall),
-                                child: CustomImageWidget(
-                                    height: 100,
-                                    width: MediaQuery.of(context).size.width,
-                                    image: '${productModel!.imagesFullUrl![index].path}'),
-                              );
-                            },
-                            onPageChanged: (index) => productController.setImageSliderSelectedIndex(index),
-                          ) : const SizedBox(),
-                      ),
-
-
-                      Positioned(
-                        left: 0,
-                        right: 0,
-                        bottom: 10,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const SizedBox(),
-                            const Spacer(),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: _indicators(context),
-                            ),
-                            const Spacer(),
-                            Provider.of<ProductDetailsController>(context).imageSliderIndex != null
-                                ? Padding(
-                                    padding: const EdgeInsets.only(
-                                      right: Dimensions.paddingSizeDefault,
-                                      bottom: Dimensions.paddingSizeDefault,
-                                    ),
-                                    child: Text('${productController.imageSliderIndex!+1}/${productModel?.imagesFullUrl?.length}'),
-                                  )
-                                : const SizedBox(),
-                          ],
-                        ),
-                      ),
-
-                      Positioned(top: 16, right: 16,
-                          child: Column(children: [
-
-                            FavouriteButtonWidget(
-                              backgroundColor: isDarkTheme ? Theme.of(context).cardColor : Theme.of(context).primaryColor,
-                              productId: productModel?.id,
-                              fromProductDetails: true,
-                            ),
-
-                            if(splashController.configModel!.activeTheme != "default")
-                              const SizedBox(height: Dimensions.paddingSizeSmall,),
-
-                            if(splashController.configModel!.activeTheme != "default")
-                              InkWell(onTap: () {
-                                if(Provider.of<AuthController>(context, listen: false).isLoggedIn()) {
-                                  Provider.of<CompareController>(context, listen: false).addCompareList(productModel!.id!);
-                                } else {
-                                  showModalBottomSheet(backgroundColor: const Color(0x00FFFFFF),
-                                    context: context, builder: (_)=> const NotLoggedInBottomSheetWidget());
-                                }
-                              },
-                              child: Consumer<CompareController>(
-                                builder: (context, compare,_) {
-                                  return Card(
-                                    elevation: 2,
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
-                                    child: Container(
-                                      width: 40,
-                                      height: 40,
-                                      decoration: BoxDecoration(
-                                        color: compare.compIds.contains(productModel!.id)
-                                            ? Theme.of(context).primaryColor
-                                            : Theme.of(context).cardColor,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
-                                        child: Image.asset(
-                                          Images.compare,
-                                          color: compare.compIds.contains(productModel!.id)
-                                              ? Theme.of(context).cardColor
-                                              : Theme.of(context).primaryColor,
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                            const SizedBox(height: Dimensions.paddingSizeSmall),
-
-
-                            InkWell(
-                              onTap: () {
-                                if(productController.sharableLink != null) {
-                                  SharePlus.instance.share(
-                                    ShareParams(
-                                      text: productController.sharableLink!,
-                                    ),
-                                  );
-                                }
-                              },
-                              child: Container(width: 40, height: 40,
-                                decoration: BoxDecoration(color: Theme.of(context).cardColor, shape: BoxShape.circle,
-                                  boxShadow: [BoxShadow(
-                                    color: Theme.of(context).textTheme.bodyLarge!.color!.withValues(alpha: 0.10),
-                                    spreadRadius: 0,
-                                    blurRadius: 15,
-                                    offset: const Offset(0,3),
-                                  )],
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
-                                  child: Image.asset(Images.share, color: Theme.of(context).primaryColor),
-                                ),
-                              ),
-                            ),
-
-                          ])
-                      ),
-
-                      (productModel?.productType == 'digital' && productModel?.previewFileFullUrl != null && productModel?.previewFileFullUrl?.path != '') ?
-                      Positioned (right: 10, bottom: 10,
-                        child: InkWell(
-                          onTap: () => _showPreview(productModel?.previewFileFullUrl?.path ?? '', productModel?.name ?? '', productModel?.previewFileFullUrl?.key ?? '', context),
-                          child: Container(
-                            padding: const EdgeInsets.all(Dimensions.paddingSizeExtraSmall),
-                            height: 35, width: 81,
-                            decoration: BoxDecoration(
-                                color: Theme.of(context).cardColor,
-                                borderRadius: BorderRadius.circular(Dimensions.paddingSizeExtraSmall),
-                                boxShadow: const [
-                                  BoxShadow(
-                                    color: Color(0x0D1B7FED), offset: Offset(0, 6),
-                                    blurRadius: 12, spreadRadius: -3,
-                                  ),
-                                  BoxShadow(
-                                    color: Color(0x0D1B7FED), offset: Offset(0, -6),
-                                    blurRadius: 12, spreadRadius: -3,
-                                  ),
-                                ]
-                            ),
-                            child: Row(
-                                children: [
-                                  Image.asset(Images.previewEyeIcon, width: 15),
-                                  const SizedBox(width: Dimensions.paddingSizeExtraSmall),
-
-                                  Text('${getTranslated('preview', context)}',
-                                      style: titilliumRegular.copyWith(fontSize: Dimensions.fontSizeDefault)
-                                  ),
-                                ]
-                            ),
-                          ),
-                        ),
-                      ) : const SizedBox(),
-
-                      if(fromFlashDeals)
-                      Positioned(
-                        top: 16, left: 16,
-                        child:  Image.asset(Images.flashDeal, scale: 2),
-                      ),
-
-                      ((productModel?.discount ?? 0) > 0 || (productModel?.clearanceSale != null)) ?
-                      // DiscountTagWidget(productModel: productModel) : const SizedBox.shrink(),
-
-                      DiscountTagDetailsWidget(
-                        productModel: productModel!,
-                        positionedTop: 0,
-                        topLeftBorderRadius: Dimensions.radiusDefault,
-                        bottomRightBorderRadius: Dimensions.radiusDefault
-                      ) : const SizedBox.shrink(),
-
-
-
-                    ]),
                   ),
                 ),
-              ) :
-              const SizedBox(),
-            ),
 
-            Padding(
-              padding: EdgeInsets.only(
-                left: Provider.of<LocalizationController>(context, listen: false).isLtr ?
-                Dimensions.homePagePadding : 0,
-                right: Provider.of<LocalizationController>(context, listen: false).isLtr ?
-                0 : Dimensions.homePagePadding, bottom: Dimensions.paddingSizeLarge,
+                // Discount / flash badges
+                PositionedDirectional(
+                  top: 16,
+                  start: 16,
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    if (hasDiscount)
+                      DiscountBadge(label: _discountLabel(context)),
+                    if (fromFlashDeals) ...[
+                      const SizedBox(height: 8),
+                      Image.asset(Images.flashDeal, scale: 2.5),
+                    ],
+                  ]),
+                ),
+
+                // Floating actions
+                PositionedDirectional(
+                  top: 12,
+                  end: 12,
+                  child: Column(children: [
+                    FavouriteButtonWidget(
+                      backgroundColor: Theme.of(context).cardColor,
+                      productId: productModel?.id,
+                      fromProductDetails: true,
+                    ),
+                    if (splashController.configModel!.activeTheme != "default") ...[
+                      const SizedBox(height: 10),
+                      Consumer<CompareController>(builder: (context, compare, _) {
+                        final bool active = compare.compIds.contains(productModel!.id);
+                        return _ActionCircle(
+                          active: active,
+                          onTap: () {
+                            if (Provider.of<AuthController>(context, listen: false).isLoggedIn()) {
+                              Provider.of<CompareController>(context, listen: false)
+                                  .addCompareList(productModel!.id!);
+                            } else {
+                              showModalBottomSheet(
+                                  backgroundColor: Colors.transparent,
+                                  context: context,
+                                  builder: (_) => const NotLoggedInBottomSheetWidget());
+                            }
+                          },
+                          child: Image.asset(Images.compare,
+                              color: active ? Colors.white : Theme.of(context).primaryColor),
+                        );
+                      }),
+                    ],
+                  ]),
+                ),
+
+                // Image counter
+                if (images.length > 1)
+                  PositionedDirectional(
+                    bottom: 12,
+                    start: 12,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).cardColor.withValues(alpha: .92),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: AppPalette.glassBorder(context)),
+                      ),
+                      child: Text('${selected + 1} / ${images.length}',
+                          textDirection: TextDirection.ltr,
+                          style: textBold.copyWith(
+                              fontSize: Dimensions.fontSizeSmall,
+                              color: Theme.of(context).textTheme.bodyLarge?.color)),
+                    ),
+                  ),
+
+                // Digital preview
+                if (productModel?.productType == 'digital' &&
+                    productModel?.previewFileFullUrl != null &&
+                    productModel?.previewFileFullUrl?.path != '')
+                  PositionedDirectional(
+                    end: 14,
+                    bottom: 14,
+                    child: PressableScale(
+                      onTap: () => _showPreview(
+                          productModel?.previewFileFullUrl?.path ?? '',
+                          productModel?.name ?? '',
+                          productModel?.previewFileFullUrl?.key ?? '',
+                          context),
+                      child: GlassContainer(
+                        blur: false,
+                        radius: 14,
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        child: Row(mainAxisSize: MainAxisSize.min, children: [
+                          Image.asset(Images.previewEyeIcon, width: 15),
+                          const SizedBox(width: 6),
+                          Text('${getTranslated('preview', context)}',
+                              style: textMedium.copyWith(fontSize: Dimensions.fontSizeSmall)),
+                        ]),
+                      ),
+                    ),
+                  ),
+              ]),
+            )),
+
+            // Thumbnails
+            if (images.length > 1)
+              SizedBox(
+                height: 70,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  shrinkWrap: true,
+                  padding: const EdgeInsets.only(top: 10),
+                  itemCount: images.length,
+                  separatorBuilder: (_, __) => const SizedBox(width: 8),
+                  itemBuilder: (context, index) {
+                    final bool active = index == selected;
+                    return PressableScale(
+                      haptic: false,
+                      onTap: () {
+                        productController.setImageSliderSelectedIndex(index);
+                        _controller.animateToPage(index,
+                            duration: const Duration(milliseconds: 350), curve: Curves.easeOutCubic);
+                      },
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 250),
+                        width: 60,
+                        padding: const EdgeInsets.all(5),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          color: AppPalette.isDark(context) ? AppPalette.darkTint : AppPalette.tint(context),
+                          border: Border.all(
+                            color: active ? Theme.of(context).primaryColor : AppPalette.glassBorder(context),
+                            width: active ? 2 : 1,
+                          ),
+                        ),
+                        child: Opacity(
+                          opacity: active ? 1 : .7,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: CustomImageWidget(image: '${images[index].path}', fit: BoxFit.contain),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
               ),
-              child: SizedBox(height: 60, child: RepaintBoundary(child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                addAutomaticKeepAlives: false,
-                addRepaintBoundaries: false,
-                itemCount: productModel!.imagesFullUrl!.length,
-                itemBuilder: (context, index) {
-                  return InkWell(
-                    onTap: (){
-                      productController.setImageSliderSelectedIndex(index);
-                      _controller.animateToPage(index, duration: const Duration(microseconds: 50), curve:Curves.ease);
-                    },
-                    child: Padding(padding: const EdgeInsets.only(right: Dimensions.paddingSizeSmall),
-                        child: Center(child: Container(
-                            decoration: BoxDecoration(border: Border.all(width: index == productController.imageSliderIndex? 2:0,
-                                color: (index == productController.imageSliderIndex &&
-                                    Provider.of<ThemeController>(context, listen: false).darkTheme)? Theme.of(context).primaryColor:
-                                (index == productController.imageSliderIndex &&
-                                    !Provider.of<ThemeController>(context, listen: false).darkTheme)?
-                                Theme.of(context).primaryColor: const Color(0x00FFFFFF)),
-                                color: Theme.of(context).cardColor,
-                                borderRadius: BorderRadius.circular(Dimensions.paddingSizeExtraSmall)),
-                            child: ClipRRect(borderRadius: BorderRadius.circular(Dimensions.paddingSizeExtraSmall),
-                              child: CustomImageWidget(height: 50, width: 50,
-                                  image: '${productModel!.imagesFullUrl![index].path}'),
-                            )))),
-                  );
-                },
-              ))),
-            ),
-
-          ]);
-        }
-    ) : const SizedBox();
+            ]),
+          ),
+        ),
+        const SizedBox(height: 4),
+      ]);
+    });
   }
 
-  List<Widget> _indicators(BuildContext context) {
-    List<Widget> indicators = [];
-    for (int index = 0; index < productModel!.imagesFullUrl!.length; index++) {
-      indicators.add(Padding(
-        padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeExtraExtraSmall),
-        child: Container(width: index == Provider.of<ProductDetailsController>(context).imageSliderIndex? 20 : 6, height: 6,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            color: index == Provider.of<ProductDetailsController>(context).imageSliderIndex ?
-            Theme.of(context).primaryColor : Theme.of(context).hintColor,
-          ),
-
-        ),
-      ));
-    }
-    return indicators;
+  String _discountLabel(BuildContext context) {
+    final p = productModel!;
+    return (p.clearanceSale?.discountAmount ?? 0) > 0
+        ? PriceConverter.percentageCalculation(
+            context, p.unitPrice, p.clearanceSale?.discountAmount, p.clearanceSale?.discountType)
+        : PriceConverter.percentageCalculation(context, p.unitPrice, p.discount, p.discountType);
   }
 
   void _showPreview(String url, String productName, String fileName, BuildContext context) {
@@ -334,7 +259,34 @@ class ProductImageWidget extends StatelessWidget {
         const SizedBox(),
       );
     });
-
   }
+}
 
+class _ActionCircle extends StatelessWidget {
+  const _ActionCircle({required this.child, required this.onTap, this.active = false});
+
+  final Widget child;
+  final VoidCallback onTap;
+  final bool active;
+
+  @override
+  Widget build(BuildContext context) {
+    return PressableScale(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        width: 40,
+        height: 40,
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: active ? AppPalette.brandGradient : null,
+          color: active ? null : Theme.of(context).cardColor,
+          border: Border.all(color: AppPalette.glassBorder(context)),
+          boxShadow: AppPalette.softShadow(context),
+        ),
+        child: child,
+      ),
+    );
+  }
 }

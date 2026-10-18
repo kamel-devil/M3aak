@@ -4,7 +4,7 @@ import 'package:kk_thotix_m3aak/common/basewidget/product_widget.dart';
 import 'package:kk_thotix_m3aak/features/deal/controllers/featured_deal_controller.dart';
 import 'package:kk_thotix_m3aak/helper/responsive_helper.dart';
 import 'package:kk_thotix_m3aak/features/home/widgets/aster_theme/find_what_you_need_shimmer.dart';
-import 'package:kk_thotix_m3aak/features/deal/widgets/featured_deal_card_widget.dart';
+import 'package:kk_thotix_m3aak/common/basewidget/pharmacy_product_parts.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:provider/provider.dart';
 
@@ -22,23 +22,22 @@ class FeaturedDealsListWidget extends StatelessWidget {
         return featuredDealProvider.featuredDealProductList != null? featuredDealProvider.featuredDealProductList!.isNotEmpty ?
         CarouselSlider.builder(
           options: CarouselOptions(
-            aspectRatio: 2.5,
+            height: 128,
             viewportFraction: 0.86,
             autoPlay: true,
             pauseAutoPlayOnTouch: true,
             pauseAutoPlayOnManualNavigate: true,
             pauseAutoPlayInFiniteScroll: true,
-            enlargeFactor: 0.2,
+            enlargeFactor: 0.12,
             enlargeCenterPage: true,
             enableInfiniteScroll: true,
             disableCenter: true,
             onPageChanged: (index, reason) => featuredDealProvider.changeSelectedIndex(index)
           ),
           itemCount: featuredDealProvider.featuredDealProductList?.length,
-          itemBuilder: (context, index, _) => FeaturedDealWidget(
-            isHomePage: isHomePage,
-            product: featuredDealProvider.featuredDealProductList![index],
-            isCenterElement: index == featuredDealProvider.featuredDealSelectedIndex,
+          itemBuilder: (context, index, _) => Padding(
+            padding: const EdgeInsets.fromLTRB(4, 0, 4, 14),
+            child: ProductRowTile(product: featuredDealProvider.featuredDealProductList![index], imageSize: 96),
           ),
         ) : const SizedBox() : const FindWhatYouNeedShimmer();
       }):

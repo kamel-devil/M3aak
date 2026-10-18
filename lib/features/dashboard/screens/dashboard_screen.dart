@@ -19,7 +19,8 @@ import 'package:kk_thotix_m3aak/features/home/screens/fashion_theme_home_screen.
 import 'package:kk_thotix_m3aak/features/home/screens/home_screens.dart';
 import 'package:kk_thotix_m3aak/features/more/screens/more_screen_view.dart';
 import 'package:kk_thotix_m3aak/features/order/screens/order_screen.dart';
-import 'package:kk_thotix_m3aak/utill/color_resources.dart';
+import 'package:kk_thotix_m3aak/common/glass/glass_widgets.dart';
+import 'package:kk_thotix_m3aak/theme/app_palette.dart';
 import 'package:provider/provider.dart';
 
 import '../../category/screens/category_screen.dart';
@@ -124,27 +125,35 @@ class DashBoardScreenState extends State<DashBoardScreen> {
 
           body: PageStorage(
             bucket: bucket,
-            child: _screens[
-            (_pageIndex >= 0 && _pageIndex < _screens.length) ? _pageIndex : 0
-            ].screen,
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 320),
+              switchInCurve: Curves.easeOutCubic,
+              switchOutCurve: Curves.easeInCubic,
+              transitionBuilder: (child, animation) => FadeTransition(
+                opacity: animation,
+                child: ScaleTransition(
+                  scale: Tween<double>(begin: .985, end: 1).animate(animation),
+                  child: child,
+                ),
+              ),
+              child: KeyedSubtree(
+                key: ValueKey(_pageIndex),
+                child: _screens[
+                (_pageIndex >= 0 && _pageIndex < _screens.length) ? _pageIndex : 0
+                ].screen,
+              ),
+            ),
           ),
           bottomNavigationBar: Padding(
-            padding: const EdgeInsets.fromLTRB(14, 0, 14, 14),
-            child: Container(
-              height: 75,
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
+            child: GlassContainer(
+              height: 74,
+              radius: 28,
+              sigma: 22,
               padding: const EdgeInsets.symmetric(horizontal: 6),
-              decoration: BoxDecoration(
-                color: Theme.of(context).cardColor.withValues(alpha: .96),
-                borderRadius: BorderRadius.circular(26),
-                border: Border.all(color: ColorResources.navBarBorder),
-                boxShadow: const [
-                  BoxShadow(
-                    color: ColorResources.navBarShadow,
-                    blurRadius: 28,
-                    offset: Offset(0, 10),
-                  ),
-                ],
-              ),
+              color: AppPalette.isDark(context)
+                  ? const Color(0xCC0E2328)
+                  : Colors.white.withValues(alpha: .72),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: _getBottomWidget(singleVendor),

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:kk_thotix_m3aak/utill/dimensions.dart';
+import 'package:kk_thotix_m3aak/utill/custom_themes.dart';
+import 'package:kk_thotix_m3aak/common/glass/glass_widgets.dart';
 import 'package:kk_thotix_m3aak/features/profile/controllers/profile_contrroller.dart';
 import 'package:kk_thotix_m3aak/features/wishlist/controllers/wishlist_controller.dart';
 import 'package:kk_thotix_m3aak/features/wishlist/widgets/wishlist_shimmer.dart';
@@ -56,11 +59,32 @@ class _WishListScreenState extends State<WishListScreen> {
             ? wishListProvider.wishList!.isNotEmpty
             ? RefreshIndicator(
             onRefresh: () async => await  wishListProvider.getWishList(),
-            child: ListView.builder(
-              padding: EdgeInsets.zero,
-              itemCount: wishListProvider.wishList!.length,
-              itemBuilder: (context, index) => WishListWidget(wishlistModel: wishListProvider.wishList?[index], index: index),
-            ))
+            child: CustomScrollView(slivers: [
+              SliverToBoxAdapter(child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 4, 16, 10),
+                child: Text.rich(TextSpan(children: [
+                  TextSpan(text: '${wishListProvider.wishList!.length} ',
+                      style: textBold.copyWith(fontSize: Dimensions.fontSizeDefault, color: Theme.of(context).textTheme.bodyLarge?.color)),
+                  TextSpan(text: getTranslated('saved_products', context) ?? '',
+                      style: textRegular.copyWith(fontSize: Dimensions.fontSizeDefault, color: Theme.of(context).hintColor)),
+                ])),
+              )),
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                sliver: SliverGrid(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2, mainAxisSpacing: 10, crossAxisSpacing: 10, mainAxisExtent: 268,
+                  ),
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) => FadeSlideIn(
+                      index: index < 6 ? index : 6,
+                      child: WishListWidget(wishlistModel: wishListProvider.wishList?[index], index: index),
+                    ),
+                    childCount: wishListProvider.wishList!.length,
+                  ),
+                ),
+              ),
+            ]))
             : const NoInternetOrDataScreenWidget(isNoInternet: false, message: 'no_wishlist_product', icon: Images.noWishlist)
             : const WishListShimmer();
           })),

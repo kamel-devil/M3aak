@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:kk_thotix_m3aak/helper/route_healper.dart';
+import 'package:kk_thotix_m3aak/common/basewidget/custom_image_widget.dart';
+import 'package:kk_thotix_m3aak/theme/app_palette.dart';
+import 'package:kk_thotix_m3aak/common/glass/glass_widgets.dart';
 import 'package:kk_thotix_m3aak/common/basewidget/custom_app_bar_widget.dart';
 import 'package:kk_thotix_m3aak/common/basewidget/custom_button_widget.dart';
 import 'package:kk_thotix_m3aak/common/basewidget/no_internet_screen_widget.dart';
@@ -10,10 +14,8 @@ import 'package:kk_thotix_m3aak/features/search_product/widgets/partial_matched_
 import 'package:kk_thotix_m3aak/features/search_product/widgets/search_product_widget.dart';
 import 'package:kk_thotix_m3aak/features/splash/controllers/splash_controller.dart';
 import 'package:kk_thotix_m3aak/localization/language_constrants.dart';
-import 'package:kk_thotix_m3aak/theme/controllers/theme_controller.dart';
 import 'package:kk_thotix_m3aak/utill/custom_themes.dart';
 import 'package:kk_thotix_m3aak/utill/dimensions.dart';
-import 'package:kk_thotix_m3aak/utill/images.dart';
 import 'package:provider/provider.dart';
 
 class SearchScreen extends StatefulWidget {
@@ -73,16 +75,6 @@ class _SearchScreenState extends State<SearchScreen> {
                 Container(
                     padding:
                         const EdgeInsets.only(top: Dimensions.paddingSizeSmall),
-                    decoration: BoxDecoration(
-                        color: Theme.of(context).canvasColor,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withValues(alpha: 0.1),
-                            spreadRadius: 1,
-                            blurRadius: 3,
-                            offset: const Offset(0, 1),
-                          )
-                        ]),
                     child: const SearchSuggestion()),
 
                 //const SizedBox(height: Dimensions.paddingSizeDefault),
@@ -139,187 +131,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                   ])
                                 : const NoInternetOrDataScreenWidget(
                                     isNoInternet: false)
-                            : Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Consumer<SearchProductController>(builder:
-                                      (context, searchProvider, child) {
-                                    return Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal:
-                                              Dimensions.paddingSizeLarge),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          if (searchProvider
-                                              .historyList.isNotEmpty)
-                                            Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                children: [
-                                                  Expanded(
-                                                      child: Text(
-                                                          getTranslated(
-                                                              'search_history',
-                                                              context)!,
-                                                          style: textMedium.copyWith(
-                                                              fontSize: Dimensions
-                                                                  .fontSizeLarge))),
-                                                  InkWell(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              10),
-                                                      onTap: () => Provider.of<SearchProductController>(
-                                                              context,
-                                                              listen: false)
-                                                          .clearSearchAddress(),
-                                                      child: Container(
-                                                          padding: const EdgeInsets.symmetric(
-                                                              horizontal: Dimensions
-                                                                  .paddingSizeDefault,
-                                                              vertical: Dimensions
-                                                                  .paddingSizeLarge),
-                                                          child: Text(getTranslated('clear_all', context)!,
-                                                              style: textRegular.copyWith(
-                                                                  fontSize: Dimensions.fontSizeDefault,
-                                                                  color: Provider.of<ThemeController>(context).darkTheme ? Colors.white : Theme.of(context).colorScheme.error))))
-                                                ]),
-                                          Wrap(
-                                              direction: Axis.horizontal,
-                                              alignment: WrapAlignment.start,
-                                              children: [
-                                                for (int index = 0;
-                                                    index <
-                                                        searchProvider
-                                                            .historyList.length;
-                                                    index++)
-                                                  Padding(
-                                                      padding: const EdgeInsets.symmetric(
-                                                          vertical: Dimensions
-                                                              .paddingSizeSmall),
-                                                      child: Container(
-                                                          decoration: BoxDecoration(
-                                                              borderRadius:
-                                                                  const BorderRadius.all(
-                                                                      Radius.circular(
-                                                                          50)),
-                                                              color: Provider.of<ThemeController>(context, listen: false)
-                                                                      .darkTheme
-                                                                  ? Colors.grey
-                                                                      .withValues(
-                                                                          alpha:
-                                                                              0.2)
-                                                                  : Theme.of(context)
-                                                                      .colorScheme
-                                                                      .onPrimary
-                                                                      .withValues(
-                                                                          alpha: .1)),
-                                                          padding: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeSmall - 3, horizontal: Dimensions.paddingSizeSmall),
-                                                          margin: const EdgeInsets.only(right: Dimensions.paddingSizeSmall),
-                                                          child: InkWell(
-                                                              onTap: () => searchProvider.searchProduct(query: searchProvider.historyList[index], offset: 1),
-                                                              child: ConstrainedBox(
-                                                                  constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.85),
-                                                                  child: Row(mainAxisSize: MainAxisSize.min, children: [
-                                                                    Flexible(
-                                                                        child: Text(
-                                                                            searchProvider.historyList[
-                                                                                index],
-                                                                            style:
-                                                                                textRegular.copyWith(color: Theme.of(context).textTheme.bodyLarge!.color),
-                                                                            overflow: TextOverflow.ellipsis)),
-                                                                    const SizedBox(
-                                                                      width: Dimensions
-                                                                          .paddingSizeExtraSmall,
-                                                                    ),
-                                                                    InkWell(
-                                                                        onTap:
-                                                                            () {
-                                                                          //searchProvider.historyList.removeAt(index);
-                                                                          searchProvider
-                                                                              .removeSearchAddress(index);
-                                                                          setState(
-                                                                              () {});
-                                                                        },
-                                                                        child: SizedBox(
-                                                                            width: 20,
-                                                                            child: Image.asset(
-                                                                              Images.cancel,
-                                                                              color: Theme.of(context).textTheme.bodyLarge!.color!.withValues(alpha: .5),
-                                                                            )))
-                                                                  ])))))
-                                              ]),
-                                        ],
-                                      ),
-                                    );
-                                  }),
-                                  Padding(
-                                    padding: const EdgeInsets.only(
-                                        top: Dimensions.paddingSizeDefault,
-                                        left: Dimensions.paddingSizeDefault,
-                                        right: Dimensions.paddingSizeDefault),
-                                    child: Text(
-                                        getTranslated('popular_tag', context)!,
-                                        style: textMedium.copyWith(
-                                            fontSize:
-                                                Dimensions.fontSizeLarge)),
-                                  ),
-                                  Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal:
-                                              Dimensions.paddingSizeDefault),
-                                      child: Consumer<SplashController>(builder:
-                                          (context, popularTagProvider, _) {
-                                        return Wrap(
-                                            direction: Axis.horizontal,
-                                            alignment: WrapAlignment.start,
-                                            children: [
-                                              for (int index = 0;
-                                                  index <
-                                                      popularTagProvider
-                                                          .configModel!
-                                                          .popularTags!
-                                                          .length;
-                                                  index++)
-                                                Padding(
-                                                    padding:
-                                                        const EdgeInsets.symmetric(
-                                                            vertical: Dimensions
-                                                                .paddingSizeSmall),
-                                                    child: Container(
-                                                        decoration: BoxDecoration(
-                                                            border: Border.all(
-                                                                width: .5,
-                                                                color: Theme.of(
-                                                                        context)
-                                                                    .primaryColor
-                                                                    .withValues(
-                                                                        alpha:
-                                                                            .125)),
-                                                            borderRadius:
-                                                                const BorderRadius.all(
-                                                                    Radius.circular(50))),
-                                                        padding: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeSmall - 3, horizontal: Dimensions.paddingSizeSmall),
-                                                        margin: const EdgeInsets.only(right: Dimensions.paddingSizeSmall),
-                                                        child: InkWell(
-                                                            onTap: () => Provider.of<SearchProductController>(context, listen: false).searchProduct(query: popularTagProvider.configModel!.popularTags![index].tag ?? '', offset: 1),
-                                                            child: ConstrainedBox(
-                                                                constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.85),
-                                                                child: Row(mainAxisSize: MainAxisSize.min, children: [
-                                                                  Flexible(
-                                                                      child: Text(
-                                                                          popularTagProvider.configModel!.popularTags![index].tag ??
-                                                                              '',
-                                                                          style:
-                                                                              textRegular.copyWith(color: Theme.of(context).textTheme.bodyLarge!.color),
-                                                                          overflow: TextOverflow.ellipsis))
-                                                                ])))))
-                                            ]);
-                                      })),
-                                ],
-                              );
+                            : const _SearchIdleView();
                   },
                 ),
               ],
@@ -328,5 +140,145 @@ class _SearchScreenState extends State<SearchScreen> {
         ],
       ),
     );
+  }
+}
+
+/// Idle search state: recent searches, popular tags and category shortcuts.
+class _SearchIdleView extends StatelessWidget {
+  const _SearchIdleView();
+
+  @override
+  Widget build(BuildContext context) {
+    final Color? textColor = Theme.of(context).textTheme.bodyLarge?.color;
+
+    Widget header(String title, {Widget? trailing}) => Padding(
+      padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
+      child: Row(children: [
+        Container(width: 4, height: 18, margin: const EdgeInsetsDirectional.only(end: 8),
+            decoration: BoxDecoration(gradient: AppPalette.brandGradient, borderRadius: BorderRadius.circular(4))),
+        Expanded(child: Text(title, style: textBold.copyWith(fontSize: Dimensions.fontSizeLarge, color: textColor))),
+        if (trailing != null) trailing,
+      ]),
+    );
+
+    return Consumer<SearchProductController>(builder: (context, searchProvider, _) {
+      final tags = Provider.of<SplashController>(context, listen: false).configModel?.popularTags ?? [];
+      final categories = Provider.of<CategoryController>(context).categoryList;
+
+      return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        if (searchProvider.historyList.isNotEmpty) ...[
+          header(getTranslated('search_history', context) ?? '',
+            trailing: TextButton(
+              onPressed: () => searchProvider.clearSearchAddress(),
+              style: TextButton.styleFrom(minimumSize: const Size(44, 36), padding: const EdgeInsets.symmetric(horizontal: 8)),
+              child: Text(getTranslated('clear_all', context) ?? '',
+                  style: textBold.copyWith(fontSize: Dimensions.fontSizeSmall + 1, color: AppPalette.error)),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: GlassContainer(
+              blur: false,
+              radius: 22,
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: Column(children: [
+                for (int index = 0; index < searchProvider.historyList.length && index < 6; index++) ...[
+                  if (index > 0) Divider(height: 1, indent: 52, color: AppPalette.glassBorder(context)),
+                  InkWell(
+                    onTap: () => searchProvider.searchProduct(query: searchProvider.historyList[index], offset: 1),
+                    child: Padding(
+                      padding: const EdgeInsetsDirectional.only(start: 14, end: 4),
+                      child: Row(children: [
+                        Icon(Icons.history_rounded, size: 20, color: Theme.of(context).hintColor),
+                        const SizedBox(width: 18),
+                        Expanded(child: Text(searchProvider.historyList[index],
+                            maxLines: 1, overflow: TextOverflow.ellipsis,
+                            style: textRegular.copyWith(fontSize: Dimensions.fontSizeDefault, color: textColor))),
+                        IconButton(
+                          tooltip: getTranslated('delete', context),
+                          onPressed: () => searchProvider.removeSearchAddress(index),
+                          icon: Icon(Icons.close_rounded, size: 18, color: Theme.of(context).hintColor),
+                        ),
+                      ]),
+                    ),
+                  ),
+                ],
+              ]),
+            ),
+          ),
+        ],
+
+        if (tags.isNotEmpty) ...[
+          header(getTranslated('popular_tag', context) ?? ''),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Wrap(spacing: 8, runSpacing: 8, children: [
+              for (final tag in tags)
+                if ((tag.tag ?? '').isNotEmpty)
+                  PressableScale(
+                    onTap: () => searchProvider.searchProduct(query: tag.tag!, offset: 1),
+                    child: Container(
+                      constraints: const BoxConstraints(minHeight: 40),
+                      padding: const EdgeInsets.symmetric(horizontal: 14),
+                      decoration: BoxDecoration(
+                        color: AppPalette.glass(context),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: AppPalette.glassBorder(context)),
+                      ),
+                      child: Row(mainAxisSize: MainAxisSize.min, children: [
+                        Icon(Icons.trending_up_rounded, size: 16, color: Theme.of(context).primaryColor),
+                        const SizedBox(width: 6),
+                        ConstrainedBox(
+                          constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * .6),
+                          child: Text(tag.tag!, maxLines: 1, overflow: TextOverflow.ellipsis,
+                              style: textMedium.copyWith(color: textColor)),
+                        ),
+                      ]),
+                    ),
+                  ),
+            ]),
+          ),
+        ],
+
+        if (categories.isNotEmpty) ...[
+          header(getTranslated('browse_categories', context) ?? ''),
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+            itemCount: categories.length > 8 ? 8 : categories.length,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 4, mainAxisSpacing: 12, crossAxisSpacing: 10, childAspectRatio: .74,
+            ),
+            itemBuilder: (context, index) {
+              final category = categories[index];
+              return PressableScale(
+                onTap: () => RouterHelper.getBrandCategoryRoute(
+                  isBrand: false,
+                  id: category.id,
+                  name: category.name,
+                  categoryModel: category,
+                  isAllProduct: true,
+                ),
+                child: Column(children: [
+                  AspectRatio(
+                    aspectRatio: 1,
+                    child: GlassContainer(
+                      blur: false,
+                      radius: 20,
+                      padding: const EdgeInsets.all(12),
+                      child: CustomImageWidget(image: '${category.imageFullUrl?.path}', fit: BoxFit.contain),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(category.name ?? '', maxLines: 1, overflow: TextOverflow.ellipsis, textAlign: TextAlign.center,
+                      style: textMedium.copyWith(fontSize: Dimensions.fontSizeSmall, color: textColor)),
+                ]),
+              );
+            },
+          ),
+        ],
+      ]);
+    });
   }
 }

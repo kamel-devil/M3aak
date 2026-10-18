@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kk_thotix_m3aak/common/basewidget/glass_search_field.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:kk_thotix_m3aak/common/basewidget/custom_app_bar_widget.dart';
 import 'package:kk_thotix_m3aak/common/basewidget/no_internet_screen_widget.dart';
@@ -143,113 +144,35 @@ class _BrandAndCategoryProductScreenState
         builder: (context, productController, child) {
           return Column(children: [
             Padding(
-              padding: const EdgeInsets.symmetric(
-                      horizontal: Dimensions.paddingSizeDefault,
-                      vertical: Dimensions.paddingSizeSmall)
-                  .copyWith(right: Dimensions.paddingSizeDefault),
-              child: TextFormField(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+              child: GlassSearchField(
                 controller: searchTextEditingController,
-                textInputAction: TextInputAction.search,
-                onChanged: (value) {
-                  productController.setCategorySearchProductText(value);
+                hintText: getTranslated('search_in_products', context),
+                onChanged: (value) => productController.setCategorySearchProductText(value),
+                onSubmitted: () {
+                  if (searchTextEditingController.text.trim().isEmpty) {
+                    showCustomSnackBar(getTranslated('enter_somethings', context), context);
+                    return;
+                  }
+                  debounceHelper.run(() {
+                    productController.initBrandOrCategoryProductList(
+                      isBrand: widget.isBrand,
+                      id: productController.selectedCategoryId,
+                      searchProduct: searchTextEditingController.text.trim(),
+                      offset: 1,
+                      isUpdate: true,
+                    );
+                  });
                 },
-                onFieldSubmitted: (value) {
+                onClear: () {
+                  productController.setCategorySearchProductText('');
                   productController.initBrandOrCategoryProductList(
                     isBrand: widget.isBrand,
                     id: productController.selectedCategoryId,
-                    searchProduct: searchTextEditingController.text.trim(),
                     offset: 1,
                     isUpdate: true,
                   );
                 },
-                style: textMedium.copyWith(fontSize: Dimensions.fontSizeLarge),
-                decoration: InputDecoration(
-                    isDense: true,
-                    contentPadding: const EdgeInsets.only(
-                        left: Dimensions.paddingSizeLarge),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(
-                            Dimensions.paddingSizeExtraSmall),
-                        borderSide: BorderSide(color: Colors.grey[300]!)),
-                    focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(
-                            Dimensions.paddingSizeExtraSmall),
-                        borderSide: BorderSide(color: Colors.grey[300]!)),
-                    enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(
-                            Dimensions.paddingSizeExtraSmall),
-                        borderSide: BorderSide(color: Colors.grey[300]!)),
-                    hintText: getTranslated('search_products', context),
-                    hintStyle: textRegular.copyWith(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .shadow
-                            .withValues(alpha: 0.9)),
-                    suffixIcon: SizedBox(
-                      width:
-                          searchTextEditingController.text.isNotEmpty ? 70 : 50,
-                      child: Row(children: [
-                        if (searchTextEditingController.text.isNotEmpty)
-                          InkWell(
-                            onTap: () {
-                              searchTextEditingController.clear();
-                              productController
-                                  .setCategorySearchProductText('');
-
-                              productController.initBrandOrCategoryProductList(
-                                isBrand: widget.isBrand,
-                                id: productController.selectedCategoryId,
-                                offset: 1,
-                                isUpdate: true,
-                              );
-                            },
-                            child: const Icon(
-                              Icons.clear,
-                              size: 20,
-                            ),
-                          ),
-                        InkWell(
-                          onTap: () {
-                            if (searchTextEditingController.text
-                                .trim()
-                                .isNotEmpty) {
-                              debounceHelper.run(() {
-                                Provider.of<ProductController>(context,
-                                        listen: false)
-                                    .initBrandOrCategoryProductList(
-                                  isBrand: widget.isBrand,
-                                  id: productController.selectedCategoryId,
-                                  searchProduct:
-                                      searchTextEditingController.text.trim(),
-                                  offset: 1,
-                                  isUpdate: true,
-                                );
-                              });
-                            } else {
-                              showCustomSnackBar(
-                                  getTranslated('enter_somethings', context),
-                                  context);
-                            }
-                          },
-                          child: Container(
-                            margin: const EdgeInsets.all(
-                                Dimensions.paddingSizeExtraSmall),
-                            padding: const EdgeInsets.all(
-                                Dimensions.paddingSizeSmall),
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).primaryColor,
-                              borderRadius: BorderRadius.circular(
-                                  Dimensions.paddingSizeExtraSmall),
-                            ),
-                            child: Image.asset(Images.search,
-                                color: Colors.white,
-                                height: Dimensions.iconSizeSmall,
-                                width: Dimensions.iconSizeSmall,
-                                fit: BoxFit.contain),
-                          ),
-                        ),
-                      ]),
-                    )),
               ),
             ),
             if (subCategoryList?.isNotEmpty ?? false)

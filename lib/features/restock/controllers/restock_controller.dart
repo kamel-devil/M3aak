@@ -41,6 +41,7 @@ class RestockController with ChangeNotifier {
     ApiResponseModel apiResponse = await restockServiceInterface.getRestockProductList(offset.toString(), getAll);
 
     if (apiResponse.response != null  && apiResponse.response!.statusCode == 200) {
+      final RestockProductModel parsedRestockProductModelResponse = RestockProductModel.fromJson(apiResponse.response?.data);
       _isLoading = false;
       if(offset == 1) {
         restockProductModel = RestockProductModel.fromJson(apiResponse.response?.data);
@@ -48,9 +49,9 @@ class RestockController with ChangeNotifier {
           subscribeTopic(restockProductModel?.data ?? []);
         }
       } else {
-        restockProductModel!.data!.addAll(RestockProductModel.fromJson(apiResponse.response?.data).data!);
-        restockProductModel!.offset = RestockProductModel.fromJson(apiResponse.response?.data).offset;
-        restockProductModel!.totalSize = RestockProductModel.fromJson(apiResponse.response?.data).totalSize;
+        restockProductModel!.data!.addAll(parsedRestockProductModelResponse.data!);
+        restockProductModel!.offset = parsedRestockProductModelResponse.offset;
+        restockProductModel!.totalSize = parsedRestockProductModelResponse.totalSize;
       }
     _isLoading = false;
     notifyListeners();

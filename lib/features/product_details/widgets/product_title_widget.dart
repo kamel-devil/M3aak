@@ -1,6 +1,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:kk_thotix_m3aak/common/basewidget/custom_directionality_widget.dart';
+import 'package:kk_thotix_m3aak/common/glass/glass_widgets.dart';
+import 'package:kk_thotix_m3aak/theme/app_palette.dart';
 import 'package:kk_thotix_m3aak/features/product_details/controllers/product_details_controller.dart';
 import 'package:kk_thotix_m3aak/features/product_details/domain/models/product_details_model.dart';
 import 'package:kk_thotix_m3aak/features/review/controllers/review_controller.dart';
@@ -27,17 +29,42 @@ class ProductTitleWidget extends StatelessWidget {
     double? startingPrice = priceRange.start;
     double? endingPrice = priceRange.end;
 
-    return productModel != null? Container(
-      padding: const EdgeInsets.symmetric(horizontal : Dimensions.homePagePadding),
+    return productModel != null? GlassContainer(
+      blur: false,
+      radius: 26,
+      margin: const EdgeInsets.symmetric(horizontal : Dimensions.homePagePadding),
+      padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
       child: Consumer<ProductDetailsController>(
         builder: (context, details, child) {
+          final bool physical = productModel!.productType != 'digital';
+          final bool inStock = !physical || (productModel!.currentStock ?? 0) > 0;
+          Widget badge(IconData icon, String label, Color color) => Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(color: color.withValues(alpha: .13), borderRadius: BorderRadius.circular(10)),
+            child: Row(mainAxisSize: MainAxisSize.min, children: [
+              Icon(icon, size: 14, color: color),
+              const SizedBox(width: 4),
+              Text(label, style: textBold.copyWith(fontSize: Dimensions.fontSizeSmall, color: color)),
+            ]),
+          );
+
           return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+
+            Wrap(spacing: 6, runSpacing: 6, children: [
+              if (physical)
+                badge(inStock ? Icons.check_rounded : Icons.block_rounded,
+                    getTranslated(inStock ? 'in_stock' : 'out_of_stock', context) ?? '',
+                    inStock ? AppPalette.success : AppPalette.error),
+              if ((details.orderCount ?? 0) > 0)
+                badge(Icons.shopping_bag_outlined, '${details.orderCount} ${getTranslated('orders', context)}', AppPalette.primaryDeep),
+            ]),
+            const SizedBox(height: 10),
 
             Text(
                 productModel!.name ?? '',
-                style: titleRegular.copyWith(fontSize: Dimensions.fontSizeLarge, color: Theme.of(context).textTheme.bodyLarge?.color), maxLines: 2,
+                style: textBold.copyWith(fontSize: Dimensions.fontSizeExtraLarge, height: 1.35, color: Theme.of(context).textTheme.bodyLarge?.color), maxLines: 3,
             ),
-            const SizedBox(height: Dimensions.paddingSizeDefault),
+            const SizedBox(height: Dimensions.paddingSizeSmall),
 
             Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
               CustomDirectionalityWidget(
@@ -66,9 +93,9 @@ class ProductTitleWidget extends StatelessWidget {
                                 : productModel?.discountType,
                           )}'
                       : ''}',
-                  style: titilliumBold.copyWith(
+                  style: robotoBold.copyWith(
                     color: Theme.of(context).primaryColor,
-                    fontSize: Dimensions.fontSizeLarge,
+                    fontSize: Dimensions.fontSizeOverLarge,
                   ),
                 ),
               ),
@@ -79,8 +106,9 @@ class ProductTitleWidget extends StatelessWidget {
                 CustomDirectionalityWidget(
                   child: Text('${PriceConverter.convertPrice(context, startingPrice)}'
                       '${endingPrice!= null ? ' - ${PriceConverter.convertPrice(context, endingPrice)}' : ''}',
-                      style: titilliumRegular.copyWith(color: Theme.of(context).hintColor,
-                          decoration: TextDecoration.lineThrough)),
+                      style: textRegular.copyWith(color: Theme.of(context).hintColor,
+                          fontSize: Dimensions.fontSizeDefault,
+                          decoration: TextDecoration.lineThrough, decorationColor: Theme.of(context).hintColor)),
                 ),
               ],
             ]),
@@ -91,7 +119,7 @@ class ProductTitleWidget extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  const Icon(Icons.star_rate_rounded, color: Colors.orange, size: Dimensions.paddingSizeDefault),
+                  const Icon(Icons.star_rounded, color: AppPalette.warning, size: 18),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 2.0),
                     child: Text(
@@ -136,22 +164,9 @@ class ProductTitleWidget extends StatelessWidget {
                   ])),
 
 
-                  if((details.orderCount ?? 0) > 0)
-                  Text.rich(TextSpan(children: [
-                    TextSpan(text: ' ${(reviewController.reviewList != null && (reviewController.reviewList?.length ?? 0) > 0) ? '| ' : ''} ${details.orderCount}', style: textMedium.copyWith(
-                        color: Provider.of<ThemeController>(context, listen: false).darkTheme?
-                        Theme.of(context).hintColor : Theme.of(context).primaryColor,
-                        fontSize: Dimensions.fontSizeDefault,
-                    )),
-
-                    TextSpan(text: ' ${getTranslated('orders', context)} ',
-                        style: textRegular.copyWith(fontSize: Dimensions.fontSizeDefault, color: Theme.of(context).textTheme.bodyLarge?.color),
-                    ),
-                  ])),
-
                   if((details.wishCount ?? 0) > 0)
                   Text.rich(TextSpan(children: [
-                    TextSpan(text: '${((details.orderCount ?? 0) > 0) ? '| ' : ''} ${details.wishCount}', style: textMedium.copyWith(
+                    TextSpan(text: '${(reviewController.reviewList?.length ?? 0) > 0 ? ' | ' : ''}${details.wishCount}', style: textMedium.copyWith(
                         color: Provider.of<ThemeController>(context, listen: false).darkTheme?
                         Theme.of(context).hintColor : Theme.of(context).primaryColor,
                         fontSize: Dimensions.fontSizeDefault,
@@ -168,7 +183,7 @@ class ProductTitleWidget extends StatelessWidget {
 
               Consumer<ReviewController>(
                 builder: (context, reviewController, _) {
-                  if(((details.wishCount ?? 0) > 0) || ((details.orderCount ?? 0) > 0) || ((reviewController.reviewList != null && (reviewController.reviewList?.length ?? 0) > 0))) {
+                  if(((details.wishCount ?? 0) > 0) || ((reviewController.reviewList != null && (reviewController.reviewList?.length ?? 0) > 0))) {
                     return const SizedBox(height: Dimensions.paddingSizeSmall);
                   }
                   return SizedBox();
@@ -204,7 +219,8 @@ class ProductTitleWidget extends StatelessWidget {
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
                           color: ColorHelper.hexCodeToColor(productModel?.colors?[index].code),
-                          borderRadius: BorderRadius.circular(Dimensions.paddingSizeExtraExtraSmall)
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: AppPalette.glassBorder(context), width: 2),
                         ),
                       ),
                   ));
@@ -246,8 +262,9 @@ class ProductTitleWidget extends StatelessWidget {
                               horizontal: Dimensions.paddingSizeSmall
                             ),
                             decoration: BoxDecoration(
-                              color: Theme.of(context).hintColor.withValues(alpha: 0.125),
-                              borderRadius: BorderRadius.circular(Dimensions.paddingSizeExtraExtraSmall),
+                              color: Theme.of(context).primaryColor.withValues(alpha: 0.10),
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(color: Theme.of(context).primaryColor.withValues(alpha: 0.18)),
                             ),
                             child: Text(
                                 productModel!.choiceOptions![index].options![i].trim(),
@@ -260,7 +277,7 @@ class ProductTitleWidget extends StatelessWidget {
                               ),
                           );
                         },
-                        separatorBuilder: (BuildContext context, int index) => const SizedBox(width: Dimensions.paddingSizeDefaultAddress),
+                        separatorBuilder: (BuildContext context, int index) => const SizedBox(width: Dimensions.paddingSizeSmall),
                       )),
                     )),
 

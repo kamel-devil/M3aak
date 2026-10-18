@@ -145,7 +145,7 @@ class ProductRepository extends DataSyncService implements ProductRepositoryInte
   @override
   Future<ApiResponseModel> getJustForYouProductList({required int offset, int? limit}) async {
     try {
-      final response = await dioClient.get('${AppConstants.justForYou}&limit${limit ?? 10}&offset=$offset');
+      final response = await dioClient.get('${AppConstants.justForYou}&limit=${limit ?? 10}&offset=$offset');
       return ApiResponseModel.withSuccess(response);
     } catch (e) {
       return ApiResponseModel.withError(ApiErrorHandler.getMessage(e));

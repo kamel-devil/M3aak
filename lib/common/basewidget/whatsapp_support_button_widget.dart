@@ -12,8 +12,11 @@ class WhatsAppSupportButton extends StatefulWidget {
   final double? width;
   final EdgeInsets? padding;
   final VoidCallback? onTap;
+  /// Square icon-only variant, used beside primary actions.
+  final bool compact;
 
   const WhatsAppSupportButton({
+    this.compact = false,
     super.key,
     this.phoneNumber,
     this.orderNumber,
@@ -91,6 +94,32 @@ class _WhatsAppSupportButtonState extends State<WhatsAppSupportButton> {
   Widget build(BuildContext context) {
     if (widget.phoneNumber == null || widget.phoneNumber!.isEmpty) {
       return const SizedBox.shrink();
+    }
+
+    if (widget.compact) {
+      return Tooltip(
+        message: getTranslated('تواصل مع الدعم', context) ?? 'WhatsApp',
+        child: Material(
+          color: const Color(0xFF25D366).withValues(alpha: .12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+            side: BorderSide(color: const Color(0xFF25D366).withValues(alpha: .35)),
+          ),
+          child: InkWell(
+            customBorder: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+            onTap: () {
+              widget.onTap?.call();
+              _launchWhatsApp(widget.phoneNumber!, _buildMessage());
+            },
+            child: SizedBox(
+              width: 54,
+              height: 54,
+              child: Center(child: SizedBox(width: 26, height: 26,
+                  child: Image.asset(Images.whatsapp, fit: BoxFit.contain))),
+            ),
+          ),
+        ),
+      );
     }
 
     return MouseRegion(

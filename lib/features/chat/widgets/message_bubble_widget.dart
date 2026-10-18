@@ -2,13 +2,13 @@ import 'dart:io';
 import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:kk_thotix_m3aak/theme/app_palette.dart';
 import 'package:kk_thotix_m3aak/features/chat/domain/models/message_model.dart';
 import 'package:kk_thotix_m3aak/features/chat/controllers/chat_controller.dart';
 import 'package:kk_thotix_m3aak/features/splash/controllers/splash_controller.dart';
 import 'package:kk_thotix_m3aak/helper/route_healper.dart';
 import 'package:kk_thotix_m3aak/localization/controllers/localization_controller.dart';
 import 'package:kk_thotix_m3aak/main.dart';
-import 'package:kk_thotix_m3aak/theme/controllers/theme_controller.dart';
 import 'package:kk_thotix_m3aak/utill/custom_themes.dart';
 import 'package:kk_thotix_m3aak/utill/dimensions.dart';
 import 'package:kk_thotix_m3aak/common/basewidget/custom_image_widget.dart';
@@ -148,7 +148,6 @@ class _MessageText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool isDarkTheme = Provider.of<ThemeController>(context).darkTheme;
 
     return Flexible(child: InkWell(
       onTap: () => chatProvider.toggleOnClickMessage(onMessageTimeShowID: message.id.toString()),
@@ -157,22 +156,23 @@ class _MessageText extends StatelessWidget {
             ? const EdgeInsets.fromLTRB(70, 5, 0, 5)
             : EdgeInsets.fromLTRB(isMe ? 0 : isProfileAvatarActive ? 10 : 40, 5, isLTR ? 70 : isProfileAvatarActive ? 10 : 40, 5),
         // margin: EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault, vertical: Dimensions.paddingSizeDefault),
-        padding: const EdgeInsets.symmetric(
-          horizontal: Dimensions.paddingSizeSmall,
-          vertical: Dimensions.paddingSizeExtraSmall,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
           borderRadius: _getBorderRadius(),
-          color: isMe ? isDarkTheme
-              ? Theme.of(context).cardColor
-              : Theme.of(context).primaryColor
-              : Theme.of(context).colorScheme.tertiaryContainer.withValues(alpha: 0.35),
+          gradient: isMe ? AppPalette.brandGradient : null,
+          color: isMe ? null : Theme.of(context).cardColor,
+          border: isMe ? null : Border.all(color: AppPalette.glassBorder(context)),
+          boxShadow: [BoxShadow(
+            color: isMe ? AppPalette.primary.withValues(alpha: .18) : Colors.black.withValues(alpha: .04),
+            blurRadius: 10, offset: const Offset(0, 4),
+          )],
         ),
         child: Text(
           message.message!,
-          textAlign: TextAlign.justify,
+          textAlign: TextAlign.start,
           style: textRegular.copyWith(
             fontSize: Dimensions.fontSizeDefault,
+            height: 1.5,
             color: isMe ? Colors.white : Theme.of(context).textTheme.bodyLarge?.color,
           ),
         ),
@@ -181,7 +181,7 @@ class _MessageText extends StatelessWidget {
   }
 
   BorderRadius _getBorderRadius() {
-    const double defaultRadius = 25;
+    const double defaultRadius = 20;
 
     if (isMe && (isSameUserWithNextMessage || isSameUserWithPreviousMessage)) {
       return BorderRadius.only(

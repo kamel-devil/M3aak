@@ -9,6 +9,8 @@ import 'package:kk_thotix_m3aak/common/basewidget/no_internet_screen_widget.dart
 import 'package:kk_thotix_m3aak/common/basewidget/not_logged_in_bottom_sheet_widget.dart';
 import 'package:kk_thotix_m3aak/common/basewidget/show_custom_snakbar_widget.dart';
 import 'package:kk_thotix_m3aak/common/basewidget/whatsapp_support_button_widget.dart';
+import 'package:kk_thotix_m3aak/common/glass/glass_widgets.dart';
+import 'package:kk_thotix_m3aak/theme/app_palette.dart';
 import 'package:kk_thotix_m3aak/features/auth/controllers/auth_controller.dart';
 import 'package:kk_thotix_m3aak/features/cart/controllers/cart_controller.dart';
 import 'package:kk_thotix_m3aak/features/cart/domain/models/cart_model.dart';
@@ -244,29 +246,23 @@ class CartScreenState extends State<CartScreen> {
 
 
                       return Scaffold(
-                        backgroundColor: Theme
-                            .of(context)
-                            .scaffoldBackgroundColor,
+                        backgroundColor: Colors.transparent,
                         bottomNavigationBar: (!cart.cartLoading &&
                             cartList.isNotEmpty) ?
                         Consumer<SplashController>(
                             builder: (context, configProvider, _) {
                               return SafeArea(
                                   top: false,
-                                  child: Container(
+                                  child: Padding(
+                                  padding: EdgeInsets.fromLTRB(16, 0, 16, widget.fromDashboard ? 10 : 12),
+                                  child: GlassContainer(
+                                  radius: 28,
+                                  sigma: 22,
+                                  color: AppPalette.isDark(context) ? const Color(0xE60E2328) : Colors.white.withValues(alpha: .85),
+                                  padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+                                  child: ConstrainedBox(
                                   constraints: BoxConstraints(
                                       maxHeight: cartList.isNotEmpty ? 300 : 0,
-                                  ),
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: Dimensions.paddingSizeDefault,
-                                      vertical: Dimensions.paddingSizeSmall
-                                  ),
-
-                                  decoration: BoxDecoration(
-                                      color: Theme
-                                          .of(context)
-                                          .cardColor,
-                                      borderRadius: BorderRadius.circular(10)
                                   ),
                                   child: cartList.isNotEmpty ?
                                   SingleChildScrollView(
@@ -278,67 +274,40 @@ class CartScreenState extends State<CartScreen> {
                                           mainAxisAlignment: MainAxisAlignment
                                               .spaceBetween, children: [
 
-                                        Row(children: [
-                                          Text('${getTranslated(
-                                              'total_price', context)}  ',
-                                              style: titilliumSemiBold.copyWith(
-                                                  fontSize: Dimensions
-                                                      .fontSizeLarge,
-                                                  color: Provider
-                                                      .of<ThemeController>(
-                                                      context, listen: false)
-                                                      .darkTheme ? Theme
-                                                      .of(context)
-                                                      .hintColor : Theme
-                                                      .of(context)
-                                                      .primaryColor)
-                                          ),
-
-                                          if(Provider
-                                              .of<SplashController>(
-                                              Get.context!, listen: false)
-                                              .configModel
-                                              ?.systemTaxIncludeStatus == 1)
-                                            Text('${getTranslated(
-                                                'inc_vat_tax', context)}',
-                                                style: titilliumSemiBold
-                                                    .copyWith(
-                                                    fontSize: Dimensions
-                                                        .fontSizeSmall,
-                                                    color: Theme
-                                                        .of(context)
-                                                        .hintColor)),
-                                        ]),
+                                        Expanded(child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                          Text('${getTranslated('total_price', context)}',
+                                              maxLines: 1, overflow: TextOverflow.ellipsis,
+                                              style: textBold.copyWith(
+                                                  fontSize: Dimensions.fontSizeLarge,
+                                                  color: Theme.of(context).textTheme.bodyLarge?.color)),
+                                          if (Provider.of<SplashController>(Get.context!, listen: false)
+                                              .configModel?.systemTaxIncludeStatus == 1)
+                                            Text('${getTranslated('inc_vat_tax', context)}',
+                                                maxLines: 1, overflow: TextOverflow.ellipsis,
+                                                style: textRegular.copyWith(
+                                                    fontSize: Dimensions.fontSizeSmall,
+                                                    color: Theme.of(context).hintColor)),
+                                        ])),
+                                        const SizedBox(width: 12),
 
                                         Text(PriceConverter.convertPrice(
                                             context,
                                             amount + tax + shippingAmount -
                                                 freeDeliveryAmountDiscount),
-                                            style: titilliumSemiBold.copyWith(
-                                                color: Provider
-                                                    .of<ThemeController>(
-                                                    context, listen: false)
-                                                    .darkTheme ? Theme
-                                                    .of(context)
-                                                    .hintColor : Theme
+                                            style: robotoBold.copyWith(
+                                                color: Theme
                                                     .of(context)
                                                     .primaryColor,
                                                 fontSize: Dimensions
-                                                    .fontSizeLarge)
+                                                    .fontSizeExtraLarge + 2)
                                         ),
                                       ]),
                                     ),
 
 
-                                    Padding(
-                                      padding: const EdgeInsets.only(
-                                       bottom: Dimensions.paddingSizeSmall
-                                      ),
-                                      child: WhatsAppSupportButton(
-                                       phoneNumber: configProvider.configModel?.companyPhone,
-                                       orderDetails: 'السلام عليكم\n\n📦 تفاصيل السلة:\n━━━━━━━━━━━━━━━━\n📌 عدد المنتجات: ${cartList.length}\n💰 الإجمالي: ${PriceConverter.convertPrice(context, amount)}\n\nأحتاج إلى المساعدة في إتمام الطلب',
-                                      ),
-                                    ),
 
                                     if ((configProvider.configModel?.orderInstructions ?? '').isNotEmpty)
                                       Container(
@@ -371,7 +340,18 @@ class CartScreenState extends State<CartScreen> {
                                         ),
                                       ),
                                     
-                                    InkWell(onTap: () {
+                                    Row(children: [
+                                    if ((configProvider.configModel?.companyPhone ?? '').isNotEmpty) ...[
+                                      WhatsAppSupportButton(
+                                        compact: true,
+                                        phoneNumber: configProvider.configModel?.companyPhone,
+                                        orderDetails: 'السلام عليكم\n\n📦 تفاصيل السلة:\n━━━━━━━━━━━━━━━━\n📌 عدد المنتجات: ${cartList.length}\n💰 الإجمالي: ${PriceConverter.convertPrice(context, amount)}\n\nأحتاج إلى المساعدة في إتمام الطلب',
+                                      ),
+                                      const SizedBox(width: 10),
+                                    ],
+                                    Expanded(child: InkWell(
+                                      borderRadius: BorderRadius.circular(18),
+                                      onTap: () {
                                       bool hasNull = false;
                                       bool minimum = false;
                                       bool stockOutProduct = false;
@@ -604,30 +584,38 @@ class CartScreenState extends State<CartScreen> {
                                       }
                                     },
                                       child: Container(
-                                        decoration: BoxDecoration(color: Theme
-                                            .of(context)
-                                            .primaryColor,
-                                            borderRadius: BorderRadius.circular(
-                                                Dimensions.paddingSizeSmall)),
+                                        height: 54,
+                                        decoration: BoxDecoration(
+                                            gradient: AppPalette.brandGradient,
+                                            borderRadius: BorderRadius.circular(18),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: AppPalette.primary.withValues(alpha: .35),
+                                                blurRadius: 16,
+                                                offset: const Offset(0, 6),
+                                              ),
+                                            ]),
 
-                                        child: Center(child: Padding(
-                                          padding: EdgeInsets.symmetric(
-                                              horizontal: Dimensions
-                                                  .paddingSizeSmall,
-                                              vertical: Dimensions
-                                                  .fontSizeSmall),
-                                          child: Text(getTranslated(
-                                              'checkout', context)!,
-                                              style: titilliumSemiBold.copyWith(
-                                                  fontSize: Dimensions
-                                                      .fontSizeDefault,
-                                                  color: Colors.white)),
-                                        ),
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Text(getTranslated(
+                                                'checkout', context)!,
+                                                style: textBold.copyWith(
+                                                    fontSize: Dimensions
+                                                        .fontSizeLarge,
+                                                    color: Colors.white)),
+                                            const SizedBox(width: 8),
+                                            Icon(
+                                              Icons.arrow_forward_rounded,
+                                              color: Colors.white, size: 20),
+                                          ],
                                         ),
                                       ),
-                                    ),
+                                    )),
+                                    ]),
                                   ]),
-                                  ) : const SizedBox()));
+                                  ) : const SizedBox()))));
                             }
                         ) : null,
 
@@ -649,12 +637,11 @@ class CartScreenState extends State<CartScreen> {
                               child: RepaintBoundary(
                                 child: ListView.separated(
                                   padding: const EdgeInsets.only(
-                                      bottom: Dimensions.paddingSizeSmall),
+                                      top: 12,
+                                      bottom: 16),
                                   itemCount: sellerList.length,
-                                  //padding: const EdgeInsets.all(0),
                                   separatorBuilder: (context, index) {
-                                    return SizedBox(
-                                        height: Dimensions.paddingSizeSmall);
+                                    return const SizedBox(height: 12);
                                   },
                                   itemBuilder: (context, index) {
                                     bool hasPhysical = false;
@@ -705,7 +692,10 @@ class CartScreenState extends State<CartScreen> {
                                     return AnimatedContainer(
                                       key: sellerKeys[index],
                                       duration: duration,
+                                      margin: const EdgeInsets.symmetric(horizontal: 12),
                                       decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(26),
+                                          border: Border.all(color: AppPalette.glassBorder(context), width: 1.2),
                                           color: ((sellerGroupList[index]
                                               .minimumOrderAmountInfo! >
                                               totalCost) ||
@@ -737,26 +727,11 @@ class CartScreenState extends State<CartScreen> {
                                                   sellerGroupList[index]
                                                       .isGroupItemChecked ==
                                                       true)) ? _currentColor :
-                                          index
-                                              .floor()
-                                              .isOdd ? Theme
-                                              .of(context)
-                                              .colorScheme
-                                              .onSecondaryContainer : Theme
+                                          Theme
                                               .of(context)
                                               .cardColor,
 
-                                          boxShadow: Provider
-                                              .of<ThemeController>(
-                                              context, listen: false)
-                                              .darkTheme ? null :
-                                          [
-                                            BoxShadow(
-                                                color: Colors.grey.withValues(
-                                                    alpha: 0.3),
-                                                spreadRadius: 1,
-                                                blurRadius: 5)
-                                          ]
+                                          boxShadow: AppPalette.softShadow(context)
                                       ),
 
                                       child: Padding(
@@ -770,9 +745,7 @@ class CartScreenState extends State<CartScreen> {
                                               .isNotEmpty ?
 
                                           ColoredBox(
-                                            color: Theme
-                                                .of(context)
-                                                .cardColor,
+                                            color: Colors.transparent,
                                             child: Padding(
                                               padding: const EdgeInsets.only(
                                                   top: Dimensions
@@ -1621,17 +1594,16 @@ class CartScreenState extends State<CartScreen> {
                                       sellerIndex: 0,
                                       sellerId: 1));
                             },
-                              child: Padding(padding: const EdgeInsets.fromLTRB(
-                                  Dimensions.paddingSizeDefault,
-                                  Dimensions.paddingSizeSmall,
-                                  Dimensions.paddingSizeDefault, 0),
+                              borderRadius: BorderRadius.circular(18),
+                              child: Padding(padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
                                 child: Container(decoration: BoxDecoration(
+                                    color: Theme.of(context).cardColor,
                                     border: Border.all(
-                                        width: 0.5, color: Colors.grey),
+                                        width: 1.2, color: AppPalette.glassBorder(context)),
                                     borderRadius: const BorderRadius.all(
-                                        Radius.circular(10))),
+                                        Radius.circular(18))),
                                   child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
+                                    padding: const EdgeInsets.all(14.0),
                                     child: Row(
                                         mainAxisAlignment: MainAxisAlignment
                                             .spaceBetween, children: [

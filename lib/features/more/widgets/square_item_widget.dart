@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:kk_thotix_m3aak/features/cart/controllers/cart_controller.dart';
+import 'package:kk_thotix_m3aak/common/glass/glass_widgets.dart';
 import 'package:kk_thotix_m3aak/helper/price_converter.dart';
-import 'package:kk_thotix_m3aak/localization/language_constrants.dart';
-import 'package:kk_thotix_m3aak/theme/controllers/theme_controller.dart';
+import 'package:kk_thotix_m3aak/theme/app_palette.dart';
 import 'package:kk_thotix_m3aak/utill/custom_themes.dart';
 import 'package:kk_thotix_m3aak/utill/dimensions.dart';
-import 'package:provider/provider.dart';
 
+/// Quick-access tile: tinted icon, title and an optional value or badge.
 class SquareButtonWidget extends StatelessWidget {
   final String image;
   final String? title;
@@ -18,61 +17,81 @@ class SquareButtonWidget extends StatelessWidget {
   final bool isLoyalty;
   final String? subTitle;
   final Function? onTap;
+  final Color color;
 
   const SquareButtonWidget({super.key, required this.image,
     required this.title, this.navigateTo, required this.count,
     required this.hasCount, this.isWallet = false, this.balance, this.subTitle,
-    this.isLoyalty = false, this.onTap});
+    this.isLoyalty = false, this.onTap, this.color = AppPalette.primary});
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        onTap!();
-      },
-      child: Column(children: [
-        Padding(padding: const EdgeInsets.all(8.0),
-          child: Container(width: 120, height: 90,
-            decoration: BoxDecoration(borderRadius: BorderRadius.circular(10),
-                color: Provider.of<ThemeController>(context).darkTheme ?
-                Theme.of(context).primaryColor.withValues(alpha:.30) : Theme.of(context).primaryColor),
-            child: Stack(children: [
-              Positioned(top: -80,left: -10,right: -10,
-                  child: Container(height: 120, decoration: BoxDecoration(
-                      border: Border.all(color: Colors.white.withValues(alpha:.07), width: 15),
-                      borderRadius: BorderRadius.circular(100)))),
+    final String? value = isWallet
+        ? (isLoyalty
+            ? (balance ?? 0).toStringAsFixed(0)
+            : PriceConverter.convertPrice(context, balance ?? 0))
+        : null;
 
-
-              isWallet?
-              Padding(padding: const EdgeInsets.all(8.0),
-                child: SizedBox(width: 30, height: 30,child: Image.asset(image, color: Colors.white)),
-              ):
-
-              Center(child: Padding(padding: const EdgeInsets.all(Dimensions.paddingSizeLarge),
-                  child: Image.asset(image, color:  Theme.of(context).colorScheme.secondaryContainer))),
-
-              if(isWallet)
-                Positioned(right: 10,bottom: 10,
-                    child: Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-                      Text(getTranslated(subTitle, context)??'', style: textRegular.copyWith(color: Colors.white),),
-                      isLoyalty? Text(balance != null? balance!.toStringAsFixed(0) : '0',
-                          style: textMedium.copyWith(color: Colors.white)):
-                      Text(balance != null? PriceConverter.convertPrice(context, balance):'0',
-                          style: textMedium.copyWith(color: Colors.white))])),
-
-              hasCount?
-              Positioned(top: 5, right: 5,
-                child: Consumer<CartController>(builder: (context, cart, child) {
-                  return CircleAvatar(radius: 10, backgroundColor: Theme.of(context).colorScheme.error,
-                      child: Text(count.toString(), style: titilliumSemiBold.copyWith(color: Theme.of(context).cardColor,
-                          fontSize: Dimensions.fontSizeExtraSmall)));
-                })):const SizedBox(),
-            ])),
+    return PressableScale(
+      onTap: onTap != null ? () => onTap!() : null,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 5),
+        child: GlassContainer(
+          blur: false,
+          width: 104,
+          radius: 22,
+          padding: const EdgeInsets.fromLTRB(8, 12, 8, 10),
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            Stack(clipBehavior: Clip.none, children: [
+              Container(
+                width: 46,
+                height: 46,
+                padding: const EdgeInsets.all(11),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [color.withValues(alpha: .22), color.withValues(alpha: .08)],
+                  ),
+                ),
+                child: Image.asset(image, color: color),
+              ),
+              if (hasCount && count > 0)
+                PositionedDirectional(
+                  top: -6,
+                  end: -8,
+                  child: Container(
+                    constraints: const BoxConstraints(minWidth: 20),
+                    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                    decoration: BoxDecoration(
+                      gradient: AppPalette.offerGradient,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Colors.white, width: 1.5),
+                    ),
+                    child: Text('$count',
+                        textAlign: TextAlign.center,
+                        style: textBold.copyWith(color: Colors.white, fontSize: 10)),
+                  ),
+                ),
+            ]),
+            const SizedBox(height: 8),
+            Text(title ?? '',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: textMedium.copyWith(
+                    fontSize: Dimensions.fontSizeSmall,
+                    color: Theme.of(context).textTheme.bodyLarge?.color)),
+            if (value != null)
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(value,
+                    maxLines: 1,
+                    style: robotoBold.copyWith(fontSize: Dimensions.fontSizeDefault, color: color)),
+              ),
+          ]),
         ),
-        Text(title??'', maxLines: 1,overflow: TextOverflow.clip,
-            style: titilliumRegular.copyWith(fontSize: Dimensions.fontSizeDefault,
-                color: Theme.of(context).textTheme.bodyLarge?.color)),
-      ]),
+      ),
     );
   }
 }

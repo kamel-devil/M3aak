@@ -8,7 +8,6 @@ import 'package:kk_thotix_m3aak/data/services/data_sync_service_interface.dart';
 import 'package:kk_thotix_m3aak/features/address/domain/repositories/address_repository_interface.dart';
 import 'package:kk_thotix_m3aak/features/address/domain/services/address_service.dart';
 import 'package:kk_thotix_m3aak/features/address/domain/services/address_service_interface.dart';
-import 'package:kk_thotix_m3aak/features/auth/controllers/facebook_login_controller.dart';
 import 'package:kk_thotix_m3aak/features/auth/controllers/google_login_controller.dart';
 import 'package:kk_thotix_m3aak/features/auth/domain/repositories/auth_repository.dart';
 import 'package:kk_thotix_m3aak/features/auth/domain/repositories/auth_repository_interface.dart';
@@ -124,6 +123,8 @@ import 'package:kk_thotix_m3aak/features/reorder/domain/repositories/re_order_re
 import 'package:kk_thotix_m3aak/features/reorder/domain/repositories/re_order_repository_interface.dart';
 import 'package:kk_thotix_m3aak/features/reorder/domain/services/re_order_service.dart';
 import 'package:kk_thotix_m3aak/features/reorder/domain/services/re_order_service_interface.dart';
+import 'package:kk_thotix_m3aak/features/prescription/controllers/prescription_controller.dart';
+import 'package:kk_thotix_m3aak/features/prescription/domain/repositories/prescription_repository.dart';
 import 'package:kk_thotix_m3aak/features/restock/controllers/restock_controller.dart';
 import 'package:kk_thotix_m3aak/features/restock/domain/repositories/restock_repository.dart';
 import 'package:kk_thotix_m3aak/features/restock/domain/repositories/restock_repository_interface.dart';
@@ -239,6 +240,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => RefundRepository(dioClient: sl()));
   sl.registerLazySingleton(() => ReOrderRepository(dioClient: sl()));
   sl.registerLazySingleton(() => RestockRepository(dioClient: sl()));
+  sl.registerLazySingleton(() => PrescriptionRepository(dioClient: sl()));
 
 
   // Provider
@@ -265,7 +267,6 @@ Future<void> init() async {
   sl.registerFactory(() => LocalizationController(sharedPreferences: sl(), dioClient: sl()));
   sl.registerFactory(() => ThemeController(sharedPreferences: sl()));
   sl.registerFactory(() => GoogleSignInController());
-  sl.registerFactory(() => FacebookLoginController());
   sl.registerFactory(() => AddressController(addressServiceInterface: sl()));
   sl.registerFactory(() => WalletController(walletServiceInterface: sl()));
   sl.registerFactory(() => CompareController(compareServiceInterface: sl()));
@@ -280,6 +281,7 @@ Future<void> init() async {
   sl.registerFactory(() => RefundController(refundServiceInterface: sl()));
   sl.registerFactory(() => ReOrderController(reOrderServiceInterface: sl()));
   sl.registerFactory(() => RestockController(restockServiceInterface: sl()));
+  sl.registerFactory(() => PrescriptionController(prescriptionRepository: sl()));
 
   //interface
   AddressRepoInterface addressRepoInterface = AddressRepository(dioClient: sl());

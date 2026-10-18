@@ -4,6 +4,7 @@ import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:kk_thotix_m3aak/theme/app_palette.dart';
 import 'package:kk_thotix_m3aak/common/basewidget/custom_asset_image_widget.dart';
 import 'package:kk_thotix_m3aak/common/basewidget/show_custom_snakbar_widget.dart';
 import 'package:kk_thotix_m3aak/features/chat/domain/models/message_body.dart';
@@ -14,7 +15,6 @@ import 'package:kk_thotix_m3aak/helper/image_size_checker.dart';
 import 'package:kk_thotix_m3aak/helper/route_healper.dart';
 import 'package:kk_thotix_m3aak/localization/language_constrants.dart';
 import 'package:kk_thotix_m3aak/features/chat/controllers/chat_controller.dart';
-import 'package:kk_thotix_m3aak/theme/controllers/theme_controller.dart';
 import 'package:kk_thotix_m3aak/utill/app_constants.dart';
 import 'package:kk_thotix_m3aak/utill/custom_themes.dart';
 import 'package:kk_thotix_m3aak/utill/dimensions.dart';
@@ -95,29 +95,67 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
 
     return Scaffold(
-      appBar: AppBar(backgroundColor: Theme.of(context).cardColor,
-        titleSpacing: 0,
-        elevation: 1,
-        leading: InkWell(onTap: ()=> Navigator.pop(context),
-          child: Icon(CupertinoIcons.back, color: Theme.of(context).textTheme.bodyLarge?.color)),
-        title: Row(children: [
-
-          ClipRRect(borderRadius: BorderRadius.circular(100),
-            child: Container(decoration: BoxDecoration(borderRadius: BorderRadius.circular(100),
-              border: Border.all(width: .5, color: Theme.of(context).primaryColor.withValues(alpha:.125))),
-              height: 40, width: 40,child: CustomImageWidget(image: widget.image??''))),
-
-
-          Padding(padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSmall),
-            child: Text(widget.name??'', style: textRegular.copyWith(fontSize: Dimensions.fontSizeLarge, color: Theme.of(context).textTheme.bodyLarge?.color)))]),
-        actions: widget.isDelivery? [InkWell(
-          onTap: ()=> _launchUrl("tel:${widget.phone}"),
-          child: Padding(padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
-            child: Container(decoration: BoxDecoration(color: Theme.of(context).primaryColor.withValues(alpha:.125),
-                borderRadius: BorderRadius.circular(Dimensions.paddingSizeExtraSmall)),
-                height: 35, width: 35,child: Padding(padding: const EdgeInsets.all(Dimensions.paddingSizeExtraSmall),
-                  child: Image.asset(Images.callIcon, color: Theme.of(context).primaryColor)))),
-        )]:[]),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(76),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).cardColor.withValues(alpha: .94),
+            border: Border(bottom: BorderSide(color: AppPalette.glassBorder(context))),
+          ),
+          child: SafeArea(
+            bottom: false,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 10),
+              child: Row(children: [
+                IconButton(
+                  tooltip: getTranslated('back', context),
+                  onPressed: () => Navigator.pop(context),
+                  style: IconButton.styleFrom(
+                    minimumSize: const Size(44, 44),
+                    backgroundColor: Theme.of(context).cardColor,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      side: BorderSide(color: AppPalette.glassBorder(context)),
+                    ),
+                  ),
+                  icon: Icon(Icons.arrow_back_rounded, size: 20, color: Theme.of(context).textTheme.bodyLarge?.color),
+                ),
+                const SizedBox(width: 10),
+                Container(
+                  width: 44,
+                  height: 44,
+                  padding: const EdgeInsets.all(2),
+                  decoration: BoxDecoration(gradient: AppPalette.brandGradient, borderRadius: BorderRadius.circular(15)),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(13),
+                    child: Container(color: Theme.of(context).cardColor,
+                        child: CustomImageWidget(image: widget.image ?? '', fit: BoxFit.cover)),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
+                  Text(widget.name ?? '', maxLines: 1, overflow: TextOverflow.ellipsis,
+                      style: textBold.copyWith(fontSize: Dimensions.fontSizeLarge, color: Theme.of(context).textTheme.bodyLarge?.color)),
+                  if (widget.isShopTemporaryClosed || widget.isShopOnVacation)
+                    Text(getTranslated('close_for_now', context) ?? '',
+                        style: textRegular.copyWith(fontSize: Dimensions.fontSizeSmall, color: AppPalette.error)),
+                ])),
+                if (widget.isDelivery)
+                  IconButton(
+                    tooltip: getTranslated('call', context),
+                    onPressed: () => _launchUrl("tel:${widget.phone}"),
+                    style: IconButton.styleFrom(
+                      minimumSize: const Size(44, 44),
+                      backgroundColor: Theme.of(context).primaryColor.withValues(alpha: .12),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                    ),
+                    icon: const Icon(Icons.call_rounded, size: 20, color: AppPalette.primaryDeep),
+                  ),
+              ]),
+            ),
+          ),
+        ),
+      ),
 
       body: Stack(
         children: [
@@ -157,13 +195,21 @@ class _ChatScreenState extends State<ChatScreen> {
                                   vertical: Dimensions.paddingSizeSmall,
                                 ),
                                 // DateConverter.customTime(DateTime.parse(chat!.createdAt!))
-                                child: Text(
-                                  DateConverter.dateStringMonthYear(DateTime.tryParse(chatController.messageModel!.message![index].createdAt!)),
-                                  style: textMedium.copyWith(
-                                    fontSize: Dimensions.fontSizeSmall,
-                                    color: Theme.of(context).textTheme.bodyLarge!.color!.withValues(alpha:0.5),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context).cardColor.withValues(alpha: .85),
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(color: AppPalette.glassBorder(context)),
                                   ),
-                                  textDirection: TextDirection.ltr,
+                                  child: Text(
+                                    DateConverter.dateStringMonthYear(DateTime.tryParse(chatController.messageModel!.message![index].createdAt!)),
+                                    style: textMedium.copyWith(
+                                      fontSize: Dimensions.fontSizeExtraSmall + 1,
+                                      color: Theme.of(context).hintColor,
+                                    ),
+                                    textDirection: TextDirection.ltr,
+                                  ),
                                 ),
                               ),
                             ),
@@ -427,18 +473,11 @@ class _ChatScreenState extends State<ChatScreen> {
                             child: Container(
                               width: 50,
                               decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(Dimensions.paddingSizeSmall),
-                                border: Border.all(width: 1, color: Theme.of(context).hintColor.withValues(alpha: 0.7)),
+                                gradient: AppPalette.brandGradient,
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: [BoxShadow(color: AppPalette.primary.withValues(alpha: .3), blurRadius: 12, offset: const Offset(0, 5))],
                               ),
-                              child: Center(child: Padding(
-                                padding: const EdgeInsets.fromLTRB(
-                                  Dimensions.paddingSizeExtraExtraSmall,
-                                  Dimensions.paddingSizeExtraExtraSmall,
-                                  Dimensions.paddingSizeExtraExtraSmall,
-                                  8,
-                                ),
-                                child: Image.asset(Images.send, color: Provider.of<ThemeController>(context).darkTheme ? Colors.white: null),
-                              )),
+                              child: const Center(child: Icon(Icons.send_rounded, color: Colors.white, size: 21)),
                             ),
                           )),
                         ),

@@ -1,57 +1,55 @@
 import 'package:flutter/material.dart';
+import 'package:kk_thotix_m3aak/theme/app_palette.dart';
 
 class ColorResources {
   // ── Brand ──────────────────────────────────────────────────────────────────
-  static const Color accentPurple = Color(0xFF5B4CF0);
+  static const Color accentPurple = AppPalette.primary; // legacy name
 
   // ── Bottom-nav ─────────────────────────────────────────────────────────────
   /// Pill background for the selected nav item.
-  static const Color navPillBackground = Color(0xFFECE9FF);
+  static const Color navPillBackground = Color(0xFFD7F4EE);
 
   // ── Cart badge ─────────────────────────────────────────────────────────────
-  static const Color cartBadge = Color(0xFFE5484D);
+  static const Color cartBadge = AppPalette.accent;
 
   // ── Product card ───────────────────────────────────────────────────────────
-  static const Color starRating = Color(0xFFF5A524);
+  static const Color starRating = AppPalette.warning;
 
   // ── Bottom-nav bar ─────────────────────────────────────────────────────────
   /// Subtle border around the floating bottom nav container.
-  static const Color navBarBorder = Color(0xFFE5E8F1);
+  static const Color navBarBorder = AppPalette.lightGlassBorder;
 
   /// Drop-shadow for the floating bottom nav container.
-  static const Color navBarShadow = Color(0x18000000);
+  static const Color navBarShadow = Color(0x220A6F6B);
 
   // ── Search bar ─────────────────────────────────────────────────────────────
   /// Drop-shadow for the sticky search bar.
-  static const Color searchBarShadow = Color(0x14000000);
+  static const Color searchBarShadow = Color(0x180A6F6B);
 
   /// Inner search-field background.
-  static const Color searchFieldBackground = Color(0xFFF1F3FA);
+  static const Color searchFieldBackground = Color(0xB3FFFFFF);
 
   /// Placeholder / icon colour inside the search field.
-  static const Color searchHint = Color(0xFF6D7385);
+  static const Color searchHint = AppPalette.lightInkSoft;
 
   // ── Section cards ──────────────────────────────────────────────────────────
   /// Drop-shadow for home section cards.
-  static const Color sectionCardShadow = Color(0x12000000);
+  static const Color sectionCardShadow = Color(0x140A6F6B);
 
   // ── Banner overlay ─────────────────────────────────────────────────────────
   static const Color bannerOverlayTop    = Color(0x05000000);
-  static const Color bannerOverlayBottom = Color(0xA0000000);
+  static const Color bannerOverlayBottom = Color(0xA0062A2A);
 
   static Color getHeaderGradientStart(BuildContext context) {
-	return Theme.of(context).primaryColor.withValues(alpha: .90);
+	return const Color(0xFF13B5A0);
   }
 
   static Color getHeaderGradientMid(BuildContext context) {
-	return Theme.of(context).primaryColor;
+	return AppPalette.primary;
   }
 
   static Color getHeaderGradientEnd(BuildContext context) {
-	return Color.alphaBlend(
-	  Colors.black.withValues(alpha: .16),
-	  Theme.of(context).primaryColor,
-	);
+	return AppPalette.primaryDeep;
   }
 
   static Color getHeaderBorder(BuildContext context) {
@@ -59,7 +57,7 @@ class ColorResources {
   }
 
   static Color getHeaderShadow(BuildContext context) {
-	return Theme.of(context).primaryColor.withValues(alpha: .22);
+	return AppPalette.primaryDeep.withValues(alpha: .25);
   }
 
   static Color getHeaderIconSurface(BuildContext context) {
@@ -71,6 +69,6 @@ class ColorResources {
   }
 
   static Color getNotificationDot(BuildContext context) {
-	return Theme.of(context).colorScheme.error;
+	return AppPalette.accent;
   }
 }

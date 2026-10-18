@@ -53,20 +53,20 @@ class _SearchInboxWidgetState extends State<SearchInboxWidget> {
                   contentPadding: const EdgeInsets.symmetric(vertical: 15, horizontal: 22),
                   fillColor: Theme.of(context).cardColor,
                   border: OutlineInputBorder(
-                    borderRadius: const BorderRadius.horizontal(right: Radius.circular(10), left: Radius.circular(10)),
-                    borderSide: BorderSide(width: 0.5, color: Theme.of(context).primaryColor.withValues(alpha:0.5)),
+                    borderRadius: BorderRadius.circular(18),
+                    borderSide: BorderSide(width: 1.2, color: Theme.of(context).primaryColor.withValues(alpha:0.18)),
                   ),
                   errorBorder: OutlineInputBorder(
-                    borderRadius: const BorderRadius.horizontal(right: Radius.circular(10), left: Radius.circular(10)),
-                    borderSide: BorderSide(width: 0.5, color: Theme.of(context).primaryColor.withValues(alpha:0.5)),
+                    borderRadius: BorderRadius.circular(18),
+                    borderSide: BorderSide(width: 1.2, color: Theme.of(context).primaryColor.withValues(alpha:0.18)),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderRadius: const BorderRadius.horizontal(right: Radius.circular(10), left: Radius.circular(10)),
-                    borderSide: BorderSide(width: 0.5, color: Theme.of(context).primaryColor.withValues(alpha:0.5)),
+                    borderRadius: BorderRadius.circular(18),
+                    borderSide: BorderSide(width: 1.2, color: Theme.of(context).primaryColor.withValues(alpha:0.18)),
                   ),
                   enabledBorder : OutlineInputBorder(
-                    borderRadius: const BorderRadius.horizontal(right: Radius.circular(10), left: Radius.circular(10)),
-                    borderSide: BorderSide(width: 0.5, color: Theme.of(context).primaryColor.withValues(alpha:0.5)),
+                    borderRadius: BorderRadius.circular(18),
+                    borderSide: BorderSide(width: 1.2, color: Theme.of(context).primaryColor.withValues(alpha:0.18)),
                   ),
                   filled: true,
 
@@ -82,7 +82,7 @@ class _SearchInboxWidgetState extends State<SearchInboxWidget> {
                         )
                       : Padding(
                           padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault),
-                          child: Icon(Icons.search_outlined, color: Theme.of(context).hintColor, size: 22),
+                          child: Icon(Icons.search_rounded, color: Theme.of(context).primaryColor, size: 22),
                         ),
 
                   // suffixIcon: searchController.text.isNotEmpty? InkWell(

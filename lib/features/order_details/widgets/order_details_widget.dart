@@ -89,10 +89,14 @@ class _OrderDetailsWidgetState extends State<OrderDetailsWidget> {
           const SizedBox(height: Dimensions.paddingSizeLarge),
 
           Row(mainAxisAlignment: MainAxisAlignment.start, crossAxisAlignment: CrossAxisAlignment.start, children: [
-            ClipRRect(borderRadius: BorderRadius.circular(Dimensions.paddingSizeExtraSmall),
-              child: Container(decoration: BoxDecoration(borderRadius: BorderRadius.circular(Dimensions.paddingSizeExtraSmall),
-                  border: Border.all(color: Theme.of(context).primaryColor.withValues(alpha:.125))),
-                child: CustomImageWidget(image: '${widget.orderDetailsModel.productDetails?.thumbnailFullUrl?.path}', width: 50, height: 50),
+            ClipRRect(borderRadius: BorderRadius.circular(16),
+              child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(16),
+                  color: Theme.of(context).brightness == Brightness.dark ? Colors.white.withValues(alpha: .06) : Colors.white,
+                  border: Border.all(color: Theme.of(context).primaryColor.withValues(alpha:.15), width: 1.2)),
+                child: ClipRRect(borderRadius: BorderRadius.circular(12),
+                  child: CustomImageWidget(image: '${widget.orderDetailsModel.productDetails?.thumbnailFullUrl?.path}', width: 60, height: 60)),
               ),
             ),
             const SizedBox(width: Dimensions.paddingSizeSmall),

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:kk_thotix_m3aak/helper/color_helper.dart';
+import 'package:kk_thotix_m3aak/theme/app_palette.dart';
 import 'package:kk_thotix_m3aak/localization/language_constrants.dart';
 import 'package:kk_thotix_m3aak/theme/controllers/theme_controller.dart';
 import 'package:kk_thotix_m3aak/utill/custom_themes.dart';
@@ -32,13 +32,9 @@ class TitleRowWidget extends StatelessWidget {
     return Container(
       width: MediaQuery.of(context).size.width,
       decoration: isFlash ? BoxDecoration(
-        borderRadius: const BorderRadius.all(Radius.circular(Dimensions.paddingSizeSmall)),
-        color: Theme.of(context).primaryColor,
-        gradient: LinearGradient(colors: [
-          Theme.of(context).primaryColor,
-          ColorHelper.blendColors(Colors.white, Theme.of(context).primaryColor, 0.8),
-          ColorHelper.blendColors(Colors.white, Theme.of(context).primaryColor, 0.9),
-        ]),
+        borderRadius: const BorderRadius.all(Radius.circular(18)),
+        gradient: AppPalette.offerGradient,
+        boxShadow: [BoxShadow(color: AppPalette.accent.withValues(alpha: .25), blurRadius: 16, offset: const Offset(0, 6))],
       ) : null,
 
       child: Stack(children: [
@@ -82,11 +78,20 @@ class TitleRowWidget extends StatelessWidget {
             // Expanded(
               //child:
 
+              if(!isFlash) Container(
+                width: 4, height: 18,
+                margin: const EdgeInsetsDirectional.only(end: 8),
+                decoration: BoxDecoration(
+                  gradient: AppPalette.brandGradient,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+
               Text(title!,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: robotoBold.copyWith(
-                fontSize: isFlash ? Dimensions.fontSizeSmall : Dimensions.fontSizeLarge,
+                fontSize: isFlash ? Dimensions.fontSizeDefault : Dimensions.fontSizeLarge,
                 color: titleColor ?? (isFlash? Colors.white : Theme.of(context).textTheme.bodyLarge?.color),
               )),
             // ),
@@ -148,11 +153,21 @@ class TitleRowWidget extends StatelessWidget {
             ) : onTap != null && !isFlash ?
             Padding(padding: const EdgeInsets.symmetric(horizontal: 0),
               child: InkWell(onTap: onTap as void Function()?,
-                child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                  isDetailsPage == null ? Text(getTranslated('VIEW_ALL', context)!,
-                      style: titilliumRegular.copyWith(color: Theme.of(context).primaryColor,
-                        fontSize: Dimensions.fontSizeDefault,)) : const SizedBox.shrink(),
-                ]),
+                borderRadius: BorderRadius.circular(20),
+                child: isDetailsPage == null ? Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).primaryColor.withValues(alpha: .10),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(mainAxisSize: MainAxisSize.min, children: [
+                    Text(getTranslated('VIEW_ALL', context)!,
+                        style: textMedium.copyWith(color: Theme.of(context).primaryColor,
+                          fontSize: Dimensions.fontSizeSmall)),
+                    const SizedBox(width: 2),
+                    Icon(Icons.chevron_right_rounded, size: 16, color: Theme.of(context).primaryColor),
+                  ]),
+                ) : const SizedBox.shrink(),
               ),
             ):  const SizedBox.shrink(),
 
@@ -191,12 +206,12 @@ class TimerBox extends StatelessWidget{
               decoration: BoxDecoration(
                 color: (isDetailsPage != null && Provider.of<ThemeController>(context, listen: false).darkTheme) ?
                 Theme.of(context).primaryColor.withValues(alpha: .12) : (isDetailsPage != null && !Provider.of<ThemeController>(context, listen: false).darkTheme) ?
-                Theme.of(context).primaryColor : Colors.white,
+                Theme.of(context).primaryColor : Colors.white.withValues(alpha: .92),
 
-                borderRadius: BorderRadius.circular(50),),
+                borderRadius: BorderRadius.circular(10),),
               child: Text(time! < 10 ? '0$time' : time.toString(),
                 style: textBold.copyWith(
-                  color: (isDetailsPage ?? false) ? Colors.white : isBorder ? Theme.of(context).textTheme.bodyMedium?.color : Theme.of(context).primaryColor,
+                  color: (isDetailsPage ?? false) ? Colors.white : isBorder ? Theme.of(context).textTheme.bodyMedium?.color : AppPalette.accent,
                   fontSize: Dimensions.fontSizeExtraSmall,
                 ),
               ),
@@ -204,7 +219,7 @@ class TimerBox extends StatelessWidget{
             Padding(padding: const EdgeInsets.only(top: Dimensions.paddingSizeExtraSmall),
               child: Text(day!, style: textBold.copyWith(color: isDetailsPage != null ?
               Theme.of(context).textTheme.bodyLarge?.color : isBorder ?
-              Theme.of(context).textTheme.bodyMedium?.color : Colors.white.withValues(alpha:.5),
+              Theme.of(context).textTheme.bodyMedium?.color : Colors.white.withValues(alpha:.85),
               fontSize: Dimensions.fontSizeExtraSmall,)
               ),
             ),

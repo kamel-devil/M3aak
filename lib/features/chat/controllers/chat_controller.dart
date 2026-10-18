@@ -109,23 +109,24 @@ class ChatController extends ChangeNotifier {
 
     ApiResponseModel apiResponse = await chatServiceInterface!.getChatList(userType!= null ? userType  == 0 ? 'delivery-man' : 'seller' : _userTypeIndex == 0 ? 'delivery-man' : 'seller', offset);
     if (apiResponse.response != null && apiResponse.response!.statusCode == 200) {
+      final ChatModel parsedChatModelResponse = ChatModel.fromJson(apiResponse.response!.data);
       if(offset == 1){
         if(userType == 0) {
           deliverymanChatModel = null;
-          deliverymanChatModel = ChatModel.fromJson(apiResponse.response!.data);
+          deliverymanChatModel = parsedChatModelResponse;
         }else {
           chatModel = null;
-          chatModel = ChatModel.fromJson(apiResponse.response!.data);
+          chatModel = parsedChatModelResponse;
         }
       }else{
         if(userType == 0) {
-          deliverymanChatModel?.chat?.addAll(ChatModel.fromJson(apiResponse.response!.data).chat!);
-          deliverymanChatModel?.offset  = (ChatModel.fromJson(apiResponse.response!.data).offset!);
-          deliverymanChatModel?.totalSize  = (ChatModel.fromJson(apiResponse.response!.data).totalSize!);
+          deliverymanChatModel?.chat?.addAll(parsedChatModelResponse.chat!);
+          deliverymanChatModel?.offset  = (parsedChatModelResponse.offset!);
+          deliverymanChatModel?.totalSize  = (parsedChatModelResponse.totalSize!);
         } else {
-          chatModel?.chat?.addAll(ChatModel.fromJson(apiResponse.response!.data).chat!);
-          chatModel?.offset  = (ChatModel.fromJson(apiResponse.response!.data).offset!);
-          chatModel?.totalSize  = (ChatModel.fromJson(apiResponse.response!.data).totalSize!);
+          chatModel?.chat?.addAll(parsedChatModelResponse.chat!);
+          chatModel?.offset  = (parsedChatModelResponse.offset!);
+          chatModel?.totalSize  = (parsedChatModelResponse.totalSize!);
         }
       }
     } else {

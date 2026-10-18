@@ -1,69 +1,79 @@
 import 'package:flutter/material.dart';
+import 'package:kk_thotix_m3aak/common/basewidget/pharmacy_product_parts.dart';
+import 'package:kk_thotix_m3aak/common/glass/glass_widgets.dart';
 import 'package:kk_thotix_m3aak/features/product/controllers/product_controller.dart';
-import 'package:kk_thotix_m3aak/features/product/widgets/latest_product/latest_product_widget.dart';
+import 'package:kk_thotix_m3aak/features/product/domain/models/product_model.dart';
 import 'package:kk_thotix_m3aak/common/basewidget/product_shimmer_widget.dart';
+import 'package:kk_thotix_m3aak/utill/custom_themes.dart';
 import 'package:kk_thotix_m3aak/utill/dimensions.dart';
 import 'package:provider/provider.dart';
 
+/// Horizontal row of equal compact product cards.
 class RelatedProductWidget extends StatelessWidget {
   const RelatedProductWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-
     return Consumer<ProductController>(
       builder: (context, prodProvider, child) {
-        return Column(children: [
-          prodProvider.relatedProductList != null ? prodProvider.relatedProductList!.isNotEmpty ?
+        final list = prodProvider.relatedProductList;
+        if (list == null) {
+          return ProductShimmer(isHomePage: false, isEnabled: true);
+        }
+        if (list.isEmpty) return const SizedBox();
 
-          SizedBox(
-            height: (prodProvider.relatedProductList?.length ?? 0) > 5 ? size.height * 0.35 : size.height * 0.16,
-            child: GridView.builder(
-              clipBehavior: Clip.none,
-              itemCount: prodProvider.relatedProductList?.length,
-              scrollDirection: Axis.horizontal,
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: (prodProvider.relatedProductList?.length ?? 0) > 5 ? 2 : 1,
-                crossAxisSpacing: 0,
-                mainAxisSpacing: 0,
-                childAspectRatio: 0.42,
-              ),
-              itemBuilder: (context, index) {
-
-                final int crossAxisCount = (prodProvider.relatedProductList?.length ?? 0) > 5 ? 2 : 1;
-
-                final columnIndex = index ~/ crossAxisCount;
-
-                final lastColumnIndex = ((prodProvider.relatedProductList?.length ?? 0) - 1) ~/ crossAxisCount;
-
-                final isLastColumn = columnIndex == lastColumnIndex;
-
-                return SizedBox(
-                  height: 100,
-                  child: Padding(
-                    padding: EdgeInsets.only(right: isLastColumn ? Dimensions.paddingSizeDefault : 0),
-                    child: LatestProductWidget(productModel: prodProvider.relatedProductList![index],)
-                  ),
-                );
-              },
+        return SizedBox(
+          height: 268,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            physics: const BouncingScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: Dimensions.homePagePadding, vertical: 4),
+            itemCount: list.length,
+            separatorBuilder: (_, __) => const SizedBox(width: 10),
+            itemBuilder: (context, index) => FadeSlideIn(
+              index: index < 6 ? index : 6,
+              child: _CompactProductCard(product: list[index]),
             ),
-          )
-
-          // RepaintBoundary(
-          //   child: MasonryGridView.count(
-          //     crossAxisCount: ResponsiveHelper.isTab(context)? 3 : 2,
-          //     itemCount: prodProvider.relatedProductList!.length,
-          //     shrinkWrap: true,
-          //     physics: const NeverScrollableScrollPhysics(),
-          //     itemBuilder: (BuildContext context, int index) => ProductWidget(productModel: prodProvider.relatedProductList![index]),
-          //   ),
-          // )
-
-              :  const SizedBox() :
-          ProductShimmer(isHomePage: false, isEnabled: Provider.of<ProductController>(context).relatedProductList == null),
-        ]);
+          ),
+        );
       },
+    );
+  }
+}
+
+class _CompactProductCard extends StatelessWidget {
+  const _CompactProductCard({required this.product});
+  final Product product;
+
+  @override
+  Widget build(BuildContext context) {
+    return PressableScale(
+      onTap: () => ProductPricing.openDetails(product),
+      child: GlassContainer(
+        blur: false,
+        radius: 22,
+        width: 156,
+        padding: const EdgeInsets.all(8),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Stack(children: [
+            ProductImageTile(product: product, size: 140, radius: 16),
+            PositionedDirectional(top: 6, end: 6, child: GlassFavouriteButton(productId: product.id)),
+          ]),
+          const SizedBox(height: 8),
+          Text(product.name ?? '', maxLines: 2, overflow: TextOverflow.ellipsis,
+              style: textMedium.copyWith(
+                fontSize: Dimensions.fontSizeSmall + 1,
+                height: 1.4,
+                color: Theme.of(context).textTheme.bodyLarge?.color,
+              )),
+          const Spacer(),
+          Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
+            Expanded(child: ProductPriceText(product: product)),
+            const SizedBox(width: 6),
+            QuickAddCartButton(product: product, size: 34),
+          ]),
+        ]),
+      ),
     );
   }
 }

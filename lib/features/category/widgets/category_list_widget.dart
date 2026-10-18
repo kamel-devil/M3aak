@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:kk_thotix_m3aak/common/basewidget/title_row_widget.dart';
 import 'package:kk_thotix_m3aak/features/category/controllers/category_controller.dart';
 import 'package:kk_thotix_m3aak/features/category/widgets/category_widget.dart';
-import 'package:kk_thotix_m3aak/localization/controllers/localization_controller.dart';
 import 'package:kk_thotix_m3aak/localization/language_constrants.dart';
 import 'package:kk_thotix_m3aak/utill/dimensions.dart';
 import 'package:provider/provider.dart';
@@ -34,7 +33,7 @@ class CategoryListWidget extends StatelessWidget {
           const SizedBox(height: Dimensions.paddingSizeSmall),
 
           categoryProvider.categoryList.isNotEmpty ?
-          SizedBox( height: Provider.of<LocalizationController>(context, listen: false).isLtr ? MediaQuery.of(context).size.width/3.7 : MediaQuery.of(context).size.width/3,
+          SizedBox( height: categoryTileSize(context) + 48,
             child: ListView.builder(
               padding: EdgeInsets.zero,
               scrollDirection: Axis.horizontal,

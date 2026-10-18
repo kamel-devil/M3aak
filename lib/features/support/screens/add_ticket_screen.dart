@@ -1,17 +1,15 @@
 import 'dart:io';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
-import 'package:kk_thotix_m3aak/common/basewidget/custom_asset_image_widget.dart';
+import 'package:kk_thotix_m3aak/theme/app_palette.dart';
+import 'package:kk_thotix_m3aak/common/glass/glass_widgets.dart';
 import 'package:kk_thotix_m3aak/features/support/controllers/support_ticket_controller.dart';
 import 'package:kk_thotix_m3aak/features/support/domain/models/support_ticket_body.dart';
-import 'package:kk_thotix_m3aak/features/support/widgets/priority_bottom_sheet_widget.dart';
 import 'package:kk_thotix_m3aak/features/support/widgets/support_ticket_type_widget.dart';
 import 'package:kk_thotix_m3aak/localization/language_constrants.dart';
 import 'package:kk_thotix_m3aak/utill/custom_themes.dart';
 import 'package:kk_thotix_m3aak/utill/dimensions.dart';
-import 'package:kk_thotix_m3aak/utill/images.dart';
 import 'package:kk_thotix_m3aak/common/basewidget/custom_app_bar_widget.dart';
-import 'package:kk_thotix_m3aak/common/basewidget/custom_button_widget.dart';
 import 'package:kk_thotix_m3aak/common/basewidget/show_custom_snakbar_widget.dart';
 import 'package:kk_thotix_m3aak/common/basewidget/custom_textfield_widget.dart';
 import 'package:provider/provider.dart';
@@ -51,32 +49,41 @@ class AddTicketScreenState extends State<AddTicketScreen> {
       body: Consumer<SupportTicketController>(
         builder: (context, supportTicketProvider, _) {
           return ListView(physics: const BouncingScrollPhysics(),
-              padding: const EdgeInsets.all(Dimensions.paddingSizeLarge), children: [
+              padding: const EdgeInsets.all(16), children: [
 
 
-            Container(padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault, vertical: Dimensions.paddingSizeTwelve),
-                decoration: BoxDecoration(color: Theme.of(context).primaryColor.withValues(alpha:.125),
-                    border: Border.all(color: Theme.of(context).primaryColor.withValues(alpha:.15)),
-                    borderRadius: BorderRadius.circular(Dimensions.paddingSizeEight)),
-                margin:  const EdgeInsets.only(bottom: Dimensions.paddingSizeLarge),
-                child: Row(children: [
-                  SizedBox(width: 20, child: CustomAssetImageWidget(widget.ticketModel.icon)),
-                  Padding(padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSmall),
-                      child: Text(getTranslated(widget.ticketModel.title, context)!, style: textBold))])),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: TypeButton(icon: widget.ticketModel.icon, title: widget.ticketModel.title),
+            ),
 
 
 
-            Padding(padding: const EdgeInsets.only(bottom:Dimensions.homePagePadding),
-              child: InkWell(onTap: ()=> showModalBottomSheet(backgroundColor: Colors.transparent,
-                  context: context, builder: (_)=> const PriorityBottomSheetWidget()),
-                child: Container(width: MediaQuery.of(context).size.width * .5, height: 50,
-                    decoration: BoxDecoration(borderRadius: BorderRadius.circular(5),
-                        color: Theme.of(context).cardColor, border: Border.all(color: Theme.of(context).hintColor.withValues(alpha:.5))),
-                    child: Padding(padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSmall),
-                      child: Row(children: [
-                        Expanded(child: Text(supportTicketProvider.selectedPriority, maxLines: 1,overflow: TextOverflow.ellipsis,
-                          style: textRegular.copyWith(fontSize: Dimensions.fontSizeLarge))),
-                        const Icon(Icons.arrow_drop_down)]))))),
+            Text(getTranslated('priority', context) ?? '',
+                style: textBold.copyWith(fontSize: Dimensions.fontSizeDefault, color: Theme.of(context).textTheme.bodyLarge?.color)),
+            const SizedBox(height: 8),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 18),
+              child: Wrap(spacing: 8, runSpacing: 8, children: [
+                for (int i = 0; i < supportTicketProvider.priority.length; i++)
+                  ChoiceChip(
+                    label: Text(getTranslated(supportTicketProvider.priority[i], context) ?? supportTicketProvider.priority[i]),
+                    selected: supportTicketProvider.selectedPriorityIndex == i,
+                    onSelected: (_) => supportTicketProvider.setSelectedPriority(i),
+                    showCheckmark: false,
+                    labelStyle: textBold.copyWith(
+                      fontSize: Dimensions.fontSizeSmall + 1,
+                      color: supportTicketProvider.selectedPriorityIndex == i ? Colors.white : Theme.of(context).textTheme.bodyLarge?.color,
+                    ),
+                    selectedColor: Theme.of(context).primaryColor,
+                    backgroundColor: Theme.of(context).cardColor,
+                    side: BorderSide(color: supportTicketProvider.selectedPriorityIndex == i
+                        ? Theme.of(context).primaryColor : AppPalette.glassBorder(context)),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(13)),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                  ),
+              ]),
+            ),
 
 
             CustomTextFieldWidget(
@@ -110,18 +117,16 @@ class AddTicketScreenState extends State<AddTicketScreen> {
                   InkWell(onTap: ()=> supportTicketProvider.pickMultipleImage(false,),
                     child: DottedBorder(
                       options: RoundedRectDottedBorderOptions(
-                        strokeWidth: 2,
-                        dashPattern: const [10,5],
-                        color: Theme.of(context).hintColor,
-                        radius: const Radius.circular(Dimensions.paddingSizeSmall),
+                        strokeWidth: 1.5,
+                        dashPattern: const [6,4],
+                        color: Theme.of(context).primaryColor.withValues(alpha: .5),
+                        radius: const Radius.circular(16),
                       ),
-                      child: Stack(children: [
-                        ClipRRect(borderRadius: BorderRadius.circular(Dimensions.paddingSizeSmall),
-                          child:  SizedBox(height: MediaQuery.of(context).size.width/4.3,
-                            width: MediaQuery.of(context).size.width, child: Image.asset(Images.placeholder))),
-                        Positioned(bottom: 0, right: 0, top: 0, left: 0,
-                          child: Container(decoration: BoxDecoration(color: Theme.of(context).hintColor.withValues(alpha:0.07),
-                              borderRadius: BorderRadius.circular(Dimensions.paddingSizeSmall))))]))) :
+                      child: Container(
+                        alignment: Alignment.center,
+                        color: AppPalette.tint(context),
+                        child: Icon(Icons.add_photo_alternate_outlined, color: Theme.of(context).primaryColor, size: 26),
+                      ))) :
                   Stack(children: [
                     Padding(padding: const EdgeInsets.only(bottom: Dimensions.paddingSizeSmall),
                       child: Container(decoration: const BoxDecoration(color: Colors.white,
@@ -148,26 +153,42 @@ class AddTicketScreenState extends State<AddTicketScreen> {
           SizedBox(width: 40, height: 40, child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).primaryColor))),
         ],
       ) :
-      Container(color: Theme.of(context).cardColor,
-        child: Consumer<SupportTicketController>(key: _scaffoldKey,
-          builder: (context, supportTicketProvider, _) => Padding(
-            padding: const EdgeInsets.symmetric(horizontal : Dimensions.paddingSizeDefault, vertical: Dimensions.paddingSizeSmall),
-            child: CustomButton(buttonText: getTranslated('submit', context), onTap: () {
+      Consumer<SupportTicketController>(key: _scaffoldKey,
+        builder: (context, supportTicketProvider, _) => SafeArea(top: false, child: Container(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+            decoration: BoxDecoration(
+              color: Theme.of(context).cardColor.withValues(alpha: .96),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+              border: Border(top: BorderSide(color: AppPalette.glassBorder(context))),
+            ),
+            child: PressableScale(
+              onTap: () {
               if (_subjectController.text.isEmpty) {
                 showCustomSnackBar(getTranslated('subject_is_required', context), context);
               } else if (_descriptionController.text.isEmpty) {
                 showCustomSnackBar(getTranslated('description_is_required', context), context);
-              }else if (supportTicketProvider.selectedPriorityIndex == -1) {
+              } else if (supportTicketProvider.selectedPriorityIndex == -1) {
                 showCustomSnackBar(getTranslated('priority_is_required', context), context);
               } else {
                 SupportTicketBody supportTicketModel = SupportTicketBody(categories[widget.categoryIndex],
                     _subjectController.text, _descriptionController.text, supportTicketProvider.selectedPriorityEn);
-
                 supportTicketProvider.createSupportTicket(supportTicketModel);
               }
-            }),
-          ),
-        ),
+            },
+              child: Container(
+                height: 56,
+                decoration: BoxDecoration(
+                  gradient: AppPalette.brandGradient,
+                  borderRadius: BorderRadius.circular(18),
+                  boxShadow: [BoxShadow(color: AppPalette.primary.withValues(alpha: .35), blurRadius: 18, offset: const Offset(0, 8))],
+                ),
+                child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                  
+                  Text(getTranslated('submit', context) ?? '', style: textBold.copyWith(color: Colors.white, fontSize: Dimensions.fontSizeLarge)),
+                ]),
+              ),
+            ),
+          )),
       ),
     );
   }

@@ -315,13 +315,14 @@ class ShopController extends ChangeNotifier {
         offerType: offerType
     );
     if (apiResponse.response != null && apiResponse.response!.statusCode == 200) {
+      final ProductModel parsedProductModelResponse = ProductModel.fromJson(apiResponse.response!.data);
       if(offset == 1){
         clearanceSearchProductModel = null;
-        clearanceSearchProductModel = ProductModel.fromJson(apiResponse.response!.data);
+        clearanceSearchProductModel = parsedProductModelResponse;
       }else{
-        clearanceSearchProductModel?.products?.addAll(ProductModel.fromJson(apiResponse.response!.data).products!);
-        clearanceSearchProductModel?.offset = (ProductModel.fromJson(apiResponse.response!.data).offset!);
-        clearanceSearchProductModel?.totalSize = ProductModel.fromJson(apiResponse.response!.data).totalSize;
+        clearanceSearchProductModel?.products?.addAll(parsedProductModelResponse.products!);
+        clearanceSearchProductModel?.offset = (parsedProductModelResponse.offset!);
+        clearanceSearchProductModel?.totalSize = parsedProductModelResponse.totalSize;
       }
     } else {
       ApiChecker.checkApi( apiResponse);

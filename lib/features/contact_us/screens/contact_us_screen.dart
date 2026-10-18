@@ -1,5 +1,9 @@
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:kk_thotix_m3aak/utill/custom_themes.dart';
+import 'package:kk_thotix_m3aak/theme/app_palette.dart';
+import 'package:kk_thotix_m3aak/common/glass/glass_widgets.dart';
 import 'package:kk_thotix_m3aak/features/contact_us/controllers/contact_us_controller.dart';
 import 'package:kk_thotix_m3aak/features/contact_us/domain/models/contact_us_body.dart';
 import 'package:kk_thotix_m3aak/helper/velidate_check.dart';
@@ -47,8 +51,21 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
               key: contactFormKey,
               autovalidateMode: AutovalidateMode.disabled,
               child: Column(children: [
+                const SizedBox(height: Dimensions.paddingSizeSmall),
+                const _ContactHero(),
+                const SizedBox(height: Dimensions.paddingSizeDefault),
 
-                SizedBox(width: MediaQuery.of(context).size.width/2,child: Image.asset(Images.contactUsBg)),
+                FadeSlideIn(index: 1, child: GlassContainer(
+                  blur: false,
+                  radius: 26,
+                  padding: const EdgeInsets.all(16),
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Text(getTranslated('send_us_a_message', context) ?? '',
+                      style: textBold.copyWith(fontSize: Dimensions.fontSizeLarge,
+                          color: Theme.of(context).textTheme.bodyLarge?.color)),
+                ),
                 CustomTextFieldWidget(
                   prefixIcon: Images.user,
                   controller: fullNameController,
@@ -110,6 +127,9 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
                   validator: (value)=> ValidateCheck.validateEmptyText(value, 'message_is_required'),
 
                 ),
+                  ]),
+                )),
+                const SizedBox(height: Dimensions.paddingSizeDefault),
               ],),
             )),
           );
@@ -143,6 +163,76 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
             ),
           );
         }
+      ),
+    );
+  }
+}
+
+/// Gradient card with one-tap call, WhatsApp and email shortcuts.
+class _ContactHero extends StatelessWidget {
+  const _ContactHero();
+
+  Future<void> _open(Uri uri) async {
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final config = Provider.of<SplashController>(context, listen: false).configModel;
+    final String phone = config?.companyPhone ?? '';
+    final String email = config?.companyEmail ?? '';
+    final String digits = phone.replaceAll(RegExp(r'[^\d]'), '');
+
+    Widget action(IconData icon, String label, VoidCallback? onTap, {bool solid = false}) {
+      return Expanded(
+        child: PressableScale(
+          onTap: onTap,
+          child: Container(
+            constraints: const BoxConstraints(minHeight: 64),
+            decoration: BoxDecoration(
+              color: solid ? Colors.white : Colors.white.withValues(alpha: .18),
+              borderRadius: BorderRadius.circular(18),
+              border: solid ? null : Border.all(color: Colors.white.withValues(alpha: .4)),
+            ),
+            child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+              Icon(icon, size: 22, color: solid ? const Color(0xFF128C4A) : Colors.white),
+              const SizedBox(height: 4),
+              Text(label, style: textBold.copyWith(fontSize: Dimensions.fontSizeSmall,
+                  color: solid ? const Color(0xFF128C4A) : Colors.white)),
+            ]),
+          ),
+        ),
+      );
+    }
+
+    return FadeSlideIn(
+      child: Container(
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          gradient: AppPalette.brandGradient,
+          borderRadius: BorderRadius.circular(28),
+          boxShadow: [BoxShadow(color: AppPalette.primaryDeep.withValues(alpha: .28), blurRadius: 28, offset: const Offset(0, 12))],
+        ),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(getTranslated('we_are_here_to_help', context) ?? '',
+              style: textBold.copyWith(color: Colors.white, fontSize: Dimensions.fontSizeExtraLarge + 2)),
+          const SizedBox(height: 2),
+          Text(getTranslated('contact_hero_subtitle', context) ?? '',
+              style: textRegular.copyWith(color: Colors.white.withValues(alpha: .9), fontSize: Dimensions.fontSizeSmall + 1)),
+          const SizedBox(height: 14),
+          Row(children: [
+            action(Icons.call_rounded, getTranslated('call', context) ?? '',
+                digits.isEmpty ? null : () => _open(Uri.parse('tel:+$digits'))),
+            const SizedBox(width: 8),
+            action(Icons.chat_rounded, 'WhatsApp',
+                digits.isEmpty ? null : () => _open(Uri.parse('https://wa.me/$digits')), solid: true),
+            const SizedBox(width: 8),
+            action(Icons.mail_outline_rounded, getTranslated('email', context) ?? '',
+                email.isEmpty ? null : () => _open(Uri.parse('mailto:$email'))),
+          ]),
+        ]),
       ),
     );
   }

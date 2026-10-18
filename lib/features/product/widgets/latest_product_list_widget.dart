@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:kk_thotix_m3aak/common/basewidget/pharmacy_product_parts.dart';
 import 'package:kk_thotix_m3aak/common/basewidget/slider_product_shimmer_widget.dart';
+import 'package:kk_thotix_m3aak/common/glass/glass_widgets.dart';
 import 'package:kk_thotix_m3aak/features/product/controllers/product_controller.dart';
 import 'package:kk_thotix_m3aak/features/product/domain/models/product_model.dart';
 import 'package:kk_thotix_m3aak/features/product/enums/product_type.dart';
-import 'package:kk_thotix_m3aak/features/product/widgets/latest_product/latest_product_widget.dart';
 import 'package:kk_thotix_m3aak/helper/responsive_helper.dart';
 import 'package:kk_thotix_m3aak/helper/route_healper.dart';
 import 'package:kk_thotix_m3aak/localization/language_constrants.dart';
@@ -11,6 +12,8 @@ import 'package:kk_thotix_m3aak/utill/dimensions.dart';
 import 'package:kk_thotix_m3aak/common/basewidget/title_row_widget.dart';
 import 'package:provider/provider.dart';
 
+/// Horizontal carousel of compact product tiles, two rows when there are
+/// enough products.
 class LatestProductListWidget extends StatelessWidget {
   const LatestProductListWidget({super.key});
 
@@ -30,86 +33,54 @@ class LatestProductListWidget extends StatelessWidget {
         }
 
         final bool isTab = ResponsiveHelper.isTab(context);
-        // Each row card height = image height + vertical padding
-        const double cardHeight = 108;
+        const double cardHeight = 104;
         const double cardSpacing = 10;
         final bool twoRows = products.length > 4;
-        final double listHeight = twoRows
-            ? (cardHeight * 2) + cardSpacing
-            : cardHeight;
+        final double listHeight =
+            twoRows ? (cardHeight * 2) + cardSpacing : cardHeight;
+        final double cardWidth = isTab ? 360.0 : MediaQuery.of(context).size.width * .78;
+        final int columns = twoRows ? (products.length / 2).ceil() : products.length;
 
-        return Container(
-          margin: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault),
-          padding: const EdgeInsets.fromLTRB(0, 16, 0, 16),
-          decoration: BoxDecoration(
-            color: Theme.of(context).cardColor,
-            borderRadius: BorderRadius.circular(24),
-            boxShadow: const [
-              BoxShadow(
-                color: Color(0x12000000),
-                blurRadius: 18,
-                offset: Offset(0, 6),
-              ),
-            ],
-          ),
+        return FadeSlideIn(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault),
-                child: TitleRowWidget(
-                  title: getTranslated('latest_products', context),
-                  onTap: () => RouterHelper.getViewAllProductScreenRoute(
-                    productType: ProductType.latestProduct,
-                    action: RouteAction.push,
-                  ),
+              TitleRowWidget(
+                title: getTranslated('latest_products', context),
+                onTap: () => RouterHelper.getViewAllProductScreenRoute(
+                  productType: ProductType.latestProduct,
+                  action: RouteAction.push,
                 ),
               ),
               const SizedBox(height: 12),
               SizedBox(
-                height: listHeight,
-                child: ListView.builder(
+                height: listHeight + 12,
+                child: ListView.separated(
                   scrollDirection: Axis.horizontal,
-                  padding: EdgeInsets.zero,
-                  itemCount: products.length,
-                  itemBuilder: (context, index) {
-                    final cardWidth = isTab ? 360.0 : 280.0;
-
-                    if (twoRows) {
-                      // Build in pairs: even index is top row, odd is bottom
-                      if (index.isOdd) return const SizedBox.shrink();
-
-                      final topProduct = products[index];
-                      final bottomIndex = index + 1;
-                      final hasBottom = bottomIndex < products.length;
-
-                      return SizedBox(
-                        width: cardWidth,
-                        child: Column(
-                          children: [
-                            Expanded(
-                              child: LatestProductWidget(productModel: topProduct),
-                            ),
-                            if (hasBottom) ...[
-                              const SizedBox(height: cardSpacing),
-                              Expanded(
-                                child: LatestProductWidget(productModel: products[bottomIndex]),
-                              ),
-                            ],
-                          ],
-                        ),
-                      );
-                    }
-
+                  padding: const EdgeInsets.fromLTRB(
+                      Dimensions.paddingSizeDefault, 0, Dimensions.paddingSizeDefault, 12),
+                  itemCount: columns,
+                  separatorBuilder: (_, __) => const SizedBox(width: 12),
+                  itemBuilder: (context, column) {
+                    final int top = twoRows ? column * 2 : column;
+                    final int bottom = top + 1;
                     return SizedBox(
                       width: cardWidth,
-                      height: cardHeight,
-                      child: LatestProductWidget(productModel: products[index]),
+                      child: Column(children: [
+                        SizedBox(
+                            height: cardHeight,
+                            child: ProductRowTile(product: products[top], imageSize: 84)),
+                        if (twoRows && bottom < products.length) ...[
+                          const SizedBox(height: cardSpacing),
+                          SizedBox(
+                              height: cardHeight,
+                              child: ProductRowTile(product: products[bottom], imageSize: 84)),
+                        ],
+                      ]),
                     );
                   },
                 ),
               ),
-              const SizedBox(height: 4),
             ],
           ),
         );

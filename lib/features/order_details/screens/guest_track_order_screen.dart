@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:kk_thotix_m3aak/common/basewidget/custom_app_bar_widget.dart';
-import 'package:kk_thotix_m3aak/common/basewidget/custom_asset_image_widget.dart';
+import 'package:kk_thotix_m3aak/features/auth/widgets/auth_ui.dart';
 import 'package:kk_thotix_m3aak/common/basewidget/custom_button_widget.dart';
 import 'package:kk_thotix_m3aak/common/basewidget/custom_textfield_widget.dart';
 import 'package:kk_thotix_m3aak/features/order_details/controllers/order_details_controller.dart';
 import 'package:kk_thotix_m3aak/helper/route_healper.dart';
 import 'package:kk_thotix_m3aak/helper/velidate_check.dart';
 import 'package:kk_thotix_m3aak/localization/language_constrants.dart';
-import 'package:kk_thotix_m3aak/utill/custom_themes.dart';
 import 'package:kk_thotix_m3aak/utill/dimensions.dart';
 import 'package:kk_thotix_m3aak/utill/images.dart';
 import 'package:provider/provider.dart';
@@ -27,36 +26,27 @@ class _GuestTrackOrderScreenState extends State<GuestTrackOrderScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final double widthSize = MediaQuery.sizeOf(context).width;
-
     return Scaffold(
         appBar: CustomAppBar(title: getTranslated('TRACK_ORDER', context)),
         body: Consumer<OrderDetailsController>(
             builder: (context, orderTrackingProvider, _) {
           return Padding(
             padding: const EdgeInsets.symmetric(
-                horizontal: Dimensions.paddingSizeExtraLarge),
+                horizontal: Dimensions.paddingSizeLarge),
             child: Form(
               key: formKey,
               child:
                   ListView(physics: const ClampingScrollPhysics(), children: [
-                const SizedBox(height: Dimensions.paddingSizeOverLarge),
-                Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                  CustomAssetImageWidget(Images.truckImage,
-                      height: widthSize * 0.17),
-                  Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: Dimensions.paddingSizeDefault),
-                      child: Text(
-                        getTranslated(
-                            'enter_your_order_id_and_phone_number_to_get_delivery_updates',
-                            context)!,
-                        style: textRegular.copyWith(
-                            color: Theme.of(context).hintColor),
-                        textAlign: TextAlign.center,
-                      )),
-                ]),
-                const SizedBox(height: Dimensions.paddingSizeThirtyFive),
+                const SizedBox(height: Dimensions.paddingSizeExtraLarge),
+                AuthIllustration(
+                  icon: Icons.local_shipping_rounded,
+                  title: getTranslated('where_is_my_order', context) ?? '',
+                  description: Text(getTranslated(
+                      'enter_your_order_id_and_phone_number_to_get_delivery_updates', context)!),
+                ),
+                const SizedBox(height: Dimensions.paddingSizeExtraLarge),
+                AuthFormCard(child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                AuthFieldLabel(getTranslated('order_id', context) ?? ''),
                 CustomTextFieldWidget(
                   controller: orderIdController,
                   prefixIcon: Images.orderIdIcon,
@@ -64,46 +54,11 @@ class _GuestTrackOrderScreenState extends State<GuestTrackOrderScreen> {
                   isAmount: true,
                   inputType: TextInputType.phone,
                   hintText: getTranslated('enter_order_id', context),
-                  labelText: getTranslated('order_id', context),
-                  labelTextStyle: textRegular.copyWith(
-                    fontSize: Dimensions.fontSizeLarge,
-                    color: Theme.of(context).textTheme.bodyLarge?.color,
-                  ),
-                  required: true,
                   showLabelText: false,
                   validator: (value) => ValidateCheck.validateEmptyText(
                       value, 'order_id_is_required'),
                 ),
-                // const SizedBox(height: Dimensions.paddingSizeExtraLarge),
-                // CustomTextFieldWidget(
-                //   isAmount: true,
-                //   inputType: TextInputType.phone,
-                //   prefixIcon: Images.callIcon,
-                //   prefixColor: Theme.of(context).primaryColor,
-                //   controller: phoneNumberController,
-                //   inputAction: TextInputAction.done,
-                //   hintText: '${getTranslated('enter_phone_number', context)}',
-                //   required: true,
-                //   labelText: '${getTranslated('phone_number', context)}',
-                //   labelTextStyle: textRegular.copyWith(
-                //     fontSize: Dimensions.fontSizeLarge,
-                //     color: Theme.of(context).textTheme.bodyLarge?.color,
-                //   ),
-                //   showLabelText: false,
-                //   validator: (value) => ValidateCheck.validateEmptyText(
-                //       value, 'phone_number_is_required'),
-                // ),
-                const SizedBox(height: Dimensions.paddingSizeExtraSmall),
-                Padding(
-                  padding: const EdgeInsets.only(left: 0),
-                  child: Text(
-                    getTranslated('please_include_your', context)!,
-                    style: textRegular.copyWith(
-                        color: Theme.of(context).hintColor),
-                    textAlign: TextAlign.start,
-                  ),
-                ),
-                const SizedBox(height: Dimensions.paddingSizeExtraOverLarge),
+                const SizedBox(height: Dimensions.paddingSizeDefault),
                 CustomButton(
                   isLoading: orderTrackingProvider.searching,
                   buttonText: '${getTranslated('track_order', context)}',
@@ -132,6 +87,7 @@ class _GuestTrackOrderScreenState extends State<GuestTrackOrderScreen> {
                     }
                   },
                 ),
+                ])),
               ]),
             ),
           );

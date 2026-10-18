@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:kk_thotix_m3aak/common/basewidget/bouncy_widget.dart';
 import 'package:kk_thotix_m3aak/common/basewidget/no_internet_screen_widget.dart';
+import 'package:kk_thotix_m3aak/common/glass/glass_widgets.dart';
+import 'package:kk_thotix_m3aak/theme/app_palette.dart';
 import 'package:kk_thotix_m3aak/features/auth/controllers/auth_controller.dart';
 import 'package:kk_thotix_m3aak/features/splash/controllers/splash_controller.dart';
 import 'package:kk_thotix_m3aak/features/splash/domain/models/config_model.dart';
@@ -321,32 +323,80 @@ class SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final Color ink = Theme.of(context).textTheme.bodyLarge!.color!;
     return Scaffold(
-      backgroundColor: Theme.of(context).primaryColor,
+      backgroundColor: Colors.transparent,
       key: _globalKey,
       body: Provider.of<SplashController>(context).hasConnection
-          ? Center(
-              child: Column(mainAxisSize: MainAxisSize.min, children: [
-                BouncyWidget(
-                    duration: const Duration(milliseconds: 2000),
-                    lift: 50,
-                    ratio: 0.5,
-                    pause: 0.25,
-                    child: SizedBox(
-                        width: 150,
-                        child: Image.asset(Images.icon, width: 150.0))),
-                Text(AppConstants.appName,
-                    style: textRegular.copyWith(
-                        fontSize: Dimensions.fontSizeOverLarge,
-                        color: Colors.white)),
-                Padding(
-                    padding:
-                        const EdgeInsets.only(top: Dimensions.paddingSizeSmall),
-                    child: Text(AppConstants.slogan,
-                        style: textRegular.copyWith(
-                            fontSize: Dimensions.fontSizeDefault,
-                            color: Colors.white)))
-              ]),
+          ? PharmacyBackground(
+              animate: true,
+              child: Center(
+                child: Column(mainAxisSize: MainAxisSize.min, children: [
+                  TweenAnimationBuilder<double>(
+                    tween: Tween(begin: 0, end: 1),
+                    duration: const Duration(milliseconds: 900),
+                    curve: Curves.easeOutBack,
+                    builder: (context, v, child) => Opacity(
+                      opacity: v.clamp(0, 1),
+                      child: Transform.scale(scale: .6 + .4 * v, child: child),
+                    ),
+                    child: BouncyWidget(
+                      duration: const Duration(milliseconds: 2400),
+                      lift: 14,
+                      ratio: 0.5,
+                      pause: 0.25,
+                      child: PulseGlow(
+                        radius: 40,
+                        child: GlassContainer(
+                          width: 148,
+                          height: 148,
+                          radius: 40,
+                          padding: const EdgeInsets.all(22),
+                          child: Image.asset(Images.icon),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: Dimensions.paddingSizeExtraLarge),
+                  FadeSlideIn(
+                    index: 3,
+                    child: Text(AppConstants.appName,
+                        style: textBold.copyWith(
+                            fontSize: Dimensions.fontSizeOverLarge + 4,
+                            color: ink,
+                            letterSpacing: .3)),
+                  ),
+                  const SizedBox(height: Dimensions.paddingSizeExtraSmall),
+                  FadeSlideIn(
+                    index: 5,
+                    child: Row(mainAxisSize: MainAxisSize.min, children: [
+                      const Icon(Icons.local_pharmacy_rounded,
+                          size: 16, color: AppPalette.primary),
+                      const SizedBox(width: 6),
+                      Text(AppConstants.slogan,
+                          style: textMedium.copyWith(
+                              fontSize: Dimensions.fontSizeDefault,
+                              color: Theme.of(context).hintColor)),
+                    ]),
+                  ),
+                  const SizedBox(height: 36),
+                  FadeSlideIn(
+                    index: 7,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: const SizedBox(
+                        width: 120,
+                        height: 5,
+                        child: LinearProgressIndicator(
+                          backgroundColor: Color(0x330E9F8E),
+                          valueColor:
+                              AlwaysStoppedAnimation(AppPalette.primary),
+                        ),
+                      ),
+                    ),
+                  ),
+                ]),
+              ),
             )
           : const NoInternetOrDataScreenWidget(
               isNoInternet: true, child: SplashScreen()),

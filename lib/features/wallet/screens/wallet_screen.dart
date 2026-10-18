@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:kk_thotix_m3aak/theme/app_palette.dart';
+import 'package:kk_thotix_m3aak/common/basewidget/custom_app_bar_widget.dart';
 import 'package:kk_thotix_m3aak/common/basewidget/filter_icon_widget.dart';
 import 'package:kk_thotix_m3aak/common/basewidget/no_internet_screen_widget.dart';
 import 'package:kk_thotix_m3aak/common/basewidget/not_loggedin_widget.dart';
@@ -66,24 +68,15 @@ class _WalletScreenState extends State<WalletScreen> {
   @override
   Widget build(BuildContext context) {
 
-    return Scaffold(resizeToAvoidBottomInset: false, body: RefreshIndicator(
+    return Scaffold(resizeToAvoidBottomInset: false,
+      appBar: CustomAppBar(title: getTranslated('wallet', context)),
+      body: RefreshIndicator(
       color: Theme.of(context).cardColor,
       backgroundColor: Theme.of(context).primaryColor,
       onRefresh: () async {
         Provider.of<WalletController>(context, listen: false).getTransactionList(1);
       },
       child: CustomScrollView(controller: scrollController, slivers: [
-        SliverAppBar(
-          floating: true,
-          pinned: true,
-          iconTheme:  IconThemeData(color: Theme.of(context).textTheme.bodyLarge?.color),
-          backgroundColor: Theme.of(context).cardColor,
-          leading: InkWell(onTap: () => Navigator.of(context).pop(),
-            child: const Icon(Icons.arrow_back_ios,),
-          ),
-          centerTitle: true,
-          title: Text(getTranslated('wallet', context)!,style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color)),
-        ),
 
         SliverToBoxAdapter(child: Column(children: [
 
@@ -94,16 +87,13 @@ class _WalletScreenState extends State<WalletScreen> {
               return Padding(
                   padding: const EdgeInsets.only(top: Dimensions.paddingSizeSmall),
                   child: Container(
-                    height: MediaQuery.of(context).size.width / 3.0,
                     width: MediaQuery.of(context).size.width,
-                    padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeLarge),
-                    margin: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSmall),
+                    padding: const EdgeInsets.all(20),
+                    margin: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault),
                     decoration: BoxDecoration(
-                      color: Provider.of<ThemeController>(context, listen: false).darkTheme
-                          ? Theme.of(context).cardColor
-                          : Theme.of(context).primaryColor,
-                      borderRadius: BorderRadius.circular(Dimensions.paddingSizeSmall),
-                      boxShadow: [BoxShadow(color: Colors.grey[darkMode ? 900 : 200]!, spreadRadius: 0.5, blurRadius: 0.3)],
+                      gradient: AppPalette.brandGradient,
+                      borderRadius: BorderRadius.circular(28),
+                      boxShadow: [BoxShadow(color: AppPalette.primaryDeep.withValues(alpha: .30), blurRadius: 30, offset: const Offset(0, 14))],
                     ),
                     child: WalletCardWidget(
                       tooltipController: tooltipController, focusNode: focusNode,
@@ -119,14 +109,18 @@ class _WalletScreenState extends State<WalletScreen> {
         ])),
 
 
-        SliverPersistentHeader(pinned: true, delegate: SliverDelegate(height: 60, child: Container(
-          color: Theme.of(context).scaffoldBackgroundColor,
+        SliverPersistentHeader(pinned: true, delegate: SliverDelegate(height: 64, child: Container(
+          color: Theme.of(context).canvasColor.withValues(alpha: .92),
           child: Column(children: [
             const SizedBox(height: Dimensions.paddingSizeLarge,),
             Consumer<WalletController>(builder: (context, walletController, child) {
               return Padding(padding: const EdgeInsets.only(left: Dimensions.homePagePadding, right: Dimensions.homePagePadding),
                 child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                  Text('${getTranslated('wallet_history', context)}', style: robotoBold.copyWith(fontSize: Dimensions.fontSizeLarge, color:  Theme.of(context).textTheme.bodyLarge?.color),),
+                  Row(children: [
+                    Container(width: 4, height: 18, margin: const EdgeInsetsDirectional.only(end: 8),
+                        decoration: BoxDecoration(gradient: AppPalette.brandGradient, borderRadius: BorderRadius.circular(4))),
+                    Text('${getTranslated('wallet_history', context)}', style: robotoBold.copyWith(fontSize: Dimensions.fontSizeLarge, color:  Theme.of(context).textTheme.bodyLarge?.color),),
+                  ]),
 
                   FilterIconWidget(
                     filterCount: _getFilterCount(walletController.walletTransactionModel),

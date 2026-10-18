@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kk_thotix_m3aak/helper/price_converter.dart';
 import 'package:flutter/services.dart';
 import 'package:kk_thotix_m3aak/features/checkout/controllers/checkout_controller.dart';
 import 'package:kk_thotix_m3aak/features/splash/controllers/splash_controller.dart';
@@ -32,7 +33,7 @@ class ChangeAmountWidget extends StatelessWidget {
               Row(children: [
                 Text(getTranslated('change_amount', context) ?? '', style: textBold,),
 
-                Text('(${splashController.myCurrency?.symbol ?? ''})', style: titilliumSemiBold,),
+                Text('(${PriceConverter.currencySymbol(context)})', style: titilliumSemiBold,),
               ]),
               const SizedBox(height: Dimensions.paddingSizeExtraSmall),
 

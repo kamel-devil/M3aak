@@ -140,7 +140,7 @@ class _ReviewButtonWidgetState extends State<ReviewButtonWidget> with TickerProv
                                       '${getTranslated('update_review', context)}',
                                       style: textBold.copyWith(
                                         fontSize: Dimensions.fontSizeSmall,
-                                        color: Theme.of(context).scaffoldBackgroundColor,
+                                        color: Theme.of(context).canvasColor,
                                       )
                                   ),
 

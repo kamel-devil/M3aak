@@ -50,21 +50,20 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyATquiO66LH8bc2ICPjGGbrg2n-dW2DdZg',
-    appId: '1:789170580509:android:3e5c749677585736daaaf4',
-    messagingSenderId: '789170580509',
-    projectId: 'm3aak-c9f77',
-    storageBucket: 'm3aak-c9f77.firebasestorage.app',
+    apiKey: 'AIzaSyCdNYOEZf0ZQWsJ_Ke7CSZlSk9XPcPxjZs',
+    appId: '1:197946119885:android:2741bc1c1e5c3c9a677b84',
+    messagingSenderId: '197946119885',
+    projectId: 'adel-pharmacy-6773d',
+    storageBucket: 'adel-pharmacy-6773d.firebasestorage.app',
   );
-
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyDi0Wx5zwVpTttV9Wf4QAwhlKFDX3AGB40',
-    appId: '1:789170580509:ios:3d8f08271f42ded3daaaf4',
-    messagingSenderId: '789170580509',
-    projectId: 'm3aak-c9f77',
-    storageBucket: 'm3aak-c9f77.firebasestorage.app',
-    androidClientId: '789170580509-817j66pr8cqr6eu0p8n4pvmmbu4kbvft.apps.googleusercontent.com',
-    iosClientId: '789170580509-fbqdkgk1aa2ofuh60hb5bgq9q9dl0slq.apps.googleusercontent.com',
-    iosBundleId: 'com.thotix.kk.premium',
+    apiKey: 'AIzaSyAGBqqGbSvol2KleOHIQI5R1Y4Dm1s-dPM',
+    appId: '1:197946119885:ios:932422ccc48df7ac677b84',
+    messagingSenderId: '197946119885',
+    projectId: 'adel-pharmacy-6773d',
+    storageBucket: 'adel-pharmacy-6773d.firebasestorage.app',
+    androidClientId: '197946119885-b0kr9f8k65gl8ursgu35h3f4cp101kah.apps.googleusercontent.com',
+    iosClientId: '197946119885-qil2ue7s72kumcvtnq8cls4n63jdbqco.apps.googleusercontent.com',
+    iosBundleId: 'com.thotix.adelpharmacy',
   );
 }

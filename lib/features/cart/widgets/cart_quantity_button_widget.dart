@@ -2,12 +2,11 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:kk_thotix_m3aak/common/basewidget/custom_asset_image_widget.dart';
 import 'package:kk_thotix_m3aak/common/basewidget/show_custom_snakbar_widget.dart';
 import 'package:kk_thotix_m3aak/features/cart/controllers/cart_controller.dart';
 import 'package:kk_thotix_m3aak/features/cart/domain/models/cart_model.dart';
 import 'package:kk_thotix_m3aak/localization/language_constrants.dart';
-import 'package:kk_thotix_m3aak/utill/images.dart';
+import 'package:kk_thotix_m3aak/theme/app_palette.dart';
 import 'package:provider/provider.dart';
 
 class CartQuantityButton extends StatelessWidget {
@@ -37,13 +36,21 @@ class CartQuantityButton extends StatelessWidget {
                 cartProvider.removeFromCartAPI(cartModel!.id, index);
               }
             },
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10.0),
+            borderRadius: BorderRadius.circular(11),
+            child: Container(
+              width: 30,
+              height: 30,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: isIncrement ? null : Theme.of(context).cardColor,
+                gradient: isIncrement ? AppPalette.brandGradient : null,
+                borderRadius: BorderRadius.circular(11),
+              ),
               child: (!isIncrement && quantity! == minimumOrderQuantity!) ?
-              CustomAssetImageWidget(Images.cartDeleteIcon, height: 20, width: 20) :
+              const Icon(CupertinoIcons.delete, color: AppPalette.error, size: 16) :
               Icon(
                 isIncrement ? CupertinoIcons.add : CupertinoIcons.minus,
-                color: Theme.of(context).primaryColor, size: 17, fontWeight: FontWeight.w900
+                color: isIncrement ? Colors.white : Theme.of(context).primaryColor, size: 16, fontWeight: FontWeight.w900
               ),
             ),
 

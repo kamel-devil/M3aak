@@ -66,7 +66,7 @@ class CustomTextFieldWidget extends StatefulWidget {
     this.titleText,
     this.nextFocus,
     this.isEnabled = true,
-    this.borderColor = const Color(0xFFBFBFBF),
+    this.borderColor = const Color(0x260A6F6B),
     this.inputType = TextInputType.text,
     this.inputAction = TextInputAction.next,
     this.maxLines = 1,
@@ -84,7 +84,7 @@ class CustomTextFieldWidget extends StatefulWidget {
     this.showLabelText = true,
     this.showBorder = true,
     this.filled = true,
-    this.borderRadius = 8,
+    this.borderRadius = 16,
     this.prefixHeight = 50,
     this.countryDialCode,
     this.onCountryChanged,
@@ -141,7 +141,7 @@ class _CustomTextFieldWidgetState extends State<CustomTextFieldWidget> {
           RichText(text: TextSpan(
               text: widget.titleText ?? "", style: Theme.of(context).textTheme.titleMedium!.copyWith(
               fontWeight: FontWeight.w400,
-              fontSize: 14, color: const Color(0xFF202532)), children: [
+              fontSize: 14, color: Theme.of(context).textTheme.bodyLarge?.color), children: [
                 if (widget.isRequiredFill)
                   TextSpan(text: " *", style: Theme.of(context).textTheme.titleMedium!.copyWith(
                         fontWeight: FontWeight.w500, fontSize: 16, color: Colors.red))])),
@@ -176,19 +176,21 @@ class _CustomTextFieldWidgetState extends State<CustomTextFieldWidget> {
             contentPadding: widget.padding ?? EdgeInsets.all(Dimensions.fontSizeDefault),
             alignLabelWithHint: true,
             border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(widget.borderRadius),
                 borderSide: BorderSide(color: widget.showBorder ? widget.borderColor: Colors.transparent,
-                  width: widget.showBorder ? 0 : .75,)),
+                  width: 1,)),
 
-            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8),
+            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(widget.borderRadius),
                 borderSide: BorderSide(color: widget.showBorder ? Theme.of(context).primaryColor : Colors.transparent,
-                  width: widget.showBorder ? 0 : .75,)),
+                  width: 1.5,)),
 
-            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8),
+            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(widget.borderRadius),
                 borderSide: BorderSide(color: widget.showBorder ? widget.borderColor: Colors.transparent,
-                width: widget.showBorder ? 0 : .75,)),
+                width: 1,)),
 
-            fillColor: Theme.of(context).cardColor,
+            fillColor: Theme.of(context).brightness == Brightness.dark
+                ? Colors.white.withValues(alpha: .06)
+                : Colors.white.withValues(alpha: .78),
             floatingLabelStyle: widget.showLabelText ? textRegular.copyWith(fontSize: Dimensions.fontSizeSmall,
                 color: Theme.of(context).hintColor.withValues(alpha:.75)) : null,
             filled: widget.filled,

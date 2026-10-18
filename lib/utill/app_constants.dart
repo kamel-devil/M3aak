@@ -150,6 +150,7 @@ class AppConstants {
   static const String verifyProfileInfo = '/api/v1/auth/verify-profile-info';
   static const String firebaseAuthTokenStore =
       '/api/v1/auth/firebase-auth-token-store';
+  static const String prescriptionUri = '/api/v1/customer/prescriptions';
   static const String productRestockRequest =
       '/api/v1/cart/product-restock-request';
   static const String productRestockList =
@@ -274,31 +275,31 @@ class AppConstants {
         languageName: 'Arabic',
         countryCode: 'SA',
         languageCode: 'ar'),
-    // LanguageModel(
-    //     imageUrl: Images.uz,
-    //     languageName: 'Uzbek',
-    //     countryCode: 'UZ',
-    //     languageCode: 'uz'),
-    // LanguageModel(
-    //     imageUrl: Images.ru,
-    //     languageName: 'Russian',
-    //     countryCode: 'RU',
-    //     languageCode: 'ru'),
-    // LanguageModel(
-    //     imageUrl: Images.my,
-    //     languageName: 'Malay',
-    //     countryCode: 'MY',
-    //     languageCode: 'ms'),
-    // LanguageModel(
-    //     imageUrl: Images.id,
-    //     languageName: 'Indonesian',
-    //     countryCode: 'ID',
-    //     languageCode: 'id'),
-    // LanguageModel(
-    //     imageUrl: Images.tr,
-    //     languageName: 'Turkish',
-    //     countryCode: 'TR',
-    //     languageCode: 'tr'),
+    LanguageModel(
+        imageUrl: Images.uz,
+        languageName: 'Uzbek',
+        countryCode: 'UZ',
+        languageCode: 'uz'),
+    LanguageModel(
+        imageUrl: Images.ru,
+        languageName: 'Russian',
+        countryCode: 'RU',
+        languageCode: 'ru'),
+    LanguageModel(
+        imageUrl: Images.my,
+        languageName: 'Malay',
+        countryCode: 'MY',
+        languageCode: 'ms'),
+    LanguageModel(
+        imageUrl: Images.id,
+        languageName: 'Indonesian',
+        countryCode: 'ID',
+        languageCode: 'id'),
+    LanguageModel(
+        imageUrl: Images.tr,
+        languageName: 'Turkish',
+        countryCode: 'TR',
+        languageCode: 'tr'),
     LanguageModel(
         imageUrl: Images.fr,
         languageName: 'French',

@@ -1,12 +1,11 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:kk_thotix_m3aak/common/basewidget/custom_asset_image_widget.dart';
+import 'package:kk_thotix_m3aak/features/auth/widgets/auth_ui.dart';
 import 'package:kk_thotix_m3aak/features/auth/domain/models/signup_model.dart';
 import 'package:kk_thotix_m3aak/features/auth/domain/models/user_log_data.dart';
 import 'package:kk_thotix_m3aak/features/auth/enums/from_page.dart';
 import 'package:kk_thotix_m3aak/features/order_details/controllers/order_details_controller.dart';
 import 'package:kk_thotix_m3aak/features/splash/domain/models/config_model.dart';
-import 'package:kk_thotix_m3aak/helper/color_helper.dart';
 import 'package:kk_thotix_m3aak/helper/email_checker_helper.dart';
 import 'package:kk_thotix_m3aak/helper/number_checker_helper.dart';
 import 'package:kk_thotix_m3aak/helper/route_healper.dart';
@@ -15,7 +14,6 @@ import 'package:kk_thotix_m3aak/features/auth/controllers/auth_controller.dart';
 import 'package:kk_thotix_m3aak/features/splash/controllers/splash_controller.dart';
 import 'package:kk_thotix_m3aak/utill/custom_themes.dart';
 import 'package:kk_thotix_m3aak/utill/dimensions.dart';
-import 'package:kk_thotix_m3aak/utill/images.dart';
 import 'package:kk_thotix_m3aak/common/basewidget/custom_app_bar_widget.dart';
 import 'package:kk_thotix_m3aak/common/basewidget/custom_button_widget.dart';
 import 'package:kk_thotix_m3aak/common/basewidget/show_custom_snakbar_widget.dart';
@@ -81,33 +79,33 @@ class _VerificationScreenState extends State<VerificationScreen> {
     final bool isFirebaseOTP = config.customerVerification!.status ==1 && config.customerVerification?.firebase == 1;
 
     return Scaffold(
-      appBar: CustomAppBar(title: getTranslated('otp_verification', context), isBackButtonExist: true),
-      body: Consumer<SplashController>(
+      body: SafeArea(child: Consumer<SplashController>(
           builder: (context, splashProvider, _) {
             return Stack(
               children: [
 
                 SingleChildScrollView(
                   physics: const BouncingScrollPhysics(),
+                  padding: const EdgeInsets.fromLTRB(20, 14, 20, 24),
                   child: Consumer<AuthController>(
                     builder: (context, authProvider, child) => Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
                       widget.fromDigitalProduct? CustomAppBar(title: '${getTranslated('verify_otp', context)}'): const SizedBox(),
 
-                      SizedBox(height: size.height * 0.14),
+                      if (!widget.fromDigitalProduct)
+                        widget.fromPage == FromPage.forgetPassword
+                            ? AuthStepHeader(step: 2, total: 3, onBack: () => Navigator.pop(context))
+                            : Align(
+                                alignment: AlignmentDirectional.centerStart,
+                                child: AuthBackButton(onTap: () => Navigator.pop(context))),
 
-                      CustomAssetImageWidget(
-                        isPhone ? Images.phoneOtpSvg : Images.mailOtpSvg,
-                        height: 100, width: 100,
-                      ),
+                      SizedBox(height: size.height * 0.05),
 
-                      const SizedBox(height: Dimensions.paddingSizeExtraOverLarge),
-
-
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeLarge),
-                        child: RichText(
+                      AuthIllustration(
+                        icon: isPhone ? Icons.sms_rounded : Icons.mark_email_read_rounded,
+                        title: getTranslated('otp_verification', context) ?? '',
+                        description: Text.rich(
                           textAlign: TextAlign.center,
-                          text: TextSpan(children: [
+                          TextSpan(children: [
 
                             TextSpan(
                               text: getTranslated('we\'ve_sent_verification_code', context),
@@ -118,9 +116,9 @@ class _VerificationScreenState extends State<VerificationScreen> {
                             ),
 
                             TextSpan(
-                              text: " ${widget.userInput} ",
-                              style: titilliumRegular.copyWith(
-                                color: Theme.of(context).textTheme.bodyMedium?.color,
+                              text: " \u2066${widget.userInput}\u2069 ",
+                              style: textBold.copyWith(
+                                color: Theme.of(context).textTheme.bodyLarge?.color,
                                 fontSize: Dimensions.fontSizeDefault,
                               ),
                             ),
@@ -129,9 +127,11 @@ class _VerificationScreenState extends State<VerificationScreen> {
                         ),
                       ),
 
+                      const SizedBox(height: 28),
 
-                      Padding(padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault, vertical: 35),
-                        child: PinCodeTextField(
+                      AuthFormCard(child: Column(children: [
+                      Padding(padding: const EdgeInsets.only(bottom: 18),
+                        child: Directionality(textDirection: TextDirection.ltr, child: PinCodeTextField(
                           length: 6,
                           appContext: context,
                           obscureText: false,
@@ -140,16 +140,17 @@ class _VerificationScreenState extends State<VerificationScreen> {
                           animationType: AnimationType.fade,
                           pinTheme: PinTheme(
                             shape: PinCodeFieldShape.box,
-                            fieldHeight: 45,
-                            fieldWidth: 45,
-                            borderWidth: 1,
-                            borderRadius: BorderRadius.circular(10),
-                            selectedColor: ColorHelper.darken(Theme.of(context).colorScheme.secondary, 0.2),
-                            selectedFillColor: Colors.white,
-                            inactiveFillColor: Theme.of(context).cardColor,
-                            inactiveColor: ColorHelper.darken(Theme.of(context).colorScheme.secondary, 0.2),
-                            activeColor: ColorHelper.darken(Theme.of(context).colorScheme.secondary, 0.1),
-                            activeFillColor: Theme.of(context).cardColor,
+                            fieldHeight: 54,
+                            fieldWidth: 44,
+                            borderWidth: 1.5,
+                            selectedBorderWidth: 2,
+                            borderRadius: BorderRadius.circular(16),
+                            selectedColor: Theme.of(context).primaryColor,
+                            selectedFillColor: Theme.of(context).brightness == Brightness.dark ? Colors.white.withValues(alpha: .08) : Colors.white,
+                            inactiveFillColor: Theme.of(context).brightness == Brightness.dark ? Colors.white.withValues(alpha: .04) : Colors.white.withValues(alpha: .8),
+                            inactiveColor: Theme.of(context).primaryColor.withValues(alpha: .18),
+                            activeColor: Theme.of(context).primaryColor,
+                            activeFillColor: Theme.of(context).brightness == Brightness.dark ? Colors.white.withValues(alpha: .08) : Colors.white,
                           ),
                           textStyle: titilliumBold.copyWith(fontSize: Dimensions.fontSizeExtraLarge, color: Theme.of(context).textTheme.bodyLarge?.color),
                           animationDuration: const Duration(milliseconds: 300),
@@ -159,12 +160,12 @@ class _VerificationScreenState extends State<VerificationScreen> {
                           beforeTextPaste: (text) {
                             return true;
                           },
-                        ),
+                        )),
                       ),
 
 
                       if(widget.fromDigitalProduct)
-                        Padding(padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeLarge),
+                        Padding(padding: EdgeInsets.zero,
                           child:  CustomButton(buttonText: getTranslated('verify', context),
                               onTap: (){
                                 Provider.of<OrderDetailsController>(context, listen: false).verifyDigitalProductOtp(orderId: widget.orderId!,
@@ -180,7 +181,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
                                   }});})),
 
                       if(!widget.fromDigitalProduct)
-                        Padding(padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeLarge),
+                        Padding(padding: EdgeInsets.zero,
                           child: (authProvider.isEnableVerificationCode && !authProvider.resendButtonLoading) ?
                           !authProvider.isPhoneNumberVerificationButtonLoading ?
                           CustomButton(
@@ -292,8 +293,8 @@ class _VerificationScreenState extends State<VerificationScreen> {
 
                       if(_seconds! <= 0)
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeLarge),
-                        child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                        padding: EdgeInsets.zero,
+                        child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                           Text(getTranslated('i_didnt_receive_the_code', context)!),
 
                           authProvider.resendButtonLoading ? const SizedBox(height: 15, width: 15, child: CircularProgressIndicator(strokeWidth: 02,)) : InkWell(
@@ -328,9 +329,9 @@ class _VerificationScreenState extends State<VerificationScreen> {
                                 });
                               }
                             },
-                            child: Padding(padding: const EdgeInsets.all(Dimensions.paddingSizeExtraSmall),
+                            child: Padding(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
                               child: Text(getTranslated('resend_code', context)??"",
-                              style: robotoBold.copyWith(color: Theme.of(context).primaryColor))
+                              style: textBold.copyWith(color: Theme.of(context).primaryColor))
                             )
                           )
                         ],
@@ -338,7 +339,26 @@ class _VerificationScreenState extends State<VerificationScreen> {
                       ),
 
                       if(_seconds! > 0)
-                        Text('${getTranslated('resend_code', context)} ${getTranslated('after', context)} ${_seconds! > 0 ? '$minutesStr:${_seconds! % 60}' : ''} ${'Sec'}'),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                            Text('${getTranslated('resend_code', context)} ${getTranslated('after', context)} ',
+                                style: textRegular.copyWith(color: Theme.of(context).hintColor)),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).primaryColor.withValues(alpha: .10),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Directionality(
+                                textDirection: TextDirection.ltr,
+                                child: Text('$minutesStr:${(_seconds! % 60).toString().padLeft(2, '0')}',
+                                    style: textBold.copyWith(color: Theme.of(context).primaryColor)),
+                              ),
+                            ),
+                          ]),
+                        ),
+                      ])),
 
 
 
@@ -352,7 +372,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
               ],
             );
           }
-      ),
+      )),
     );
   }
 }

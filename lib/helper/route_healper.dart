@@ -61,6 +61,10 @@ import 'package:kk_thotix_m3aak/features/product_details/screens/specification_s
 import 'package:kk_thotix_m3aak/features/profile/screens/profile_screen1.dart';
 import 'package:kk_thotix_m3aak/features/refer_and_earn/screens/refer_and_earn_screen.dart';
 import 'package:kk_thotix_m3aak/features/restock/screens/restock_list_screen.dart';
+import 'package:kk_thotix_m3aak/features/prescription/domain/models/prescription_model.dart';
+import 'package:kk_thotix_m3aak/features/prescription/screens/prescription_details_screen.dart';
+import 'package:kk_thotix_m3aak/features/prescription/screens/prescription_list_screen.dart';
+import 'package:kk_thotix_m3aak/features/prescription/screens/upload_prescription_screen.dart';
 import 'package:kk_thotix_m3aak/features/review/domain/models/review_model.dart';
 import 'package:kk_thotix_m3aak/features/review/screens/review_screen.dart';
 import 'package:kk_thotix_m3aak/features/search_product/screens/search_product_screen.dart';
@@ -133,6 +137,9 @@ class RouterHelper {
   static const String maintenanceScreen = '/maintenance';
   static const String referAndEarnScreen = '/refer-and-earn';
   static const String restockListScreen = '/restock-list';
+  static const String prescriptionListScreen = '/prescriptions';
+  static const String uploadPrescriptionScreen = '/prescriptions/upload';
+  static const String prescriptionDetailsScreen = '/prescriptions/details';
   static const String settingsScreen = '/settings';
   static const String notificationScreen = '/notification';
   static const String guestTrackOrderScreen = '/guest-track-order';
@@ -655,6 +662,18 @@ class RouterHelper {
 
   static String getReferAndEarnRoute({RouteAction? action}) {
     return _navigateRoute(referAndEarnScreen, route: action);
+  }
+
+  static String getPrescriptionListRoute({RouteAction? action}) {
+    return _navigateRoute(prescriptionListScreen, route: action);
+  }
+
+  static String getUploadPrescriptionRoute({RouteAction? action}) {
+    return _navigateRoute(uploadPrescriptionScreen, route: action);
+  }
+
+  static String getPrescriptionDetailsRoute({required PrescriptionModel prescription, RouteAction? action}) {
+    return _navigateRoute(prescriptionDetailsScreen, route: action, extra: {'prescription': prescription});
   }
 
   static String getRestockListRoute({RouteAction? action}) {
@@ -1403,6 +1422,22 @@ class RouterHelper {
         GoRoute(
           path: referAndEarnScreen,
           builder: (context, state) => const ReferAndEarnScreen(),
+        ),
+        GoRoute(
+          path: prescriptionListScreen,
+          builder: (context, state) => const PrescriptionListScreen(),
+        ),
+        GoRoute(
+          path: uploadPrescriptionScreen,
+          builder: (context, state) => const UploadPrescriptionScreen(),
+        ),
+        GoRoute(
+          path: prescriptionDetailsScreen,
+          builder: (context, state) {
+            final extra = state.extra as Map<String, dynamic>?;
+            final PrescriptionModel? prescription = extra?['prescription'];
+            return prescription == null ? const PrescriptionListScreen() : PrescriptionDetailsScreen(prescription: prescription);
+          },
         ),
         GoRoute(
           path: restockListScreen,

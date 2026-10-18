@@ -17,23 +17,33 @@ class CheckoutConditionCheckBox extends StatelessWidget {
     final SplashController splashController = Provider.of<SplashController>(context, listen: false);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault),
+      padding: EdgeInsets.zero,
       child: Consumer<CheckoutController>(
           builder: (ctx, checkoutController, _){
             return Row(mainAxisAlignment: MainAxisAlignment.start, children: [
-              InkWell(
-                onTap: ()=> checkoutController.toggleTermsCheck(),
-                child: Row(children: [
-                  SizedBox(width : 20, height : 20,
-                      child: Container(alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                              border: Border.all(color: Theme.of(context).primaryColor.withValues(alpha:.75), width: 1.5),
-                              borderRadius: BorderRadius.circular(6)),
-                          child: Icon(CupertinoIcons.checkmark_alt,size: 15,
-                              color: checkoutController.isAcceptTerms? Theme.of(context).primaryColor.withValues(alpha:.75): Colors.transparent))),
-                ]),
+              Semantics(
+                checked: checkoutController.isAcceptTerms,
+                child: InkWell(
+                  onTap: ()=> checkoutController.toggleTermsCheck(),
+                  borderRadius: BorderRadius.circular(10),
+                  child: Padding(
+                    padding: const EdgeInsets.all(6),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 180),
+                      width: 22, height: 22,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: checkoutController.isAcceptTerms ? Theme.of(context).primaryColor : Colors.transparent,
+                        border: Border.all(color: Theme.of(context).primaryColor, width: 1.6),
+                        borderRadius: BorderRadius.circular(7),
+                      ),
+                      child: Icon(CupertinoIcons.checkmark_alt, size: 15,
+                          color: checkoutController.isAcceptTerms ? Colors.white : Colors.transparent),
+                    ),
+                  ),
+                ),
               ),
-              const SizedBox(width: Dimensions.paddingSizeSmall),
+              const SizedBox(width: 4),
 
 
               Flexible(
@@ -99,7 +109,7 @@ class CheckoutConditionCheckBox extends StatelessWidget {
                 
                     ],
                   ),
-                  textAlign: TextAlign.left,
+                  textAlign: TextAlign.start,
                 ),
               ),
 

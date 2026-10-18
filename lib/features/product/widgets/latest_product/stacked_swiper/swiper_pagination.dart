@@ -13,7 +13,7 @@ class FractionPaginationBuilder extends SwiperPlugin {
     this.activeFontSize = 35.0,
   });
 
-  ///color ,if set null , will be Theme.of(context).scaffoldBackgroundColor
+  ///color ,if set null , will be Theme.of(context).canvasColor
   final Color? color;
 
   ///color when active,if set null , will be Theme.of(context).primaryColor
@@ -31,7 +31,7 @@ class FractionPaginationBuilder extends SwiperPlugin {
   Widget build(BuildContext context, SwiperPluginConfig? config) {
     final themeData = Theme.of(context);
     final activeColor = this.activeColor ?? themeData.primaryColor;
-    final color = this.color ?? themeData.scaffoldBackgroundColor;
+    final color = this.color ?? themeData.canvasColor;
 
     if (Axis.vertical == config!.scrollDirection) {
       return Column(
@@ -84,7 +84,7 @@ class RectSwiperPaginationBuilder extends SwiperPlugin {
   ///color when current index,if set null , will be Theme.of(context).primaryColor
   final Color? activeColor;
 
-  ///,if set null , will be Theme.of(context).scaffoldBackgroundColor
+  ///,if set null , will be Theme.of(context).canvasColor
   final Color? color;
 
   ///Size of the rect when activate
@@ -102,7 +102,7 @@ class RectSwiperPaginationBuilder extends SwiperPlugin {
   Widget build(BuildContext context, SwiperPluginConfig config) {
     final themeData = Theme.of(context);
     final activeColor = this.activeColor ?? themeData.primaryColor;
-    final color = this.color ?? themeData.scaffoldBackgroundColor;
+    final color = this.color ?? themeData.canvasColor;
 
     final list = <Widget>[];
 
@@ -158,7 +158,7 @@ class DotSwiperPaginationBuilder extends SwiperPlugin {
   ///color when current index,if set null , will be Theme.of(context).primaryColor
   final Color? activeColor;
 
-  ///,if set null , will be Theme.of(context).scaffoldBackgroundColor
+  ///,if set null , will be Theme.of(context).canvasColor
   final Color? color;
 
   ///Size of the dot when activate
@@ -186,7 +186,7 @@ class DotSwiperPaginationBuilder extends SwiperPlugin {
     if (activeColor == null || color == null) {
       final themeData = Theme.of(context);
       activeColor = this.activeColor ?? themeData.primaryColor;
-      color = this.color ?? themeData.scaffoldBackgroundColor;
+      color = this.color ?? themeData.canvasColor;
     }
 
     if (config.indicatorLayout != PageIndicatorLayout.NONE &&

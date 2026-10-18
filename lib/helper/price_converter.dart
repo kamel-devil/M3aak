@@ -20,10 +20,9 @@ class PriceConverter {
     //     '${inRight ? Provider.of<SplashController>(context, listen: false).myCurrency!.symbol : ''}';
 
     try{
-      return '${inRight ? '' : Provider.of<SplashController>(context, listen: false).myCurrency!.symbol}'
-          '${(singleCurrency? price : price! * Provider.of<SplashController>(context, listen: false).myCurrency!.exchangeRate!
-          * (1/Provider.of<SplashController>(context, listen: false).usdCurrency!.exchangeRate!))!.toStringAsFixed(Provider.of<SplashController>(context,listen: false).configModel!.decimalPointSettings??1).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}'
-          '${inRight ? Provider.of<SplashController>(context, listen: false).myCurrency!.symbol : ''}';
+      final double amount = (singleCurrency? price : price! * Provider.of<SplashController>(context, listen: false).myCurrency!.exchangeRate!
+          * (1/Provider.of<SplashController>(context, listen: false).usdCurrency!.exchangeRate!))!;
+      return _withSymbol(context, _formatNumber(context, amount), inRight);
     }catch(e) {
       return price.toString();
       // print(e.toString());
@@ -59,10 +58,35 @@ class PriceConverter {
     bool singleCurrency = Provider.of<SplashController>(context, listen: false).configModel!.currencyModel == 'single_currency';
     bool inRight = Provider.of<SplashController>(context, listen: false).configModel!.currencySymbolPosition == 'right';
 
-    return '${inRight ? '' : Provider.of<SplashController>(context, listen: false).myCurrency!.symbol}'
-      '${(singleCurrency? price : price!)!
-        .toStringAsFixed(Provider.of<SplashController>(context,listen: false).configModel!.decimalPointSettings??1).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}'
-      '${inRight ? Provider.of<SplashController>(context, listen: false).myCurrency!.symbol : ''}';
+    return _withSymbol(context, _formatNumber(context, (singleCurrency? price : price!)!), inRight);
+  }
+
+  static String _formatNumber(BuildContext context, double amount) {
+    return amount
+        .toStringAsFixed(Provider.of<SplashController>(context, listen: false).configModel!.decimalPointSettings ?? 1)
+        .replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},');
+  }
+
+  /// The currency symbol alone, localized the same way as prices.
+  static String currencySymbol(BuildContext context) {
+    final currency = Provider.of<SplashController>(context, listen: false).myCurrency;
+    if (currency?.code?.toUpperCase() == 'EGP' || currency?.symbol == 'LE') {
+      return Localizations.maybeLocaleOf(context)?.languageCode == 'ar' ? 'ج.م' : 'LE';
+    }
+    return currency?.symbol ?? '';
+  }
+
+  /// Egyptian pound shows as "LE 100" in English and "100 ج.م" in Arabic;
+  /// every other currency uses the symbol and side configured on the server.
+  static String _withSymbol(BuildContext context, String number, bool inRight) {
+    final currency = Provider.of<SplashController>(context, listen: false).myCurrency;
+    final bool isEgp = currency?.code?.toUpperCase() == 'EGP' || currency?.symbol == 'LE';
+    if (isEgp) {
+      final bool arabic = Localizations.maybeLocaleOf(context)?.languageCode == 'ar';
+      return arabic ? '$number ج.م' : 'LE $number';
+    }
+    final String symbol = currency?.symbol ?? '';
+    return inRight ? '$number$symbol' : '$symbol$number';
   }
 
   static String convertPriceWithoutSymbol(BuildContext context, double? price, {double? discount, String? discountType}) {

@@ -321,10 +321,11 @@ class SearchProductController with ChangeNotifier {
     if (apiResponse.response != null &&
         apiResponse.response!.statusCode == 200) {
       if (offset == 1) {
+        final ProductModel parsedProductModelResponse = ProductModel.fromJson(apiResponse.response!.data);
         searchedProduct = null;
-        if (ProductModel.fromJson(apiResponse.response!.data).products !=
+        if (parsedProductModelResponse.products !=
             null) {
-          searchedProduct = ProductModel.fromJson(apiResponse.response!.data);
+          searchedProduct = parsedProductModelResponse;
 
           if (searchedProduct?.minPrice != null) {
             minFilterValue = searchedProduct!.minPrice!;
@@ -346,14 +347,15 @@ class SearchProductController with ChangeNotifier {
           }
         }
       } else {
-        if (ProductModel.fromJson(apiResponse.response!.data).products !=
+        final ProductModel parsedProductModelResponse = ProductModel.fromJson(apiResponse.response!.data);
+        if (parsedProductModelResponse.products !=
             null) {
           searchedProduct?.products?.addAll(
-              ProductModel.fromJson(apiResponse.response!.data).products!);
+              parsedProductModelResponse.products!);
           searchedProduct?.offset =
-              (ProductModel.fromJson(apiResponse.response!.data).offset);
+              (parsedProductModelResponse.offset);
           searchedProduct?.totalSize =
-              (ProductModel.fromJson(apiResponse.response!.data).totalSize);
+              (parsedProductModelResponse.totalSize);
         }
       }
     } else {

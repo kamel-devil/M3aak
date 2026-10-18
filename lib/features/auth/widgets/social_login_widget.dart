@@ -4,7 +4,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:kk_thotix_m3aak/common/basewidget/show_custom_snakbar_widget.dart';
 import 'package:kk_thotix_m3aak/features/auth/controllers/auth_controller.dart';
-import 'package:kk_thotix_m3aak/features/auth/controllers/facebook_login_controller.dart';
 import 'package:kk_thotix_m3aak/features/auth/controllers/google_login_controller.dart';
 import 'package:kk_thotix_m3aak/features/auth/domain/models/signup_model.dart';
 import 'package:kk_thotix_m3aak/features/auth/domain/models/social_login_model.dart';
@@ -44,9 +43,7 @@ class SocialLoginWidgetState extends State<SocialLoginWidget> {
         configModel?.customerLogin?.socialMediaLoginOptions;
     List<String> socialLoginList = [];
 
-    if (socialLoginConfig?.facebook == 1) {
-      socialLoginList.add("facebook");
-    }
+    // Facebook login disabled
 
     if (socialLoginConfig?.google == 1) {
       socialLoginList.add("google");
@@ -282,36 +279,7 @@ Future<void> googleLogin(BuildContext context, String? fromPage,
 
 Future<void> facebookLogin(BuildContext context, String? fromPage,
     VoidCallback? onLoginSuccess) async {
-  SocialLoginModel socialLogin = SocialLoginModel();
-
-  try {
-    await Provider.of<FacebookLoginController>(context, listen: false).login();
-    String? id, token, email, medium, name;
-    if (Provider.of<FacebookLoginController>(Get.context!, listen: false)
-            .userData !=
-        null) {
-      id = Provider.of<FacebookLoginController>(Get.context!, listen: false)
-          .userData?['id'];
-      email = Provider.of<FacebookLoginController>(Get.context!, listen: false)
-          .userData?['email'];
-      token = Provider.of<FacebookLoginController>(Get.context!, listen: false)
-          .result
-          .accessToken
-          ?.tokenString;
-      name = Provider.of<FacebookLoginController>(Get.context!, listen: false)
-              .userData?['name'] ??
-          '';
-      medium = 'facebook';
-      socialLogin.email = email;
-      socialLogin.medium = medium;
-      socialLogin.token = token;
-      socialLogin.uniqueId = id;
-      await Provider.of<AuthController>(Get.context!, listen: false)
-          .socialLogin(socialLogin, route, fromPage, onLoginSuccess);
-    }
-  } catch (er) {
-    debugPrint('access token error is : $er');
-  }
+  // Facebook login disabled
 }
 
 Future<void> appleLogin(BuildContext context, String? fromPage,
@@ -361,13 +329,22 @@ class SocialLoginButtonWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      constraints: const BoxConstraints(minHeight: 52),
       padding: padding ??
           const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeSmall),
       decoration: BoxDecoration(
-        color: Theme.of(context).hintColor.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
-        border: Border.all(
-            color: Theme.of(context).primaryColor.withValues(alpha: 0.1)),
+        color: Theme.of(context).brightness == Brightness.dark
+            ? Colors.white.withValues(alpha: .06)
+            : Colors.white.withValues(alpha: .88),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: Colors.white.withValues(alpha: .95), width: 1.2),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0A6F6B).withValues(alpha: .08),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
+          ),
+        ],
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -375,14 +352,14 @@ class SocialLoginButtonWidget extends StatelessWidget {
           Image.asset(
             image,
             color: color,
-            height: ResponsiveHelper.isTab(context) ? 20 : 15,
-            width: ResponsiveHelper.isTab(context) ? 20 : 15,
+            height: ResponsiveHelper.isTab(context) ? 22 : 18,
+            width: ResponsiveHelper.isTab(context) ? 22 : 18,
           ),
           if (text != null) ...[
-            const SizedBox(width: Dimensions.paddingSizeExtraSmall),
+            const SizedBox(width: Dimensions.paddingSizeSmall),
             Text(
               text!,
-              style: robotoBold.copyWith(
+              style: textBold.copyWith(
                 fontSize: Dimensions.fontSizeDefault,
                 color: Theme.of(context).textTheme.bodyMedium?.color,
               ),

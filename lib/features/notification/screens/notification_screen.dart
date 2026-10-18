@@ -72,7 +72,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
                       notificationItem: notificationController.notificationModel!.notification![index],
                       index: index,
                     ),
-                separatorBuilder: (BuildContext context, int index) => const SizedBox(height: Dimensions.paddingSizeExtraSmall),
+                padding: const EdgeInsets.only(bottom: Dimensions.paddingSizeLarge),
+                separatorBuilder: (BuildContext context, int index) => const SizedBox(height: Dimensions.paddingSizeSmall),
               )),
             ),
           ) : const NoInternetOrDataScreenWidget(

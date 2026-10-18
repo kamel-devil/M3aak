@@ -3,7 +3,8 @@ import 'package:kk_thotix_m3aak/localization/language_constrants.dart';
 import 'package:kk_thotix_m3aak/features/auth/controllers/auth_controller.dart';
 import 'package:kk_thotix_m3aak/utill/custom_themes.dart';
 import 'package:kk_thotix_m3aak/utill/dimensions.dart';
-import 'package:kk_thotix_m3aak/utill/images.dart';
+import 'package:kk_thotix_m3aak/common/glass/glass_widgets.dart';
+import 'package:kk_thotix_m3aak/features/auth/widgets/auth_ui.dart';
 import 'package:kk_thotix_m3aak/features/auth/widgets/sign_up_widget.dart';
 import 'package:provider/provider.dart';
 
@@ -38,55 +39,37 @@ class _AuthScreenState extends State<AuthScreen> with SingleTickerProviderStateM
       child: Scaffold(
         body: Consumer<AuthController>(
           builder: (context, authProvider,_) {
-            return Column(children: [
-                Stack(children: [
-                  Container(height: 150, decoration: BoxDecoration(color: Theme.of(context).primaryColor)),
-                  Image.asset(Images.loginBg,fit: BoxFit.cover,height: 150, opacity : const AlwaysStoppedAnimation(.15)),
-
-                  Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * .03),
-                    child: Column(
-                      children: [
-                        Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-
-                          Image.asset(Images.splashLogo, width: 130, height: 80)]),
-
-                        Text(getTranslated('sign_up', context)!, style: titilliumRegular.copyWith(
-                          color: Theme.of(context).highlightColor,
-                          fontSize: Dimensions.fontSizeLarge,
+            return SafeArea(child: Column(children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 14, 20, 12),
+                child: FadeSlideIn(
+                  offset: const Offset(0, -12),
+                  child: Row(children: [
+                    AuthBackButton(onTap: () => Navigator.pop(context)),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                        Text(getTranslated('sign_up', context)!, style: textBold.copyWith(
+                          fontSize: Dimensions.fontSizeExtraLarge + 4,
+                          color: Theme.of(context).textTheme.bodyLarge?.color,
                         )),
-                      ],
+                        Text(getTranslated('register_subtitle', context) ?? '', style: textRegular.copyWith(
+                          fontSize: Dimensions.fontSizeSmall + 1,
+                          color: Theme.of(context).hintColor,
+                        )),
+                      ]),
                     ),
-                  ),
-                ]),
-
-                AnimatedContainer(transform: Matrix4.translationValues(0, -12, 0),
-                  curve: Curves.fastOutSlowIn,
-                  decoration: BoxDecoration(color: Theme.of(context).scaffoldBackgroundColor,
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(Dimensions.radiusExtraLarge))),
-                  duration: const Duration(seconds: 2),
-                  child: Padding(padding: const EdgeInsets.only(bottom: Dimensions.paddingSizeExtraSmall),
-                    child: Column(mainAxisSize: MainAxisSize.min, children: [
-                      Padding(padding: const EdgeInsets.symmetric(horizontal:  Dimensions.marginSizeLarge),
-                        child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                          InkWell(onTap: (){},
-                            child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
-                              Container(height: 0, width: 25, margin: const EdgeInsets.only(top: 8),
-                                decoration: BoxDecoration(borderRadius: BorderRadius.circular(Dimensions.paddingSizeSmall),
-                                color: Theme.of(context).primaryColor))
-                            ]),
-                          ),
-                        ]),
-                      ),
-                    ],),
-                  ),
+                    const AuthLogoTile(size: 56),
+                  ]),
                 ),
+              ),
 
               Expanded(child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSmall, ),
+                padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeLarge),
                 //child: authProvider.selectedIndex == 0 ? const SignInWidget() : const SignUpWidget(),
                 child: SignUpWidget(fromLogout: widget.fromLogout, fromPage: widget.fromPage, onLoginSuccess: widget.onLoginSuccess),
               )),
-            ]);
+            ]));
           }
         ),
       ),

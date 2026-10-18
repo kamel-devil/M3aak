@@ -1,5 +1,7 @@
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:kk_thotix_m3aak/theme/app_palette.dart';
+import 'package:kk_thotix_m3aak/common/glass/glass_widgets.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:kk_thotix_m3aak/common/basewidget/custom_app_bar_widget.dart';
@@ -287,13 +289,18 @@ class _AddNewAddressScreenState extends State<AddNewAddressScreen> {
                                         .configModel!
                                         .mapApiStatus ==
                                     1
-                                ? SizedBox(
+                                ? Container(
                                     height:
-                                        MediaQuery.of(context).size.width / 2,
+                                        MediaQuery.of(context).size.width / 1.8,
                                     width: MediaQuery.of(context).size.width,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(24),
+                                      border: Border.all(color: AppPalette.glassBorder(context), width: 1.5),
+                                      boxShadow: AppPalette.softShadow(context),
+                                    ),
                                     child: ClipRRect(
                                         borderRadius: BorderRadius.circular(
-                                            Dimensions.paddingSizeSmall),
+                                            22),
                                         child: Stack(
                                             clipBehavior: Clip.none,
                                             children: [
@@ -397,9 +404,9 @@ class _AddNewAddressScreenState extends State<AddNewAddressScreen> {
                                                     color: Theme.of(context)
                                                         .primaryColor,
                                                   )),
-                                              Positioned(
+                                              PositionedDirectional(
                                                   top: 10,
-                                                  right: 0,
+                                                  end: 0,
                                                   child: InkWell(
                                                       onTap: () => RouterHelper
                                                           .getSelectLocationScreen(
@@ -409,19 +416,18 @@ class _AddNewAddressScreenState extends State<AddNewAddressScreen> {
                                                                   RouteAction
                                                                       .push),
                                                       child: Container(
-                                                          width: 30,
-                                                          height: 30,
-                                                          margin: const EdgeInsets
+                                                          width: 40,
+                                                          height: 40,
+                                                          margin: const EdgeInsetsDirectional
                                                               .only(
-                                                              right: Dimensions
-                                                                  .paddingSizeLarge),
+                                                              end: 10),
                                                           decoration:
                                                               BoxDecoration(
                                                             borderRadius:
                                                                 BorderRadius.circular(
-                                                                    Dimensions
-                                                                        .paddingSizeSmall),
+                                                                    13),
                                                             color: Colors.white,
+                                                            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: .12), blurRadius: 10, offset: const Offset(0, 4))],
                                                           ),
                                                           child: Icon(
                                                               Icons.fullscreen,
@@ -433,127 +439,87 @@ class _AddNewAddressScreenState extends State<AddNewAddressScreen> {
                                 : const SizedBox(),
 
                             Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: Dimensions.paddingSizeExtraSmall),
+                              padding: const EdgeInsets.only(top: 18, bottom: 10),
                               child: Text(getTranslated('label_us', context)!,
-                                  style: textRegular.copyWith(
-                                    color: Theme.of(context).hintColor,
+                                  style: textBold.copyWith(
+                                    color: Theme.of(context).textTheme.bodyLarge?.color,
                                     fontSize: Dimensions.fontSizeLarge,
                                   )),
                             ),
 
-                            SizedBox(
-                                height: 50,
-                                child: RepaintBoundary(
-                                  child: ListView.builder(
-                                      shrinkWrap: true,
-                                      scrollDirection: Axis.horizontal,
-                                      physics: const BouncingScrollPhysics(),
-                                      itemCount: addressController
-                                          .addressTypeList.length,
-                                      itemBuilder: (context, index) => InkWell(
-                                          onTap: () => addressController
-                                              .updateAddressIndex(index, true),
-                                          child: Container(
-                                              padding: const EdgeInsets.symmetric(
-                                                  vertical: Dimensions
-                                                      .paddingSizeDefault,
-                                                  horizontal: Dimensions
-                                                      .paddingSizeLarge),
-                                              margin: const EdgeInsets.only(
-                                                  right: 17),
-                                              decoration: BoxDecoration(
-                                                  borderRadius: BorderRadius.circular(
-                                                      Dimensions
-                                                          .paddingSizeSmall),
-                                                  border: Border.all(
-                                                      color: addressController.selectAddressIndex == index
-                                                          ? Theme.of(context).primaryColor
-                                                          : Theme.of(context).primaryColor.withValues(alpha: .125))),
-                                              child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                                                SizedBox(
-                                                    width: 20,
-                                                    child: Image.asset(
-                                                        addressController
-                                                            .addressTypeList[
-                                                                index]
-                                                            .icon,
-                                                        color:
-                                                            addressController
-                                                                        .selectAddressIndex ==
-                                                                    index
-                                                                ? Theme.of(
-                                                                        context)
-                                                                    .primaryColor
-                                                                : Theme.of(
-                                                                        context)
-                                                                    .primaryColor
-                                                                    .withValues(
-                                                                        alpha:
-                                                                            .35))),
-                                                const SizedBox(
-                                                  width: Dimensions
-                                                      .paddingSizeSmall,
-                                                ),
-                                                Text(
-                                                    getTranslated(
-                                                        addressController
-                                                            .addressTypeList[
-                                                                index]
-                                                            .title,
-                                                        context)!,
-                                                    style:
-                                                        textRegular.copyWith())
-                                              ])))),
-                                )),
+                            Wrap(spacing: 8, runSpacing: 8, children: List.generate(
+                              addressController.addressTypeList.length, (index) {
+                                final bool selected = addressController.selectAddressIndex == index;
+                                final type = addressController.addressTypeList[index];
+                                return PressableScale(
+                                  onTap: () => addressController.updateAddressIndex(index, true),
+                                  child: AnimatedContainer(
+                                    duration: const Duration(milliseconds: 220),
+                                    curve: Curves.easeOutCubic,
+                                    constraints: const BoxConstraints(minHeight: 44),
+                                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                                    decoration: BoxDecoration(
+                                      gradient: selected ? AppPalette.brandGradient : null,
+                                      color: selected ? null : AppPalette.glass(context),
+                                      borderRadius: BorderRadius.circular(16),
+                                      border: Border.all(color: selected ? Colors.transparent : AppPalette.glassBorder(context)),
+                                    ),
+                                    child: Row(mainAxisSize: MainAxisSize.min, children: [
+                                      SizedBox(width: 18, child: Image.asset(type.icon,
+                                          color: selected ? Colors.white : Theme.of(context).primaryColor)),
+                                      const SizedBox(width: 8),
+                                      Text(getTranslated(type.title, context) ?? type.title,
+                                          style: textBold.copyWith(
+                                            color: selected ? Colors.white : Theme.of(context).textTheme.bodyLarge?.color,
+                                          )),
+                                    ]),
+                                  ),
+                                );
+                              },
+                            )),
 
                             Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: Dimensions.paddingSizeSmall),
-                              child: SizedBox(
-                                height: 50,
-                                child: RadioGroup<Address>(
-                                  groupValue: _address,
-                                  onChanged: (value) {
-                                    if (value != null) {
-                                      setState(() {
-                                        _address = value;
-                                      });
-                                    }
-                                  },
-                                  child: Row(children: [
-                                    Row(children: [
-                                      Radio<Address>(value: Address.shipping),
-                                      Text(
-                                          getTranslated('shipping_address',
-                                                  context) ??
-                                              '',
-                                          style: textRegular.copyWith(
-                                            fontSize: Dimensions.fontSizeLarge,
-                                            color: Theme.of(context)
-                                                .textTheme
-                                                .bodyLarge
-                                                ?.color,
-                                          )),
-                                    ]),
-                                    const SizedBox(
-                                        width: Dimensions.paddingSizeSmall),
-                                    Row(children: [
-                                      Radio<Address>(value: Address.billing),
-                                      Text(
-                                          getTranslated(
-                                                  'billing_address', context) ??
-                                              '',
-                                          style: textRegular.copyWith(
-                                            fontSize: Dimensions.fontSizeLarge,
-                                            color: Theme.of(context)
-                                                .textTheme
-                                                .bodyLarge
-                                                ?.color,
-                                          )),
-                                    ]),
-                                  ]),
+                              padding: const EdgeInsets.only(top: 14, bottom: 18),
+                              child: Container(
+                                padding: const EdgeInsets.all(4),
+                                decoration: BoxDecoration(
+                                  color: AppPalette.tint(context),
+                                  borderRadius: BorderRadius.circular(18),
                                 ),
+                                child: Row(children: [
+                                  for (final option in Address.values)
+                                    Expanded(child: PressableScale(
+                                      onTap: () => setState(() => _address = option),
+                                      child: AnimatedContainer(
+                                        duration: const Duration(milliseconds: 220),
+                                        curve: Curves.easeOutCubic,
+                                        height: 44,
+                                        alignment: Alignment.center,
+                                        decoration: BoxDecoration(
+                                          color: _address == option ? Theme.of(context).cardColor : Colors.transparent,
+                                          borderRadius: BorderRadius.circular(14),
+                                          boxShadow: [BoxShadow(
+                                            color: Colors.black.withValues(alpha: _address == option ? .06 : 0),
+                                            blurRadius: 10, offset: const Offset(0, 3),
+                                          )],
+                                        ),
+                                        child: Row(mainAxisSize: MainAxisSize.min, children: [
+                                          Icon(option == Address.shipping ? Icons.local_shipping_outlined : Icons.receipt_long_outlined,
+                                              size: 18,
+                                              color: _address == option ? Theme.of(context).primaryColor : Theme.of(context).hintColor),
+                                          const SizedBox(width: 6),
+                                          Flexible(child: Text(
+                                            getTranslated(option == Address.shipping ? 'shipping_address' : 'billing_address', context) ?? '',
+                                            maxLines: 1, overflow: TextOverflow.ellipsis,
+                                            style: textBold.copyWith(
+                                              fontSize: Dimensions.fontSizeSmall + 1,
+                                              color: _address == option ? Theme.of(context).primaryColor : Theme.of(context).hintColor,
+                                            ),
+                                          )),
+                                        ]),
+                                      ),
+                                    )),
+                                ]),
                               ),
                             ),
 

@@ -1,15 +1,14 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:kk_thotix_m3aak/common/basewidget/custom_asset_image_widget.dart';
-import 'package:kk_thotix_m3aak/helper/color_helper.dart';
+import 'package:kk_thotix_m3aak/common/glass/glass_widgets.dart';
+import 'package:kk_thotix_m3aak/theme/app_palette.dart';
 import 'package:kk_thotix_m3aak/localization/language_constrants.dart';
-import 'package:kk_thotix_m3aak/theme/controllers/theme_controller.dart';
 import 'package:kk_thotix_m3aak/utill/custom_themes.dart';
 import 'package:kk_thotix_m3aak/utill/dimensions.dart';
 import 'package:kk_thotix_m3aak/utill/images.dart';
 import 'package:kk_thotix_m3aak/common/basewidget/custom_button_widget.dart';
 import 'package:kk_thotix_m3aak/helper/route_healper.dart';
-import 'package:provider/provider.dart';
 
 class NoInternetOrDataScreenWidget extends StatelessWidget {
   final bool isNoInternet;
@@ -23,58 +22,86 @@ class NoInternetOrDataScreenWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final String text = isNoInternet
+        ? getTranslated('no_internet_connection', context)!
+        : message != null ? getTranslated(message, context) ?? '' : getTranslated('no_data_found', context) ?? '';
+
     return Padding(
-      padding: padding ?? EdgeInsets.all(MediaQuery.of(context).size.height * 0.025),
+      padding: padding ?? const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
       child: Center(
-        child: Column(mainAxisAlignment: padding == null ? MainAxisAlignment.center  : MainAxisAlignment.start, children: [
-          CustomAssetImageWidget(isNoInternet ? Images.noInternet :icon != null? icon! : Images.noData, height: iconSize, width: iconSize, fit: BoxFit.cover),
+        child: SingleChildScrollView(
+          child: FadeSlideIn(
+            child: GlassContainer(
+              blur: false,
+              radius: 28,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+              child: Column(mainAxisSize: MainAxisSize.min, children: [
+                // Soft halo around the illustration.
+                Container(
+                  width: 120,
+                  height: 120,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: RadialGradient(colors: [
+                      AppPalette.tint(context),
+                      AppPalette.tint(context).withValues(alpha: .25),
+                    ]),
+                  ),
+                  child: Container(
+                    width: 78,
+                    height: 78,
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: AppPalette.isDark(context) ? AppPalette.darkTint : Colors.white,
+                      borderRadius: BorderRadius.circular(26),
+                      boxShadow: AppPalette.softShadow(context),
+                    ),
+                    child: CustomAssetImageWidget(
+                      isNoInternet ? Images.noInternet : icon ?? Images.noData,
+                      height: iconSize, width: iconSize, fit: BoxFit.contain,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 18),
 
-          if(isNoInternet)
-            Text(getTranslated('OPPS', context)!, style: titilliumBold.copyWith(fontSize: 30, color: Colors.white)),
+                if (isNoInternet)
+                  Text(getTranslated('OPPS', context)!,
+                      style: textBold.copyWith(fontSize: Dimensions.fontSizeOverLarge,
+                          color: Theme.of(context).textTheme.bodyLarge?.color)),
 
-          const SizedBox(height: Dimensions.paddingSizeDefault),
+                Text(text, textAlign: TextAlign.center, style: textBold.copyWith(
+                  fontSize: Dimensions.fontSizeLarge + 1,
+                  height: 1.4,
+                  color: Theme.of(context).textTheme.bodyLarge?.color,
+                )),
 
-          Text(isNoInternet ?
-          getTranslated('no_internet_connection', context)!
-              : message != null? getTranslated(message, context)??''
-              : getTranslated('no_data_found', context)??'', textAlign: TextAlign.center, style: textRegular.copyWith(color: Theme.of(context).textTheme.bodyLarge?.color)),
-          const SizedBox(height: 20),
+                if (isNoInternet) ...[
+                  const SizedBox(height: 20),
+                  CustomButton(
+                    buttonText: getTranslated('RETRY', context),
+                    onTap: () async {
+                      List<ConnectivityResult> results = await Connectivity().checkConnectivity();
+                      bool isConnected = results.any((result) => result != ConnectivityResult.none);
+                      if (isConnected) {
+                        RouterHelper.getDashboardRoute(action: RouteAction.pushReplacement);
+                      }
+                    },
+                  ),
+                ],
 
-          isNoInternet ? Container(
-            height: 45,
-            margin: const EdgeInsets.symmetric(horizontal: 40),
-            decoration: BoxDecoration(borderRadius: BorderRadius.circular(5),
-              color: Provider.of<ThemeController>(context).darkTheme ?
-              ColorHelper.darken(Theme.of(context).colorScheme.secondary, 0.2) :
-              Theme.of(context).colorScheme.secondary
+                if (icCart) ...[
+                  const SizedBox(height: 20),
+                  SizedBox(width: 200,
+                    child: CustomButton(
+                      onTap: () => RouterHelper.getDashboardRoute(action: RouteAction.push),
+                      buttonText: '${getTranslated('continue_shopping', context)}'),
+                  ),
+                ],
+              ]),
             ),
-            child: TextButton(
-              onPressed: () async {
-                List<ConnectivityResult> results = await Connectivity().checkConnectivity();
-                bool isConnected = results.any((result) => result != ConnectivityResult.none);
-
-                if (isConnected) {
-                  RouterHelper.getDashboardRoute(action: RouteAction.pushReplacement);
-                }
-              },
-
-              child: Container(
-                width: double.infinity,
-                alignment: Alignment.center,
-                child: Text(getTranslated('RETRY', context)!, style: titilliumSemiBold.copyWith(color: Theme.of(context).highlightColor, fontSize: Dimensions.fontSizeLarge)),
-              ),
-            ),
-          ) : const SizedBox.shrink(),
-
-          if(icCart)
-            SizedBox(width: 160,
-              child: CustomButton(backgroundColor: Colors.transparent,
-                onTap: ()=> RouterHelper.getDashboardRoute(action: RouteAction.push),
-                isBorder: true, textColor: Theme.of(context).primaryColor,
-                buttonText: '${getTranslated('continue_shopping', context)}'),
-            )
-
-        ]),
+          ),
+        ),
       ),
     );
   }

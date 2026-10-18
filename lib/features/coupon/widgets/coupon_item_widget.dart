@@ -1,170 +1,165 @@
-import 'package:dotted_border/dotted_border.dart';
-import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:kk_thotix_m3aak/common/basewidget/show_custom_snakbar_widget.dart';
 import 'package:kk_thotix_m3aak/features/coupon/domain/models/coupon_item_model.dart';
 import 'package:kk_thotix_m3aak/features/splash/controllers/splash_controller.dart';
 import 'package:kk_thotix_m3aak/helper/date_converter.dart';
 import 'package:kk_thotix_m3aak/helper/price_converter.dart';
 import 'package:kk_thotix_m3aak/localization/language_constrants.dart';
-import 'package:kk_thotix_m3aak/theme/controllers/theme_controller.dart';
+import 'package:kk_thotix_m3aak/theme/app_palette.dart';
 import 'package:kk_thotix_m3aak/utill/app_constants.dart';
 import 'package:kk_thotix_m3aak/utill/custom_themes.dart';
 import 'package:kk_thotix_m3aak/utill/dimensions.dart';
-import 'package:kk_thotix_m3aak/utill/images.dart';
-import 'package:just_the_tooltip/just_the_tooltip.dart';
 import 'package:provider/provider.dart';
 
-class CouponItemWidget extends StatefulWidget {
+/// Ticket-style coupon: coloured value stub, conditions, dashed code with copy.
+class CouponItemWidget extends StatelessWidget {
   final Coupons coupons;
   final bool fromCheckout;
   final Function(String?)? onCopy;
   const CouponItemWidget({super.key, required this.coupons,  this.fromCheckout = false, this.onCopy});
 
   @override
-  State<CouponItemWidget> createState() => _CouponItemWidgetState();
-}
-
-class _CouponItemWidgetState extends State<CouponItemWidget> {
-  final tooltipController = JustTheController();
-
-  @override
   Widget build(BuildContext context) {
+    final bool freeDelivery = coupons.couponType == 'free_delivery';
+    final bool percent = coupons.discountType == 'percentage';
+    final DateTime? expiry = DateTime.tryParse(coupons.planExpireDate ?? '');
+    final bool expired = expiry != null && expiry.isBefore(DateTime.now());
+    final Color? textColor = Theme.of(context).textTheme.bodyLarge?.color;
 
-    return Padding(padding: widget.fromCheckout? const EdgeInsets.fromLTRB(0,Dimensions.paddingSizeSmall, 0,0):
-     EdgeInsets.fromLTRB(Dimensions.paddingSizeDefault,Dimensions.paddingSizeSmall, Dimensions.fontSizeDefault,0),
-      child: Stack(clipBehavior: Clip.none, children: [
-          ClipRRect(clipBehavior: Clip.none,
-            borderRadius: BorderRadius.circular(Dimensions.paddingSizeSmall),
-            child: Container(padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
-              decoration: BoxDecoration(color: Theme.of(context).cardColor,
-                  boxShadow:  [BoxShadow(color: Theme.of(context).hintColor.withValues(alpha:.12),
-                      spreadRadius: 1,blurRadius: 1, offset: const Offset(1,1))],
-                  borderRadius: BorderRadius.circular(Dimensions.paddingSizeSmall)),
-              child: Padding(padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSmall,
-                  vertical: Dimensions.paddingSizeSmall),
-                child: Row(children: [
-                    Expanded(flex: 4, child: Padding(padding: const EdgeInsets.only(right: Dimensions.paddingSizeSmall),
-                        child: Column(children: [
-                          SizedBox(width: 30,child: Image.asset(color : widget.coupons.discountType == 'percentage'?
-                          Theme.of(context).primaryColor: null,
-                              widget.coupons.couponType == 'free_delivery'?
-                              Images.freeCoupon :widget.coupons.discountType == 'percentage'?
-                              Images.offerIcon :Images.firstOrder)),
+    final LinearGradient stubGradient = expired
+        ? const LinearGradient(colors: [Color(0xFFB9C7C5), Color(0xFF9DB0AD)])
+        : freeDelivery
+            ? AppPalette.offerGradient
+            : AppPalette.brandGradient;
 
-                          widget.coupons.couponType == 'free_delivery'?
-                          Padding(padding: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeSmall),
-                            child: Text('${getTranslated('free_delivery', context)}',
-                              style: robotoBold.copyWith(fontSize: Dimensions.fontSizeLarge,
-                                  color: Provider.of<ThemeController>(context, listen: false).darkTheme?
-                                  Theme.of(context).hintColor : Theme.of(context).primaryColor),),):
+    final String shop = coupons.seller != null
+        ? coupons.seller?.shop?.name ?? ''
+        : coupons.sellerId == 0
+            ? getTranslated('on_all_shop', context) ?? ''
+            : Provider.of<SplashController>(context, listen: false).configModel?.inHouseShop?.name ?? AppConstants.appName;
 
-                          widget.coupons.discountType == 'percentage'?
-                          Padding(padding: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeSmall),
-                            child: Text('${widget.coupons.discount} ${'% ${getTranslated('off', context)}'}',
-                              style: robotoBold.copyWith(fontSize: Dimensions.fontSizeExtraLarge,
-                                  color: Provider.of<ThemeController>(context, listen: false).darkTheme?
-                                  Theme.of(context).hintColor : Theme.of(context).primaryColor),),):
+    Future<void> copy() async {
+      onCopy?.call(coupons.code);
+      await Clipboard.setData(ClipboardData(text: coupons.code ?? ''));
+      if (context.mounted && onCopy == null) {
+        showCustomSnackBar(getTranslated('copied', context), context, isError: false);
+      }
+    }
 
-                          Padding(padding: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeSmall),
-                            child: Text(PriceConverter.convertPrice(context, widget.coupons.discount),
-                              style: robotoBold.copyWith(fontSize: Dimensions.fontSizeExtraLarge,
-                                  color: Provider.of<ThemeController>(context, listen: false).darkTheme?
-                                  Theme.of(context).hintColor : Theme.of(context).primaryColor),),),
-                          Text(widget.coupons.seller != null? widget.coupons.seller?.shop?.name??'' : widget.coupons.sellerId == 0?
-                          '${getTranslated('on_all_shop', context)}': Provider.of<SplashController>(context, listen: false).configModel?.inHouseShop?.name ?? AppConstants.appName,
-                            style: textRegular.copyWith(color: Theme.of(context).textTheme.bodyLarge?.color?.withValues(alpha: 0.7)))]))),
-
-                    Expanded(flex: 6,
-                      child: Padding(padding: const EdgeInsets.only(left: Dimensions.paddingSizeSmall),
-                        child: Column(children: [
-                         DottedBorder(
-                           options: RoundedRectDottedBorderOptions(
-                             color: Provider.of<ThemeController>(context, listen: false).darkTheme?
-                             Theme.of(context).hintColor.withValues(alpha:.75) : Theme.of(context).primaryColor,
-                             radius: const Radius.circular(5),
-                           ),
-                             child: Container(width: 120,
-                                 alignment: Alignment.center,
-                                 padding: const EdgeInsets.all(Dimensions.paddingSizeExtraSmall),
-                                 decoration: BoxDecoration(
-                                 color: Provider.of<ThemeController>(context, listen: false).darkTheme?
-                                 Theme.of(context).hintColor.withValues(alpha:.15) :
-                                 Theme.of(context).primaryColor.withValues(alpha:.1)),
-                                 child: Text(widget.coupons.code??'',
-                                     style: titleRegular.copyWith(color: Provider.of<ThemeController>(context, listen: false).darkTheme?
-                                     Theme.of(context).hintColor :Theme.of(context).primaryColor, fontSize: Dimensions.fontSizeDefault)))),
-
-
-                          Padding(padding: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeSmall),
-                            child: Text('${getTranslated('valid_till', context)}'
-                                ' ${DateConverter.estimatedDateYear(DateTime.parse(widget.coupons.planExpireDate!))}',
-                              style: textRegular.copyWith())),
-
-                          Padding(padding: const EdgeInsets.only(bottom : Dimensions.paddingSizeSmall),
-                            child: Text('${getTranslated('available_from', context)} '
-                                '${PriceConverter.convertPrice(context, widget.coupons.minPurchase)}',
-                                textAlign: TextAlign.center,
-                                style: titleRegular.copyWith(fontSize: Dimensions.fontSizeSmall,
-                                    color: Theme.of(context).textTheme.bodyLarge?.color?.withValues(alpha: 0.7))),)
-                        ],),
-                      ),
-                    ),
-                  ],
-                ),
-              ),),
+    return Padding(
+      padding: fromCheckout ? const EdgeInsets.only(top: 10) : const EdgeInsets.fromLTRB(16, 6, 16, 6),
+      child: Opacity(
+        opacity: expired ? .6 : 1,
+        child: Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).cardColor,
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(color: AppPalette.glassBorder(context)),
+            boxShadow: AppPalette.softShadow(context),
           ),
-
-           Positioned(top: 0,right: 0, child: JustTheTooltip(
-             backgroundColor: Colors.black87,
-             controller: tooltipController,
-             preferredDirection: AxisDirection.down,
-             tailLength: 10,
-             tailBaseWidth: 20,
-             content: Container(width: 90,
-                 padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
-                 child: Text(getTranslated('copied', context)!,
-                     style: textRegular.copyWith(color: Colors.white, fontSize: Dimensions.fontSizeDefault))),
-             child: InkWell(
-               onTap: () async {
-                 tooltipController.showTooltip();
-                 if(widget.onCopy != null) {
-                   widget.onCopy!(widget.coupons.code);
-
-                 }
-                 await Clipboard.setData(ClipboardData(text: widget.coupons.code??''));
-               },
-               child: Padding(padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
-                    child: Icon(Icons.copy_rounded,
-                        color: Provider.of<ThemeController>(context, listen: false).darkTheme?
-                        Theme.of(context).hintColor : Theme.of(context).primaryColor.withValues(alpha:.65)))),
-           )),
-
-
-          Positioned(top: 0,left: MediaQuery.of(context).size.width/2.68, bottom: 0,
-              child: DottedLine(
-                direction: Axis.vertical,
-                alignment: WrapAlignment.center,
-                lineLength: double.infinity,
-                lineThickness: 2.0,
-                dashLength: 4.0,
-                dashColor: Theme.of(context).hintColor,
-                dashRadius: 0.0,
-                dashGapLength: 6.0,
-                dashGapColor: Colors.transparent,
-                dashGapRadius: 0.0)),
-
-          Positioned(top: -20,left: MediaQuery.of(context).size.width/3,
-              child: Container(width: 35, height : 35,decoration: BoxDecoration(
-                color: Theme.of(context).scaffoldBackgroundColor,
-                borderRadius: BorderRadius.circular(100)),)),
-
-
-
-          Positioned(bottom: -20,left: MediaQuery.of(context).size.width/3,
-              child: Container(width: 35, height : 35,decoration: BoxDecoration(
-              color: Theme.of(context).scaffoldBackgroundColor,
-              borderRadius: BorderRadius.circular(100))))]),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(21),
+            child: IntrinsicHeight(
+              child: Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                Container(
+                  width: 100,
+                  decoration: BoxDecoration(gradient: stubGradient),
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 14),
+                  child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+                    if (freeDelivery) ...[
+                      const Icon(Icons.local_shipping_outlined, color: Colors.white, size: 28),
+                      const SizedBox(height: 4),
+                      Text(getTranslated('free_delivery', context) ?? '', textAlign: TextAlign.center,
+                          style: textBold.copyWith(color: Colors.white, fontSize: Dimensions.fontSizeSmall)),
+                    ] else ...[
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(percent ? '${coupons.discount?.toStringAsFixed(0)}%' : PriceConverter.convertPrice(context, coupons.discount),
+                            textDirection: TextDirection.ltr,
+                            style: textBold.copyWith(color: Colors.white, fontSize: 24, height: 1.1)),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(getTranslated('off', context) ?? '',
+                          style: textRegular.copyWith(color: Colors.white.withValues(alpha: .9), fontSize: Dimensions.fontSizeSmall)),
+                    ],
+                  ]),
+                ),
+                CustomPaint(size: const Size(2, double.infinity), painter: _DashPainter(AppPalette.glassBorder(context))),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      Text((coupons.title ?? '').isNotEmpty ? coupons.title! : shop,
+                          maxLines: 1, overflow: TextOverflow.ellipsis,
+                          style: textBold.copyWith(fontSize: Dimensions.fontSizeDefault, color: textColor)),
+                      const SizedBox(height: 2),
+                      Text('${getTranslated('available_from', context)} ${PriceConverter.convertPrice(context, coupons.minPurchase)} · $shop',
+                          maxLines: 2, overflow: TextOverflow.ellipsis,
+                          style: textRegular.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).hintColor)),
+                      const SizedBox(height: 8),
+                      Row(children: [
+                        Expanded(
+                          child: Container(
+                            height: 36,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).primaryColor.withValues(alpha: .08),
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(color: Theme.of(context).primaryColor.withValues(alpha: .35)),
+                            ),
+                            child: Text(coupons.code ?? '', maxLines: 1, overflow: TextOverflow.ellipsis,
+                                textDirection: TextDirection.ltr,
+                                style: textBold.copyWith(fontSize: Dimensions.fontSizeDefault, letterSpacing: 1.5, color: AppPalette.primaryDeep)),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        TextButton(
+                          onPressed: expired ? null : copy,
+                          style: TextButton.styleFrom(
+                            minimumSize: const Size(52, 36),
+                            backgroundColor: textColor,
+                            foregroundColor: Theme.of(context).cardColor,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          ),
+                          child: Text(getTranslated('copy', context) ?? '',
+                              style: textBold.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).cardColor)),
+                        ),
+                      ]),
+                      if (coupons.planExpireDate != null) ...[
+                        const SizedBox(height: 6),
+                        Text(expired
+                                ? getTranslated('expired', context) ?? ''
+                                : '${getTranslated('valid_till', context)} ${DateConverter.estimatedDateYear(DateTime.parse(coupons.planExpireDate!))}',
+                            style: textMedium.copyWith(fontSize: Dimensions.fontSizeExtraSmall + 1,
+                                color: expired ? Theme.of(context).hintColor : const Color(0xFFA15C00))),
+                      ],
+                    ]),
+                  ),
+                ),
+              ]),
+            ),
+          ),
+        ),
+      ),
     );
   }
+}
+
+class _DashPainter extends CustomPainter {
+  final Color color;
+  _DashPainter(this.color);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()..color = color..strokeWidth = 2;
+    double y = 6;
+    while (y < size.height - 6) {
+      canvas.drawLine(Offset(1, y), Offset(1, y + 5), paint);
+      y += 10;
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _DashPainter old) => old.color != color;
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kk_thotix_m3aak/theme/app_palette.dart';
 import 'package:kk_thotix_m3aak/features/product/controllers/seller_product_controller.dart';
 import 'package:kk_thotix_m3aak/features/search_product/controllers/search_product_controller.dart';
 import 'package:kk_thotix_m3aak/features/shop/domain/enums/vacation_duration_type.dart';
@@ -12,7 +13,6 @@ import 'package:kk_thotix_m3aak/features/shop/controllers/shop_controller.dart';
 import 'package:kk_thotix_m3aak/main.dart';
 import 'package:kk_thotix_m3aak/utill/custom_themes.dart';
 import 'package:kk_thotix_m3aak/utill/dimensions.dart';
-import 'package:kk_thotix_m3aak/utill/images.dart';
 import 'package:kk_thotix_m3aak/common/basewidget/product_filter_dialog_widget.dart';
 import 'package:kk_thotix_m3aak/common/basewidget/search_widget.dart';
 import 'package:kk_thotix_m3aak/features/home/screens/home_screens.dart';
@@ -145,30 +145,35 @@ class _TopSellerProductScreenState extends State<TopSellerProductScreen> with Ti
 
                   SliverPersistentHeader(pinned: true,
                     delegate: SliverDelegate(
-                      height: sellerProvider.shopMenuIndex == 1 ? 140 : 70,
-                      child: Container(color: Theme.of(context).canvasColor,
-                          child: Column(mainAxisAlignment: MainAxisAlignment.end, children: [
+                      height: sellerProvider.shopMenuIndex == 1 ? 140 : 64,
+                      child: Container(color: Theme.of(context).canvasColor.withValues(alpha: .94),
+                          child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
                           Row(mainAxisAlignment: MainAxisAlignment.start, children: [
-                            Expanded(child: Container(height: 40,
-                              color: Theme.of(context).canvasColor,
+                            Expanded(child: Container(height: 48,
+                              margin: const EdgeInsetsDirectional.only(start: 16, end: 8),
+                              padding: const EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).cardColor.withValues(alpha: .9),
+                                borderRadius: BorderRadius.circular(18),
+                                border: Border.all(color: AppPalette.glassBorder(context)),
+                              ),
                               child: Padding(
-                                padding: const EdgeInsets.only(left: Dimensions.paddingSizeEight),
+                                padding: EdgeInsets.zero,
                                 child: TabBar(physics: const NeverScrollableScrollPhysics(),
-                                  isScrollable: true,
+                                  isScrollable: false,
                                   dividerColor: Colors.transparent,
+                                  indicatorSize: TabBarIndicatorSize.tab,
+                                  indicator: BoxDecoration(gradient: AppPalette.brandGradient, borderRadius: BorderRadius.circular(14)),
+                                  splashBorderRadius: BorderRadius.circular(14),
                                   padding: const EdgeInsets.all(0),
                                   controller: _tabController,
-                                  tabAlignment: TabAlignment.start,
-                                  labelColor: Theme.of(context).primaryColor,
+                                  labelColor: Colors.white,
                                   unselectedLabelColor: Theme.of(context).hintColor,
-                                  indicatorColor: Theme.of(context).primaryColor,
-                                  indicatorWeight: 1,
                                   onTap: (value){
                                     sellerProvider.setMenuItemIndex(value);
                                     searchController.clear();},
-                                  indicatorPadding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault),
-                                  unselectedLabelStyle: textRegular.copyWith(fontSize: Dimensions.fontSizeLarge, fontWeight: FontWeight.w400),
-                                  labelStyle: textRegular.copyWith(fontSize: Dimensions.fontSizeLarge, fontWeight: FontWeight.w700),
+                                  unselectedLabelStyle: textMedium.copyWith(fontSize: Dimensions.fontSizeDefault),
+                                  labelStyle: textBold.copyWith(fontSize: Dimensions.fontSizeDefault),
                                   tabs: [
                                     Tab(text: getTranslated("overview", context)),
                                     Tab(text: getTranslated("all_products", context)),
@@ -191,11 +196,10 @@ class _TopSellerProductScreenState extends State<TopSellerProductScreen> with Ti
 
                                       child: Container(decoration: BoxDecoration(
                                         color: Theme.of(context).cardColor,
-                                        border: Border.all(color: Theme.of(context).primaryColor.withValues(alpha:.5)),
-                                        borderRadius: BorderRadius.circular(Dimensions.paddingSizeExtraSmall)),
-                                        width: 30,height: 30,
-                                        child: Padding(padding: const EdgeInsets.all(5.0),
-                                            child: Image.asset(Images.filterImage, color: Theme.of(context).textTheme.bodyLarge?.color))))
+                                        border: Border.all(color: Theme.of(context).primaryColor.withValues(alpha:.35)),
+                                        borderRadius: BorderRadius.circular(14)),
+                                        width: 48,height: 48,
+                                        child: Icon(Icons.tune_rounded, size: 20, color: Theme.of(context).primaryColor)))
                                   ),
 
                                   Consumer<SellerProductController>(

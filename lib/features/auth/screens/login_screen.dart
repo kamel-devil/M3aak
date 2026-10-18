@@ -3,7 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:kk_thotix_m3aak/common/basewidget/custom_button_widget.dart';
 import 'package:kk_thotix_m3aak/common/basewidget/custom_textfield_widget.dart';
 import 'package:kk_thotix_m3aak/common/basewidget/show_custom_snakbar_widget.dart';
+import 'package:kk_thotix_m3aak/common/glass/glass_widgets.dart';
 import 'package:kk_thotix_m3aak/features/auth/controllers/auth_controller.dart';
+import 'package:kk_thotix_m3aak/features/auth/widgets/auth_ui.dart';
+import 'package:kk_thotix_m3aak/theme/app_palette.dart';
 import 'package:kk_thotix_m3aak/features/auth/domain/models/user_log_data.dart';
 import 'package:kk_thotix_m3aak/features/auth/enums/from_page.dart';
 import 'package:kk_thotix_m3aak/features/auth/widgets/only_social_login_widget.dart';
@@ -113,12 +116,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Stack(
                   children: [
                     Positioned(
-                        top: Dimensions.paddingSizeThirtyFive,
+                        top: Dimensions.paddingSizeDefault,
                         left:  Provider.of<LocalizationController>(context, listen: false).isLtr ? Dimensions.paddingSizeLarge : null,
                         right: Provider.of<LocalizationController>(context, listen: false).isLtr ? null : Dimensions.paddingSizeLarge,
-                        child: IconButton(
-                          icon: Icon(Icons.arrow_back_ios, size: 20, color: Theme.of(context).primaryColor),
-                          onPressed: () {
+                        child: AuthBackButton(
+                          onTap: () {
                             if(widget.fromLogout) {
                               RouterHelper.getDashboardRoute(action: RouteAction.pushNamedAndRemoveUntil);
                             } else {
@@ -143,20 +145,19 @@ class _LoginScreenState extends State<LoginScreen> {
                                 key: _formKeyLogin,
                                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
 
-                                  SizedBox(height: size.height * 0.1),
+                                  SizedBox(height: size.height * 0.05),
 
                                   Center(
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
-                                      child: Directionality(
-                                          textDirection: TextDirection.ltr,
-                                          child: Image.asset(Images.logoWithNameImage, width: 140, height: 50)
-                                      ),
+                                    child: AuthBrandHeader(
+                                      title: getTranslated('welcome_back', context) ?? '',
+                                      subtitle: getTranslated('login_subtitle', context),
                                     ),
                                   ),
 
-                                  const SizedBox(height: 35),
+                                  const SizedBox(height: 24),
 
+                                  AuthFormCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                                  AuthFieldLabel(getTranslated('email/phone', context) ?? ''),
                                   Selector<AuthController, bool>(
                                     selector: (context, authProvider) => authProvider.isNumberLoginScreenText,
                                     builder: (_, isNumberLogin, ___) {
@@ -188,18 +189,17 @@ class _LoginScreenState extends State<LoginScreen> {
                                         nextFocus: _passwordFocus,
                                         controller: _emailPhoneController,
                                         inputType: TextInputType.name,
-                                        labelText: getTranslated('email/phone', context),
-                                        required: true,
+                                        hintText: 'example@mail.com',
+                                        showLabelText: false,
                                       );
                                     },
                                   ),
-                                  const SizedBox(height: Dimensions.paddingSizeLarge),
+                                  const SizedBox(height: Dimensions.paddingSizeDefault),
 
+                                  AuthFieldLabel(getTranslated('password', context) ?? ''),
                                   CustomTextFieldWidget(
                                     hintText: getTranslated('password_hint', context),
-                                    labelText: getTranslated('password', context),
                                     isShowBorder: true,
-                                    required: true,
                                     isPassword: true,
                                     showLabelText: false,
                                     focusNode: _passwordFocus,
@@ -208,29 +208,33 @@ class _LoginScreenState extends State<LoginScreen> {
                                     prefixIcon: Images.lockSvg,
                                     prefixColor: Theme.of(context).primaryColor,
                                   ),
-                                  const SizedBox(height: 22),
+                                  const SizedBox(height: 8),
 
                                   // for remember me section
                                   Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                                     InkWell(
                                       onTap: ()=> authProvider.toggleRememberMe(),
                                       child: Row(children: [
-                                        Container(width: 18, height: 18,
+                                        AnimatedContainer(
+                                          duration: const Duration(milliseconds: 200),
+                                          width: 22, height: 22,
+                                          margin: const EdgeInsets.symmetric(vertical: 11),
                                           decoration: BoxDecoration(
-                                            color: Colors.white,
-                                            border: Border.all(color: Theme.of(context).primaryColor),
-                                            borderRadius: BorderRadius.circular(3),
+                                            gradient: authProvider.isActiveRememberMe ? AppPalette.brandGradient : null,
+                                            color: authProvider.isActiveRememberMe ? null : Colors.white,
+                                            border: Border.all(color: Theme.of(context).primaryColor, width: 1.5),
+                                            borderRadius: BorderRadius.circular(7),
                                           ),
                                           child: authProvider.isActiveRememberMe
-                                              ? Icon(Icons.done, color: Theme.of(context).primaryColor, size: 14)
+                                              ? const Icon(Icons.check_rounded, color: Colors.white, size: 16)
                                               : const SizedBox.shrink(),
                                         ),
                                         const SizedBox(width: Dimensions.paddingSizeSmall),
 
                                         Text(getTranslated('remember', context)!,
-                                          style: Theme.of(context).textTheme.displayMedium!.copyWith(
-                                            fontSize: Dimensions.fontSizeSmall,
-                                            color: Theme.of(context).primaryColor,
+                                          style: textMedium.copyWith(
+                                            fontSize: Dimensions.fontSizeSmall + 1,
+                                            color: Theme.of(context).textTheme.bodyLarge?.color,
                                           ),
                                         ),
                                       ]),
@@ -245,8 +249,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                         child: Text(
                                           localizationProvider.isLtr ? "${getTranslated('forget_password', context)!}?"
                                               : "${getTranslated('forget_password', context)!}؟",
-                                          style: Theme.of(context).textTheme.displayMedium!.copyWith(
-                                            fontSize: Dimensions.fontSizeSmall,
+                                          style: textBold.copyWith(
+                                            fontSize: Dimensions.fontSizeSmall + 1,
                                             color: Theme.of(context).primaryColor,
                                           ),
                                         ),
@@ -326,27 +330,12 @@ class _LoginScreenState extends State<LoginScreen> {
                                       valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).primaryColor),
                                     ),
                                   ),
+                                  ])),
                                   const SizedBox(height: Dimensions.paddingSizeLarge),
 
 
                                   if(configModel.customerLogin?.loginOption?.otpLogin == null)
-                                    Row(
-                                      children: [
-                                        Expanded(child: Divider(color: Theme.of(context).hintColor)),
-                                        const SizedBox(width: Dimensions.paddingSizeSmall),
-
-                                        Text(getTranslated('OR', context)!,
-                                          style: Theme.of(context).textTheme.displayMedium!.copyWith(
-                                              fontSize: Dimensions.fontSizeDefault,
-                                              color: Theme.of(context).hintColor,
-                                              fontWeight: FontWeight.w400
-                                          ),
-                                        ),
-
-                                        const SizedBox(width: Dimensions.paddingSizeSmall),
-                                        Expanded(child: Divider(color: Theme.of(context).hintColor)),
-                                      ],
-                                    ),
+                                    AuthDivider(text: getTranslated('OR', context)!),
 
                                   if(configModel.customerLogin?.loginOption?.otpLogin == 1) ...[
                                     const SizedBox(height: Dimensions.paddingSizeDefault),
@@ -378,23 +367,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ],
 
                                   if((configModel.customerLogin?.loginOption?.socialMediaLogin == 1) && configModel.customerLogin?.loginOption?.otpLogin != 1)
-                                    Row(
-                                      children: [
-                                        Expanded(child: Divider(color: Theme.of(context).hintColor)),
-                                        const SizedBox(width: Dimensions.paddingSizeSmall),
-
-                                        Text(getTranslated('or_sign_in_with', context)!,
-                                          style: Theme.of(context).textTheme.displayMedium!.copyWith(
-                                              fontSize: Dimensions.fontSizeDefault,
-                                              color: Theme.of(context).hintColor,
-                                              fontWeight: FontWeight.w400
-                                          ),
-                                        ),
-
-                                        const SizedBox(width: Dimensions.paddingSizeSmall),
-                                        Expanded(child: Divider(color: Theme.of(context).hintColor)),
-                                      ],
-                                    ),
+                                    AuthDivider(text: getTranslated('or_sign_in_with', context)!),
 
                                   if(configModel.customerLogin?.loginOption?.socialMediaLogin == 1)
                                     const SizedBox(height: Dimensions.paddingSizeSmall),
@@ -417,12 +390,13 @@ class _LoginScreenState extends State<LoginScreen> {
                                       onTap: () {
                                         RouterHelper.getAuthScreenRoute(fromLogout:  widget.fromLogout, fromPage: widget.fromPage, onLoginSuccess: widget.onLoginSuccess);
                                       },
-                                      child: Text(getTranslated('signup_here', context)!,
-                                        style: Theme.of(context).textTheme.displaySmall!.copyWith(
-                                          fontSize: Dimensions.fontSizeDefault,
-                                          decoration: TextDecoration.underline,
-                                          decorationColor: Theme.of(context).primaryColor,
-                                          color: Theme.of(context).primaryColor,
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(vertical: 12),
+                                        child: Text(getTranslated('signup_here', context)!,
+                                          style: textBold.copyWith(
+                                            fontSize: Dimensions.fontSizeDefault,
+                                            color: Theme.of(context).primaryColor,
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -433,13 +407,22 @@ class _LoginScreenState extends State<LoginScreen> {
                                   //Center(child: Text(getTranslated('OR', context)!, style: poppinsRegular.copyWith(fontSize: 12))),
 
                                   Center(
-                                    child: InkWell(
-                                      onTap: ()=> {
+                                    child: PressableScale(
+                                      onTap: () {
                                         if (!authProvider.isLoading) {
-                                          authProvider.getGuestIdUrl(),
-                                          RouterHelper.getDashboardRoute(action: RouteAction.pushNamedAndRemoveUntil)
+                                          authProvider.getGuestIdUrl();
+                                          RouterHelper.getDashboardRoute(action: RouteAction.pushNamedAndRemoveUntil);
                                         }
                                       },
+                                      child: Container(
+                                      constraints: const BoxConstraints(minHeight: 48),
+                                      padding: const EdgeInsets.symmetric(horizontal: 22),
+                                      alignment: Alignment.center,
+                                      decoration: BoxDecoration(
+                                        color: Theme.of(context).cardColor,
+                                        borderRadius: BorderRadius.circular(16),
+                                        border: Border.all(color: AppPalette.glassBorder(context), width: 1.2),
+                                      ),
                                       child: RichText(text: TextSpan(children: [
 
                                         TextSpan(text: '${getTranslated('continue_as', context)} ',
@@ -458,7 +441,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                         ),
 
                                       ])),
-                                    ),
+                                    )),
                                   ),
 
                                 ]),

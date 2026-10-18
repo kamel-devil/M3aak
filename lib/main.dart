@@ -1,12 +1,12 @@
 import 'dart:io';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:kk_thotix_m3aak/data/local/cache_response.dart';
-import 'package:kk_thotix_m3aak/features/auth/controllers/facebook_login_controller.dart';
 import 'package:kk_thotix_m3aak/features/auth/controllers/google_login_controller.dart';
 import 'package:kk_thotix_m3aak/features/banner/controllers/banner_controller.dart';
 import 'package:kk_thotix_m3aak/features/checkout/controllers/checkout_controller.dart';
@@ -27,6 +27,7 @@ import 'package:kk_thotix_m3aak/features/profile/controllers/profile_contrroller
 import 'package:kk_thotix_m3aak/features/refund/controllers/refund_controller.dart';
 import 'package:kk_thotix_m3aak/features/reorder/controllers/re_order_controller.dart';
 import 'package:kk_thotix_m3aak/features/restock/controllers/restock_controller.dart';
+import 'package:kk_thotix_m3aak/features/prescription/controllers/prescription_controller.dart';
 import 'package:kk_thotix_m3aak/features/review/controllers/review_controller.dart';
 import 'package:kk_thotix_m3aak/features/shipping/controllers/shipping_controller.dart';
 import 'package:kk_thotix_m3aak/features/splash/controllers/splash_controller.dart';
@@ -62,16 +63,61 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 final database = AppDatabase();
 
 
+// TEMP (local testing, debug builds only): reach the local Herd site from the Android emulator.
+// The emulator can't resolve the host machine's .test domain, so connections to it go to the host
+// (10.0.2.2) while TLS SNI / Host stay '6vally-v15.6.test' (Herd vhost + tenant lookup), and Herd's
+// self-signed certificate is accepted for that host only.
+// Remove together with the local baseUrl in AppConstants.
+const String _localDevHost = '6vally-v15.6.test';
+
+class _LocalDevHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)
+      ..badCertificateCallback = ((X509Certificate cert, String host, int port) => host == _localDevHost)
+      ..connectionFactory = (Uri uri, String? proxyHost, int? proxyPort) async {
+        final bool isHttps = uri.scheme == 'https';
+        if (uri.host != _localDevHost) {
+          return isHttps
+              ? await SecureSocket.startConnect(uri.host, uri.port, context: context)
+              : await Socket.startConnect(uri.host, uri.port);
+        }
+        final ConnectionTask<Socket> task = await Socket.startConnect('10.0.2.2', uri.port);
+        final Future<Socket> socket = task.socket.then<Socket>((Socket raw) => isHttps
+            ? SecureSocket.secure(raw, host: _localDevHost, onBadCertificate: (_) => true)
+            : raw);
+        return ConnectionTask.fromSocket(socket, task.cancel);
+      };
+  }
+}
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  if(Firebase.apps.isEmpty) {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
+  if (kDebugMode) {
+    HttpOverrides.global = _LocalDevHttpOverrides();
   }
-  await FlutterDownloader.initialize(debug: true, ignoreSsl: true);
-  await di.init();
+
+  try {
+    if (Firebase.apps.isEmpty) {
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+    }
+  } catch (e) {
+    debugPrint('Firebase init error: $e');
+  }
+
+  try {
+    await FlutterDownloader.initialize(debug: true, ignoreSsl: true);
+  } catch (e) {
+    debugPrint('FlutterDownloader init error: $e');
+  }
+
+  try {
+    await di.init();
+  } catch (e) {
+    debugPrint('DI init error: $e');
+  }
 
   flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()?.requestNotificationsPermission();
 
@@ -113,7 +159,6 @@ Future<void> main() async {
       ChangeNotifierProvider(create: (context) => di.sl<LocalizationController>()),
       ChangeNotifierProvider(create: (context) => di.sl<ThemeController>()),
       ChangeNotifierProvider(create: (context) => di.sl<GoogleSignInController>()),
-      ChangeNotifierProvider(create: (context) => di.sl<FacebookLoginController>()),
       ChangeNotifierProvider(create: (context) => di.sl<AddressController>()),
       ChangeNotifierProvider(create: (context) => di.sl<WalletController>()),
       ChangeNotifierProvider(create: (context) => di.sl<CompareController>()),
@@ -128,6 +173,7 @@ Future<void> main() async {
       ChangeNotifierProvider(create: (context) => di.sl<ReviewController>()),
       ChangeNotifierProvider(create: (context) => di.sl<SellerProductController>()),
       ChangeNotifierProvider(create: (context) => di.sl<RestockController>()),
+      ChangeNotifierProvider(create: (context) => di.sl<PrescriptionController>()),
     ],
     child: MyApp(body: body),
   ));

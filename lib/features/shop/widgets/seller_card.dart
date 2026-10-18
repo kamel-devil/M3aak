@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:kk_thotix_m3aak/theme/app_palette.dart';
+import 'package:kk_thotix_m3aak/common/glass/glass_widgets.dart';
 import 'package:kk_thotix_m3aak/common/basewidget/custom_asset_image_widget.dart';
 import 'package:kk_thotix_m3aak/features/shop/domain/models/seller_model.dart';
 import 'package:kk_thotix_m3aak/features/splash/controllers/splash_controller.dart';
@@ -70,7 +72,7 @@ class _SellerCardState extends State<SellerCard> {
             bottom: Dimensions.paddingSizeExtraSmall
           ) : const EdgeInsets.fromLTRB( Dimensions.paddingSizeSmall,  Dimensions.paddingSizeDefault,  Dimensions.paddingSizeSmall,0),
 
-          child: Container(clipBehavior: Clip.none, decoration: BoxDecoration(
+          child: widget.isHomePage ? _HomeSellerCard(seller: widget.sellerModel!, closed: (widget.sellerModel!.shop?.temporaryClose ?? false) || vacationIsOn) : Container(clipBehavior: Clip.none, decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20),
               color: Theme.of(context).cardColor,
               border: Border.all(color: Theme.of(context).primaryColor.withValues(alpha: .08)),
@@ -153,7 +155,7 @@ class _SellerCardState extends State<SellerCard> {
                             Expanded(child: Container(
                               padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
                               decoration: BoxDecoration(
-                                  color: const Color(0xFFF1F3FA),
+                                  color: const Color(0xFFE3F6F2),
                                   borderRadius: BorderRadius.circular(12)
                               ),
                               child: Center(
@@ -177,11 +179,11 @@ class _SellerCardState extends State<SellerCard> {
                           ],
 
                         Expanded(child: Container(padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
-                            decoration: BoxDecoration(color: const Color(0xFFECE9FF),
+                            decoration: BoxDecoration(color: const Color(0xFFD7F4EE),
                                 borderRadius: BorderRadius.circular(12)),
                             child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                               Text(NumberFormat.compact().format(widget.sellerModel?.productCount??0),
-                                style: textBold.copyWith(fontSize: Dimensions.fontSizeDefault, color: const Color(0xFF5B4CF0)),),
+                                style: textBold.copyWith(fontSize: Dimensions.fontSizeDefault, color: const Color(0xFF0E9F8E)),),
                               const SizedBox(width: Dimensions.paddingSizeExtraSmall),
 
                               Text("${getTranslated('products', context)}", style: textMedium.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).textTheme.bodyLarge?.color)
@@ -194,9 +196,9 @@ class _SellerCardState extends State<SellerCard> {
                 ]),
 
 
-                Positioned(
+                PositionedDirectional(
                   top: widget.isHomePage ? (64-22) : (84-22),
-                  left: 10,
+                  start: 10,
                   child: Stack(children: [
                     Container(width: 64,height: 64,
                       decoration: BoxDecoration(
@@ -243,6 +245,92 @@ class _SellerCardState extends State<SellerCard> {
             ),
           ),
         )
+    );
+  }
+}
+
+/// Compact store card used in the home carousel.
+class _HomeSellerCard extends StatelessWidget {
+  const _HomeSellerCard({required this.seller, required this.closed});
+  final Seller seller;
+  final bool closed;
+
+  @override
+  Widget build(BuildContext context) {
+    final config = Provider.of<SplashController>(context, listen: false).configModel;
+    final bool inHouse = seller.id == 0;
+    final String name = inHouse ? config?.inHouseShop?.name ?? '' : seller.shop?.name ?? '';
+    final String logo = inHouse ? config?.inHouseShop?.imageFullUrl?.path ?? '' : '${seller.shop?.imageFullUrl?.path}';
+    final Color? textColor = Theme.of(context).textTheme.bodyLarge?.color;
+
+    Widget stat(IconData icon, Color color, String value, String label) => Expanded(
+      child: Container(
+        height: 38,
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        decoration: BoxDecoration(color: color.withValues(alpha: .10), borderRadius: BorderRadius.circular(12)),
+        child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+          Icon(icon, size: 15, color: color),
+          const SizedBox(width: 4),
+          Text(value, style: textBold.copyWith(fontSize: Dimensions.fontSizeDefault, color: textColor)),
+          const SizedBox(width: 3),
+          Flexible(child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis,
+              style: textRegular.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).hintColor))),
+        ]),
+      ),
+    );
+
+    return GlassContainer(
+      blur: false,
+      radius: 22,
+      padding: const EdgeInsets.all(12),
+      child: Column(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+        Row(children: [
+          Container(
+            width: 56,
+            height: 56,
+            padding: const EdgeInsets.all(2),
+            decoration: BoxDecoration(gradient: AppPalette.brandGradient, borderRadius: BorderRadius.circular(18)),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: Stack(fit: StackFit.expand, children: [
+                Container(color: Theme.of(context).cardColor, child: CustomImageWidget(image: logo, fit: BoxFit.cover)),
+                if (closed)
+                  Container(
+                    color: Colors.black.withValues(alpha: .55),
+                    alignment: Alignment.center,
+                    child: Text(
+                      getTranslated((seller.shop?.temporaryClose ?? false) ? 'temporary_closed' : 'close_for_now', context) ?? '',
+                      textAlign: TextAlign.center,
+                      style: textRegular.copyWith(color: Colors.white, fontSize: Dimensions.fontSizeExtraSmall),
+                    ),
+                  ),
+              ]),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(name, maxLines: 1, overflow: TextOverflow.ellipsis,
+                style: textBold.copyWith(fontSize: Dimensions.fontSizeLarge, color: textColor)),
+            const SizedBox(height: 3),
+            Row(children: [
+              Icon(Icons.location_on_outlined, size: 14, color: Theme.of(context).primaryColor),
+              const SizedBox(width: 3),
+              Expanded(child: Text(seller.shop?.address ?? '', maxLines: 1, overflow: TextOverflow.ellipsis,
+                  style: textRegular.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).hintColor))),
+            ]),
+          ])),
+          Icon(Icons.chevron_right_rounded, color: Theme.of(context).hintColor, textDirection: Directionality.of(context)),
+        ]),
+        const SizedBox(height: 10),
+        Row(children: [
+          if ((seller.ratingCount ?? 0) > 0) ...[
+            stat(Icons.star_rounded, AppPalette.warning, seller.averageRating?.toStringAsFixed(1) ?? '0', '(${seller.ratingCount})'),
+            const SizedBox(width: 8),
+          ],
+          stat(Icons.medication_outlined, AppPalette.primary, NumberFormat.compact().format(seller.productCount ?? 0),
+              getTranslated('products', context) ?? ''),
+        ]),
+      ]),
     );
   }
 }

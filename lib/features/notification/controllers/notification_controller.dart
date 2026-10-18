@@ -15,12 +15,13 @@ class NotificationController extends ChangeNotifier {
   Future<void> getNotificationList(int offset) async {
     ApiResponseModel apiResponse = await notificationServiceInterface.getList(offset : offset);
     if (apiResponse.response != null && apiResponse.response?.statusCode == 200) {
+      final NotificationItemModel parsedNotificationItemModelResponse = NotificationItemModel.fromJson(apiResponse.response?.data);
       if(offset == 1){
-        notificationModel = NotificationItemModel.fromJson(apiResponse.response?.data);
+        notificationModel = parsedNotificationItemModelResponse;
       }else{
-        notificationModel?.notification?.addAll(NotificationItemModel.fromJson(apiResponse.response?.data).notification!);
-        notificationModel?.offset = NotificationItemModel.fromJson(apiResponse.response?.data).offset!;
-        notificationModel?.totalSize = NotificationItemModel.fromJson(apiResponse.response?.data).totalSize!;
+        notificationModel?.notification?.addAll(parsedNotificationItemModelResponse.notification!);
+        notificationModel?.offset = parsedNotificationItemModelResponse.offset!;
+        notificationModel?.totalSize = parsedNotificationItemModelResponse.totalSize!;
       }
     } else {
       ApiChecker.checkApi( apiResponse);

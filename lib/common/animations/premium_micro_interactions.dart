@@ -160,7 +160,7 @@ class AnimatedCartBadge extends StatefulWidget {
   const AnimatedCartBadge({
     super.key,
     required this.count,
-    this.backgroundColor = const Color(0xFF5B4CF0),
+    this.backgroundColor = const Color(0xFF0E9F8E),
     this.textColor = Colors.white,
   });
 
@@ -472,7 +472,7 @@ class PremiumBottomNavigation extends StatelessWidget {
                 curve: Curves.easeOutCubic,
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 decoration: BoxDecoration(
-                  color: active ? const Color(0xFFECE9FF) : Colors.transparent,
+                  color: active ? const Color(0xFFD7F4EE) : Colors.transparent,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Column(
@@ -489,7 +489,7 @@ class PremiumBottomNavigation extends StatelessWidget {
                           child: Icon(
                             active ? item.activeIcon : item.icon,
                             key: ValueKey(active),
-                            color: active ? const Color(0xFF5B4CF0) : const Color(0xFF6D7385),
+                            color: active ? const Color(0xFF0E9F8E) : const Color(0xFF4F6B70),
                             size: 22,
                           ),
                         ),
@@ -507,7 +507,7 @@ class PremiumBottomNavigation extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        color: active ? const Color(0xFF5B4CF0) : const Color(0xFF6D7385),
+                        color: active ? const Color(0xFF0E9F8E) : const Color(0xFF4F6B70),
                         fontSize: 11,
                         fontWeight: active ? FontWeight.w700 : FontWeight.w500,
                       ),
@@ -649,7 +649,7 @@ class _BurstPainter extends CustomPainter {
     final center = Offset(size.width / 2, size.height / 2);
     final paint = Paint()
       ..style = PaintingStyle.fill
-      ..color = const Color(0xFF5B4CF0).withValues(alpha: (1 - p) * .8);
+      ..color = const Color(0xFF0E9F8E).withValues(alpha: (1 - p) * .8);
 
     for (int i = 0; i < 10; i++) {
       final angle = (math.pi * 2 / 10) * i;

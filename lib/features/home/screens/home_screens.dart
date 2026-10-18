@@ -68,7 +68,11 @@ class HomePage extends StatefulWidget {
       // await flashDealController.getFlashDealList(reload, false);
     }
 
-    splashController.initConfig(Get.context!, null, null);
+    // Config is already loaded by the splash screen (the dashboard needs it to pick this screen);
+    // only re-fetch it on pull-to-refresh.
+    if (reload) {
+      splashController.initConfig(Get.context!, null, null);
+    }
 
     categoryController.getCategoryList(reload);
 
@@ -354,7 +358,7 @@ class _HomePageState extends State<HomePage> {
               height: 50,
               child: Align(
                 alignment: Alignment.topLeft,
-                child: Container(color: Theme.of(context).scaffoldBackgroundColor, child: const ProductPopupFilterWidget()),
+                child: Container(color: Theme.of(context).canvasColor, child: const ProductPopupFilterWidget()),
               ),
             )),
 

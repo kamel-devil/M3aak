@@ -56,12 +56,13 @@ class LoyaltyPointController extends ChangeNotifier {
     );
 
     if (apiResponse.response?.data != null && apiResponse.response?.statusCode == 200) {
+      final LoyaltyPointModel parsedLoyaltyPointModelResponse = LoyaltyPointModel.fromJson(apiResponse.response?.data);
       if(offset == 1) {
-        _loyaltyPointModel = LoyaltyPointModel.fromJson(apiResponse.response?.data);
+        _loyaltyPointModel = parsedLoyaltyPointModelResponse;
       }else {
-        _loyaltyPointModel?.offset = LoyaltyPointModel.fromJson(apiResponse.response?.data).offset;
-        _loyaltyPointModel?.totalLoyaltyPoint = LoyaltyPointModel.fromJson(apiResponse.response?.data).totalLoyaltyPoint;
-        _loyaltyPointModel?.loyaltyPointList?.addAll(LoyaltyPointModel.fromJson(apiResponse.response?.data).loyaltyPointList ?? []);
+        _loyaltyPointModel?.offset = parsedLoyaltyPointModelResponse.offset;
+        _loyaltyPointModel?.totalLoyaltyPoint = parsedLoyaltyPointModelResponse.totalLoyaltyPoint;
+        _loyaltyPointModel?.loyaltyPointList?.addAll(parsedLoyaltyPointModelResponse.loyaltyPointList ?? []);
 
       }
 

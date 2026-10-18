@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:kk_thotix_m3aak/common/glass/glass_widgets.dart';
 import 'package:kk_thotix_m3aak/localization/language_constrants.dart';
-import 'package:kk_thotix_m3aak/theme/controllers/theme_controller.dart';
+import 'package:kk_thotix_m3aak/theme/app_palette.dart';
 import 'package:kk_thotix_m3aak/utill/custom_themes.dart';
 import 'package:kk_thotix_m3aak/utill/dimensions.dart';
-import 'package:provider/provider.dart';
 
 class CustomButton extends StatelessWidget {
   final Function()? onTap;
@@ -26,48 +26,72 @@ class CustomButton extends StatelessWidget {
     super.key, this.onTap, required this.buttonText, this.isBuy= false,
     this.isBorder = false, this.backgroundColor, this.radius, this.textColor,
     this.fontSize, this.leftIcon, this.borderColor, this.loadingColor = Colors.white, this.borderWidth,
-    this.isLoading = false, this.buttonHeight = 45,
+    this.isLoading = false, this.buttonHeight = 48,
   });
 
   @override
   Widget build(BuildContext context) {
-    return TextButton(
-      onPressed: isLoading ? null : onTap as void Function()?,
-      style: TextButton.styleFrom(padding: const EdgeInsets.all(0)),
-      child: Container(height: buttonHeight,
+    final bool disabled = onTap == null;
+    final double r = radius ?? 16;
+
+    // Default filled buttons get the brand (or offer) gradient; explicit
+    // colours and outlined buttons are honoured as before.
+    final Gradient? gradient = (disabled || isBorder || backgroundColor != null)
+        ? null
+        : (isBuy ? AppPalette.offerGradient : AppPalette.brandGradient);
+    final Color? fill = disabled
+        ? Theme.of(context).disabledColor
+        : gradient != null ? null : backgroundColor;
+    final Color shadowColor = isBuy ? AppPalette.accent : AppPalette.primary;
+
+    return PressableScale(
+      onTap: (isLoading || disabled) ? null : () => onTap!(),
+      scale: .97,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        height: buttonHeight,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          border: isBorder? Border.all(color: borderColor??Theme.of(context).primaryColor, width:  borderWidth ??1): null,
-          color: onTap == null ? Theme.of(context).disabledColor : backgroundColor ?? (isBuy? const Color(0xffFE961C) : Theme.of(context).primaryColor),
-            borderRadius: BorderRadius.circular(radius !=null ? radius! : isBorder? Dimensions.paddingSizeExtraSmall : Dimensions.paddingSizeSmall)),
-        child: isLoading ? Center(child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SizedBox(
-              height: 15, width: 15,
-              child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(loadingColor!),
-                strokeWidth: 2,
+          border: isBorder ? Border.all(color: borderColor ?? Theme.of(context).primaryColor, width: borderWidth ?? 1.2) : null,
+          color: fill,
+          gradient: gradient,
+          borderRadius: BorderRadius.circular(r),
+          boxShadow: gradient != null && !isLoading ? [
+            BoxShadow(color: shadowColor.withValues(alpha: .30), blurRadius: 18, offset: const Offset(0, 8)),
+          ] : null,
+        ),
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 220),
+          child: isLoading ? Row(
+            key: const ValueKey('loading'),
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                height: 16, width: 16,
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(loadingColor!),
+                  strokeWidth: 2,
+                ),
               ),
-            ),
-            const SizedBox(width: Dimensions.paddingSizeSmall),
+              const SizedBox(width: Dimensions.paddingSizeSmall),
 
-            Text(getTranslated('loading', context)!, style: textBold.copyWith(color: loadingColor)),
-          ],
-        )) : Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-            if(leftIcon != null)
-            Padding(padding: const EdgeInsets.only(right: 5),
-              child: SizedBox(width: 30, child: Padding(
-                padding: const EdgeInsets.all(Dimensions.paddingSizeExtraSmall),
-                child: Image.asset(leftIcon!),
-              )),
-            ),
-            Flexible(
-              child: Text(buttonText??"", style: titilliumSemiBold.copyWith(fontSize: fontSize?? 16,
-                    color: textColor ?? (Provider.of<ThemeController>(context, listen: false).darkTheme? Colors.white : Theme.of(context).highlightColor),
-                  )),
-            ),
-          ],
+              Text(getTranslated('loading', context)!, style: textBold.copyWith(color: loadingColor)),
+            ],
+          ) : Row(key: const ValueKey('label'), mainAxisAlignment: MainAxisAlignment.center, children: [
+              if(leftIcon != null)
+              Padding(padding: const EdgeInsets.only(right: 5),
+                child: SizedBox(width: 30, child: Padding(
+                  padding: const EdgeInsets.all(Dimensions.paddingSizeExtraSmall),
+                  child: Image.asset(leftIcon!),
+                )),
+              ),
+              Flexible(
+                child: Text(buttonText??"", style: textBold.copyWith(fontSize: fontSize?? 16,
+                      color: textColor ?? (isBorder ? (borderColor ?? Theme.of(context).primaryColor) : Colors.white),
+                    )),
+              ),
+            ],
+          ),
         ),
       ),
     );

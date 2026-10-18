@@ -45,13 +45,15 @@ import 'package:kk_thotix_m3aak/features/shop/widgets/more_store_list_view.dart'
 import 'package:kk_thotix_m3aak/features/splash/controllers/splash_controller.dart';
 import 'package:kk_thotix_m3aak/helper/responsive_helper.dart';
 import 'package:kk_thotix_m3aak/helper/route_healper.dart';
+import 'package:kk_thotix_m3aak/features/prescription/widgets/home_prescription_banner.dart';
 import 'package:kk_thotix_m3aak/localization/language_constrants.dart';
 import 'package:kk_thotix_m3aak/main.dart';
 import 'package:kk_thotix_m3aak/theme/controllers/theme_controller.dart';
-import 'package:kk_thotix_m3aak/utill/color_resources.dart';
+import 'package:kk_thotix_m3aak/common/glass/glass_widgets.dart';
+import 'package:kk_thotix_m3aak/theme/app_palette.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:kk_thotix_m3aak/utill/custom_themes.dart';
 import 'package:kk_thotix_m3aak/utill/dimensions.dart';
-import 'package:kk_thotix_m3aak/utill/images.dart';
 import 'package:provider/provider.dart';
 
 import '../../banner/widgets/footer_banner_slider_widget.dart';
@@ -88,7 +90,11 @@ class AsterThemeHomeScreen extends StatefulWidget {
     final splashController =
         Provider.of<SplashController>(Get.context!, listen: false);
 
-    splashController.initConfig(Get.context!, null, null);
+    // Config is already loaded by the splash screen (the dashboard needs it to pick this screen);
+    // only re-fetch it on pull-to-refresh.
+    if (reload) {
+      splashController.initConfig(Get.context!, null, null);
+    }
 
     shopController.getAllSellerList(offset: 1, isUpdate: reload);
 
@@ -183,6 +189,20 @@ class _AsterThemeHomeScreenState extends State<AsterThemeHomeScreen> {
     }
   }
 
+  Future<void> _contactPharmacist() async {
+    final String phone = (Provider.of<SplashController>(context, listen: false)
+                .configModel
+                ?.companyPhone ??
+            '')
+        .replaceAll(RegExp(r'[^\d]'), '');
+    if (phone.isEmpty) {
+      RouterHelper.getSearchRoute(action: RouteAction.push);
+      return;
+    }
+    await launchUrl(Uri.parse('https://wa.me/$phone'),
+        mode: LaunchMode.externalApplication);
+  }
+
   String _greetingText(BuildContext context) {
     final hour = DateTime.now().hour;
 
@@ -211,11 +231,6 @@ class _AsterThemeHomeScreenState extends State<AsterThemeHomeScreen> {
     return getTranslated('there', context) ?? 'there';
   }
 
-  String _headerCenterText(BuildContext context) {
-    final greeting = _greetingText(context);
-    final userName = _displayName(context);
-    return '$greeting, $userName';
-  }
 
   bool singleVendor = false;
   @override
@@ -232,9 +247,7 @@ class _AsterThemeHomeScreenState extends State<AsterThemeHomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      backgroundColor: _homeV2Enabled
-          ? const Color(0xFFF7F8FC)
-          : Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: Colors.transparent,
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: () async {
@@ -247,125 +260,24 @@ class _AsterThemeHomeScreenState extends State<AsterThemeHomeScreen> {
               elevation: 0,
               centerTitle: false,
               automaticallyImplyLeading: false,
-              backgroundColor: _homeV2Enabled
-                  ? Colors.transparent
-                  : Theme.of(context).highlightColor,
-              titleSpacing: _homeV2Enabled
-                  ? Dimensions.paddingSizeDefault
-                  : NavigationToolbar.kMiddleSpacing,
+              backgroundColor: Colors.transparent,
               surfaceTintColor: Colors.transparent,
-              toolbarHeight: _homeV2Enabled ? 64 : kToolbarHeight,
-              title: _homeV2Enabled
-                  ? Container(
-                      height: 56,
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(horizontal: 14),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(22),
-                        gradient: LinearGradient(
-                          colors: [
-                            ColorResources.getHeaderGradientStart(context),
-                            ColorResources.getHeaderGradientMid(context),
-                            ColorResources.getHeaderGradientEnd(context),
-                          ],
-                          begin: Alignment.centerLeft,
-                          end: Alignment.centerRight,
-                        ),
-                        border: Border.all(
-                            color: ColorResources.getHeaderBorder(context)),
-                        boxShadow: [
-                          BoxShadow(
-                            color: ColorResources.getHeaderShadow(context),
-                            blurRadius: 22,
-                            offset: Offset(0, 10),
-                          ),
-                        ],
-                      ),
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          Positioned(
-                            left: 0,
-                            child: Image.asset(Images.logoWithNameImage,
-                                height: 28),
-                          ),
-                          Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 74),
-                            child: Text(
-                              _headerCenterText(context),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: textMedium.copyWith(
-                                color: Colors.white.withValues(alpha: .96),
-                                fontSize: Dimensions.fontSizeDefault,
-                                letterSpacing: .15,
-                              ),
-                            ),
-                          ),
-                          Positioned(
-                            right: 0,
-                            child: Consumer<NotificationController>(
-                              builder: (context, notification, _) {
-                                final hasAnyNotification = (notification
-                                        .notificationModel
-                                        ?.notification
-                                        ?.isNotEmpty ??
-                                    false);
-
-                                return InkWell(
-                                  onTap: () =>
-                                      RouterHelper.getNotificationRoute(
-                                          action: RouteAction.push),
-                                  borderRadius: BorderRadius.circular(14),
-                                  child: Stack(
-                                    clipBehavior: Clip.none,
-                                    children: [
-                                      Container(
-                                        height: 36,
-                                        width: 36,
-                                        decoration: BoxDecoration(
-                                          color: ColorResources
-                                              .getHeaderIconSurface(context),
-                                          borderRadius:
-                                              BorderRadius.circular(14),
-                                          border: Border.all(
-                                              color: ColorResources
-                                                  .getHeaderIconBorder(
-                                                      context)),
-                                        ),
-                                        child: const Icon(
-                                            Icons.notifications_none_rounded,
-                                            color: Colors.white,
-                                            size: 20),
-                                      ),
-                                      if (hasAnyNotification)
-                                        Positioned(
-                                          right: -1,
-                                          top: -1,
-                                          child: Container(
-                                            width: 10,
-                                            height: 10,
-                                            decoration: BoxDecoration(
-                                              color: ColorResources
-                                                  .getNotificationDot(context),
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                              border: Border.all(
-                                                  color: Colors.white,
-                                                  width: 1.2),
-                                            ),
-                                          ),
-                                        ),
-                                    ],
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  : Image.asset(Images.logoWithNameImage, height: 35),
+              titleSpacing: Dimensions.paddingSizeDefault,
+              toolbarHeight: 86,
+              flexibleSpace: const HomeV2FrostedStrip(),
+              title: Consumer<ProfileController>(
+                builder: (context, _, __) => FadeSlideIn(
+                  offset: const Offset(0, -12),
+                  child: HomeV2Header(
+                    greeting: _greetingText(context),
+                    name: _displayName(context),
+                    onNotificationTap: () => RouterHelper.getNotificationRoute(
+                        action: RouteAction.push),
+                    onCartTap: () =>
+                        RouterHelper.getCartScreenRoute(action: RouteAction.push),
+                  ),
+                ),
+              ),
             ),
 
             SliverToBoxAdapter(
@@ -393,14 +305,14 @@ class _AsterThemeHomeScreenState extends State<AsterThemeHomeScreen> {
             SliverPersistentHeader(
               pinned: true,
               delegate: SliverDelegate(
-                height: _homeV2Enabled ? 72 : 70,
+                height: _homeV2Enabled ? 76 : 70,
                 child: _homeV2Enabled
-                    ? HomeV2StickySearchBar(
-                        onSearchTap: () => RouterHelper.getSearchRoute(
-                            action: RouteAction.push),
-                        onFilterTap: () => RouterHelper.getSearchRoute(
-                            action: RouteAction.push),
-                        onScanTap: _scanBarcode,
+                    ? HomeV2FrostedStrip(
+                        child: HomeV2StickySearchBar(
+                          onSearchTap: () => RouterHelper.getSearchRoute(
+                              action: RouteAction.push),
+                          onScanTap: _scanBarcode,
+                        ),
                       )
                     : InkWell(
                         onTap: () => RouterHelper.getSearchRoute(
@@ -413,20 +325,62 @@ class _AsterThemeHomeScreenState extends State<AsterThemeHomeScreen> {
             ),
 
             SliverToBoxAdapter(
-              child: _wrapSection(
-                margin: _homeV2Enabled
-                    ? const EdgeInsets.symmetric(
-                        horizontal: Dimensions.paddingSizeDefault)
-                    : EdgeInsets.zero,
-                padding:
-                    _homeV2Enabled ? const EdgeInsets.all(8) : EdgeInsets.zero,
-                child: const BannersWidget(),
+              child: const Padding(
+                padding: EdgeInsets.only(top: 4),
+                child: BannersWidget(),
               ),
             ),
             SliverToBoxAdapter(
                 child: SizedBox(
                     height:
                         _homeV2Enabled ? 16 : Dimensions.paddingSizeDefault)),
+
+            SliverToBoxAdapter(
+              child: FadeSlideIn(
+                index: 1,
+                child: HomeV2HealthHero(
+                  onTap: () =>
+                      RouterHelper.getSearchRoute(action: RouteAction.push),
+                ),
+              ),
+            ),
+            const SliverToBoxAdapter(child: SizedBox(height: 16)),
+
+            SliverToBoxAdapter(
+              child: HomeV2QuickActions(actions: [
+                HomeV2QuickAction(
+                  icon: Icons.medication_rounded,
+                  label: getTranslated('medicines', context) ?? 'Medicines',
+                  color: AppPalette.primary,
+                  onTap: () => RouterHelper.getCategoryScreenRoute(),
+                ),
+                HomeV2QuickAction(
+                  icon: Icons.qr_code_scanner_rounded,
+                  label: getTranslated('scan', context) ?? 'Scan',
+                  color: AppPalette.secondary,
+                  onTap: _scanBarcode,
+                ),
+                HomeV2QuickAction(
+                  icon: Icons.local_shipping_rounded,
+                  label: getTranslated('my_orders', context) ?? 'My orders',
+                  color: AppPalette.warning,
+                  onTap: () =>
+                      RouterHelper.getOrderScreenRoute(action: RouteAction.push),
+                ),
+                HomeV2QuickAction(
+                  icon: Icons.support_agent_rounded,
+                  label: getTranslated('pharmacist', context) ?? 'Pharmacist',
+                  color: AppPalette.accent,
+                  onTap: _contactPharmacist,
+                ),
+              ]),
+            ),
+            const SliverToBoxAdapter(child: SizedBox(height: 16)),
+            SliverToBoxAdapter(
+              child: FadeSlideIn(index: 2, child: const HomePrescriptionBanner()),
+            ),
+            const SliverToBoxAdapter(child: SizedBox(height: 16)),
+
 
             SliverToBoxAdapter(
               child: _wrapSection(
@@ -503,21 +457,18 @@ class _AsterThemeHomeScreenState extends State<AsterThemeHomeScreen> {
                                 null &&
                             productController.findWhatYouNeedModel!
                                 .findWhatYouNeed!.isNotEmpty)
-                        ? _wrapSection(
-                            child: Column(children: [
-                              TitleRowWidget(
-                                  title: getTranslated(
-                                      'find_what_you_need', context)),
-                              const SizedBox(
-                                  height: Dimensions.paddingSizeSmall),
-                              SizedBox(
-                                  height: ResponsiveHelper.isTab(context)
-                                      ? 165
-                                      : 155,
-                                  child: const FindWhatYouNeedView()),
-                              const SizedBox(
-                                  height: Dimensions.paddingSizeDefault),
-                            ]),
+                        ? FadeSlideIn(
+                            child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const SizedBox(height: 16),
+                                  TitleRowWidget(
+                                      title: getTranslated(
+                                          'find_what_you_need', context)),
+                                  const SizedBox(
+                                      height: Dimensions.paddingSizeSmall),
+                                  const FindWhatYouNeedView(),
+                                ]),
                           )
                         : const SizedBox()
                     : const FindWhatYouNeedShimmer();
@@ -615,20 +566,7 @@ class _AsterThemeHomeScreenState extends State<AsterThemeHomeScreen> {
                 builder: (context, featuredDealProvider, child) {
                   return featuredDealProvider.featuredDealProductList != null
                       ? featuredDealProvider.featuredDealProductList!.isNotEmpty
-                          ? Stack(children: [
-                              Container(
-                                  width: MediaQuery.of(context).size.width,
-                                  height: 150,
-                                  color: Provider.of<ThemeController>(context,
-                                              listen: false)
-                                          .darkTheme
-                                      ? Theme.of(context)
-                                          .primaryColor
-                                          .withValues(alpha: .20)
-                                      : Theme.of(context)
-                                          .primaryColor
-                                          .withValues(alpha: .125)),
-                              Padding(
+                          ? FadeSlideIn(child:                               Padding(
                                   padding: const EdgeInsets.only(
                                       bottom: Dimensions.paddingSizeDefault),
                                   child: Column(children: [
@@ -646,8 +584,7 @@ class _AsterThemeHomeScreenState extends State<AsterThemeHomeScreen> {
                                                   .getFeaturedDealScreenViewRoute();
                                             })),
                                     const FeaturedDealsListWidget()
-                                  ]))
-                            ])
+                                  ])))
                           : const SizedBox.shrink()
                       : const FindWhatYouNeedShimmer();
                 },
@@ -809,15 +746,11 @@ class _AsterThemeHomeScreenState extends State<AsterThemeHomeScreen> {
                           : EdgeInsets.zero,
                       decoration: _homeV2Enabled
                           ? BoxDecoration(
-                              color: Colors.white,
+                              color: Theme.of(context).cardColor,
                               borderRadius: BorderRadius.circular(20),
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: Color(0x12000000),
-                                  blurRadius: 16,
-                                  offset: Offset(0, 6),
-                                ),
-                              ],
+                              border: Border.all(
+                                  color: AppPalette.glassBorder(context)),
+                              boxShadow: AppPalette.softShadow(context),
                             )
                           : null,
                       child: const ProductPopupFilterWidget(),
@@ -827,7 +760,7 @@ class _AsterThemeHomeScreenState extends State<AsterThemeHomeScreen> {
 
             HomeProductListWidget(scrollController: _scrollController),
             if (_homeV2Enabled)
-              const SliverToBoxAdapter(child: HomeV2SectionGap(size: 24)),
+              const SliverToBoxAdapter(child: HomeV2SectionGap(size: 110)),
           ]),
         ),
       ),

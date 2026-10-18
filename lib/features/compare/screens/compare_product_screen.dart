@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kk_thotix_m3aak/theme/app_palette.dart';
 import 'package:kk_thotix_m3aak/features/product/domain/models/product_model.dart';
 import 'package:kk_thotix_m3aak/features/compare/controllers/compare_controller.dart';
 import 'package:kk_thotix_m3aak/features/search_product/widgets/partial_matched_widget.dart';
@@ -44,23 +45,26 @@ class _CompareProductScreenState extends State<CompareProductScreen> {
                 child: Padding(padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
                   child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                     const SizedBox(),
-                    Text('${getTranslated('clear_all', context)}',
-                        style: textRegular.copyWith(color: Theme.of(context).colorScheme.error))]))),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                      decoration: BoxDecoration(color: AppPalette.error.withValues(alpha: .10), borderRadius: BorderRadius.circular(12)),
+                      child: Text('${getTranslated('clear_all', context)}',
+                        style: textBold.copyWith(color: AppPalette.error)))]))),
 
               Expanded(child: Padding(padding: const EdgeInsets.all(8.0),
                   child: Row(crossAxisAlignment: CrossAxisAlignment.start,children: [
                       Column(mainAxisSize: MainAxisSize.min,mainAxisAlignment: MainAxisAlignment.start, children: [
                         const SizedBox(height: 260),
-                        Container(width: 80,height: 48, decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface),
+                        Container(width: 92,height: 48, decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface),
                           child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                            Text('${getTranslated('price', context)}', style: textRegular.copyWith(color: Theme.of(context).textTheme.bodyLarge?.color), )])),
-                        Container(width: 80,height: 48,
+                            Flexible(child: Text('${getTranslated('price', context)}', maxLines: 2, textAlign: TextAlign.center, overflow: TextOverflow.ellipsis, style: textMedium.copyWith(fontSize: Dimensions.fontSizeSmall, height: 1.2, color: Theme.of(context).textTheme.bodyLarge?.color)))])),
+                        Container(width: 92,height: 48,
                           decoration: BoxDecoration(color: Theme.of(context).cardColor),
                           child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                            Text('${getTranslated('color', context)}', style: textRegular.copyWith(color: Theme.of(context).textTheme.bodyLarge?.color), )])),
+                            Flexible(child: Text('${getTranslated('color', context)}', maxLines: 2, textAlign: TextAlign.center, overflow: TextOverflow.ellipsis, style: textMedium.copyWith(fontSize: Dimensions.fontSizeSmall, height: 1.2, color: Theme.of(context).textTheme.bodyLarge?.color)))])),
 
 
-                        SizedBox(width: 80,
+                        SizedBox(width: 92,
                             child: ListView.builder(
                                 shrinkWrap: true,
                                 itemCount: compareProvider.attributeList?.length,
@@ -70,22 +74,22 @@ class _CompareProductScreenState extends State<CompareProductScreen> {
                                 decoration: BoxDecoration(color: index.isOdd? Theme.of(context).cardColor:
                                 Theme.of(context).colorScheme.surface),
                                 child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                                  Text('${compareProvider.attributeList?[index].name}', style: textRegular.copyWith(color: Theme.of(context).textTheme.bodyLarge?.color),)]),
+                                  Flexible(child: Text('${compareProvider.attributeList?[index].name}', maxLines: 2, textAlign: TextAlign.center, overflow: TextOverflow.ellipsis, style: textMedium.copyWith(fontSize: Dimensions.fontSizeSmall, height: 1.2, color: Theme.of(context).textTheme.bodyLarge?.color)))]),
                               );
                             })),
 
 
 
 
-                        Container(width: 80,height: 48,
+                        Container(width: 92,height: 48,
                           decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface),
                           child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                            Text('${getTranslated('brand', context)}', style: textRegular.copyWith(color: Theme.of(context).textTheme.bodyLarge?.color),)])),
+                            Flexible(child: Text('${getTranslated('brand', context)}', maxLines: 2, textAlign: TextAlign.center, overflow: TextOverflow.ellipsis, style: textMedium.copyWith(fontSize: Dimensions.fontSizeSmall, height: 1.2, color: Theme.of(context).textTheme.bodyLarge?.color)))])),
 
-                        Container(width: 80,height: 48,
+                        Container(width: 92,height: 48,
                           decoration: BoxDecoration(color: Theme.of(context).cardColor),
                           child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                            Text('${getTranslated('ratings', context)}', style: textRegular.copyWith(color: Theme.of(context).textTheme.bodyLarge?.color),)])),
+                            Flexible(child: Text('${getTranslated('ratings', context)}', maxLines: 2, textAlign: TextAlign.center, overflow: TextOverflow.ellipsis, style: textMedium.copyWith(fontSize: Dimensions.fontSizeSmall, height: 1.2, color: Theme.of(context).textTheme.bodyLarge?.color)))])),
 
                       ],),
                       Expanded(
@@ -138,12 +142,12 @@ class CompareCard extends StatelessWidget {
                 child: Text(product?.name??'', maxLines: 2,overflow: TextOverflow.ellipsis, style: textRegular.copyWith(color: Theme.of(context).hintColor)),),
             ):const SizedBox(height: 85,),
 
-            ClipRRect(borderRadius: const BorderRadius.all(Radius.circular(Dimensions.paddingSizeSmall)),
+            ClipRRect(borderRadius: const BorderRadius.all(Radius.circular(22)),
               child: Container(
                 decoration: BoxDecoration(
-                  border: Border.all(color: Provider.of<ThemeController>(context, listen: false).darkTheme? Theme.of(context).hintColor.withValues(alpha:.5) : Theme.of(context).primaryColor.withValues(alpha:.25), width: .5),
+                  border: Border.all(color: AppPalette.glassBorder(context), width: 1.2),
                   color: Theme.of(context).cardColor,
-                  borderRadius: const BorderRadius.all(Radius.circular(Dimensions.paddingSizeSmall)),),
+                  borderRadius: const BorderRadius.all(Radius.circular(22)),),
                 child: Column(mainAxisSize: MainAxisSize.min, children: [
                   const SizedBox(height: Dimensions.paddingSizeSmall,),
 
@@ -151,10 +155,9 @@ class CompareCard extends StatelessWidget {
                         Padding(padding: const EdgeInsets.fromLTRB(Dimensions.paddingSizeSmall, 0, Dimensions.paddingSizeSmall, Dimensions.paddingSizeSmall),
                           child: Container(height: 155,
                             decoration: BoxDecoration(
-                              border: Border.all(color: Theme.of(context).primaryColor.withValues(alpha:.25), width: .5),
-                              color: Provider.of<ThemeController>(context, listen: false).darkTheme? Theme.of(context).hintColor.withValues(alpha:.5) : Theme.of(context).highlightColor,
-                              borderRadius: const BorderRadius.all(Radius.circular(10))),
-                            child: ClipRRect(borderRadius: const BorderRadius.all( Radius.circular(Dimensions.paddingSizeSmall)),
+                              color: AppPalette.tint(context),
+                              borderRadius: const BorderRadius.all(Radius.circular(18))),
+                            child: ClipRRect(borderRadius: const BorderRadius.all( Radius.circular(18)),
                               child: CustomImageWidget(image: '${product?.thumbnailFullUrl?.path}',
                                   height: 180,width: 200, placeholder: Images.emptyProduct)
 
@@ -221,7 +224,7 @@ class CompareCard extends StatelessWidget {
                           );
                         },
                       ),
-                    ): Center(child: SizedBox(height: 48,width: 200,child: Center(child: Text('No Color', style: textRegular.copyWith(color: Theme.of(context).textTheme.bodyLarge?.color),)))):const SizedBox(),
+                    ): Center(child: SizedBox(height: 48,width: 200,child: Center(child: Text('—', style: textRegular.copyWith(color: Theme.of(context).textTheme.bodyLarge?.color),)))):const SizedBox(),
                   ),
 
                   SizedBox(width: 200,
@@ -286,7 +289,7 @@ class CompareCard extends StatelessWidget {
                       child: Row(mainAxisAlignment: MainAxisAlignment.center,
                           children: [
 
-                            const Icon(Icons.star_rate_rounded, color: Colors.orange,size: 20),
+                            const Icon(Icons.star_rounded, color: AppPalette.warning, size: 20),
                             Padding(padding: const EdgeInsets.symmetric(horizontal: 2.0),
                               child: Text(product != null ?double.parse(product!.rating != null && product!.rating!.isNotEmpty? product!.rating![0].average! : "0").toStringAsFixed(1):'',
                                   style: textRegular.copyWith(fontSize: Dimensions.fontSizeDefault, color: Theme.of(context).textTheme.bodyLarge?.color,)),),

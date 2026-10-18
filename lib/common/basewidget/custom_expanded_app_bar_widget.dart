@@ -47,7 +47,7 @@ class CustomExpandedAppBarWidget extends StatelessWidget {
         Container(
           margin: const EdgeInsets.only(top: 130),
           decoration: BoxDecoration(
-            color: Provider.of<ThemeController>(context).darkTheme ? Theme.of(context).scaffoldBackgroundColor : Theme.of(context).cardColor,
+            color: Provider.of<ThemeController>(context).darkTheme ? Theme.of(context).canvasColor : Theme.of(context).cardColor,
             borderRadius: const BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)),
           ),
 

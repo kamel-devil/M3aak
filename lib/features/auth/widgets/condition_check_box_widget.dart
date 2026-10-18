@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:kk_thotix_m3aak/theme/app_palette.dart';
 import 'package:kk_thotix_m3aak/features/auth/controllers/auth_controller.dart';
 import 'package:kk_thotix_m3aak/features/splash/controllers/splash_controller.dart';
 import 'package:kk_thotix_m3aak/features/splash/domain/models/business_pages_model.dart';
@@ -18,20 +19,26 @@ class ConditionCheckBox extends StatelessWidget {
     final SplashController splashController = Provider.of<SplashController>(context, listen: false);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault),
+      padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeExtraSmall),
       child: Consumer<AuthController>(
         builder: (ctx, authController, _){
           return Row(mainAxisAlignment: MainAxisAlignment.start, children: [
             InkWell(
               onTap: ()=> authController.toggleTermsCheck(),
               child: Row(children: [
-                SizedBox(width : 20, height : 20,
-                  child: Container(alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                          border: Border.all(color: Theme.of(context).primaryColor.withValues(alpha:.75), width: 1.5),
-                          borderRadius: BorderRadius.circular(6)),
-                      child: Icon(CupertinoIcons.checkmark_alt,size: 15,
-                          color: authController.isAcceptTerms? Theme.of(context).primaryColor.withValues(alpha:.75): Colors.transparent))),
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  width: 22, height: 22,
+                  margin: const EdgeInsets.symmetric(vertical: 11),
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    gradient: authController.isAcceptTerms ? AppPalette.brandGradient : null,
+                    color: authController.isAcceptTerms ? null : Colors.white,
+                    border: Border.all(color: Theme.of(context).primaryColor, width: 1.5),
+                    borderRadius: BorderRadius.circular(7)),
+                  child: Icon(CupertinoIcons.checkmark_alt, size: 15,
+                      color: authController.isAcceptTerms ? Colors.white : Colors.transparent)),
+                const SizedBox(width: 8),
               ]),
             ),
             Text(getTranslated('i_agree_with_the', context)!, style: textMedium.copyWith(
@@ -45,9 +52,8 @@ class ConditionCheckBox extends StatelessWidget {
 
               child: Padding(
                 padding: const EdgeInsets.all(Dimensions.paddingSizeExtraSmall),
-                child: Text(getTranslated('terms_condition', context)!, style: textMedium.copyWith(
-                  fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).primaryColor.withValues(alpha:0.8),
-                  decoration: TextDecoration.underline, decorationColor: Theme.of(context).primaryColor,
+                child: Text(getTranslated('terms_condition', context)!, style: textBold.copyWith(
+                  fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).primaryColor,
                 )),
               ),
             ),

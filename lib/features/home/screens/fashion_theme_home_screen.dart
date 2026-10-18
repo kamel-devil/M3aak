@@ -67,7 +67,11 @@ class FashionThemeHomePage extends StatefulWidget {
     final sellerProductController = Provider.of<SellerProductController>(Get.context!, listen: false);
     final splashController = Provider.of<SplashController>(Get.context!, listen: false);
 
-    splashController.initConfig(Get.context!, null, null);
+    // Config is already loaded by the splash screen (the dashboard needs it to pick this screen);
+    // only re-fetch it on pull-to-refresh.
+    if (reload) {
+      splashController.initConfig(Get.context!, null, null);
+    }
 
     shopController.getAllSellerList(offset: 1, isUpdate: reload);
     shopController.getTopSellerList(offset: 1, isUpdate: reload);

@@ -63,13 +63,14 @@ class WalletController extends ChangeNotifier {
     );
 
     if (apiResponse.response?.data != null && apiResponse.response?.statusCode == 200) {
+      final WalletTransactionModel parsedWalletTransactionModelResponse = WalletTransactionModel.fromJson(apiResponse.response?.data);
       if(offset == 1) {
-        _walletTransactionModel = WalletTransactionModel.fromJson(apiResponse.response?.data);
+        _walletTransactionModel = parsedWalletTransactionModelResponse;
       }else {
-        _walletTransactionModel?.offset  = WalletTransactionModel.fromJson(apiResponse.response?.data).offset;
-        _walletTransactionModel?.totalWalletBalance  = WalletTransactionModel.fromJson(apiResponse.response?.data).totalWalletBalance;
-        _walletTransactionModel?.totalSize  = WalletTransactionModel.fromJson(apiResponse.response?.data).totalSize;
-        _walletTransactionModel?.walletTransactionList?.addAll(WalletTransactionModel.fromJson(apiResponse.response?.data).walletTransactionList ?? []);
+        _walletTransactionModel?.offset  = parsedWalletTransactionModelResponse.offset;
+        _walletTransactionModel?.totalWalletBalance  = parsedWalletTransactionModelResponse.totalWalletBalance;
+        _walletTransactionModel?.totalSize  = parsedWalletTransactionModelResponse.totalSize;
+        _walletTransactionModel?.walletTransactionList?.addAll(parsedWalletTransactionModelResponse.walletTransactionList ?? []);
 
       }
 

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:kk_thotix_m3aak/common/basewidget/custom_asset_image_widget.dart';
+import 'package:kk_thotix_m3aak/common/glass/glass_widgets.dart';
 import 'package:kk_thotix_m3aak/features/address/controllers/address_controller.dart';
 import 'package:kk_thotix_m3aak/features/address/widgets/address_shimmer.dart';
 import 'package:kk_thotix_m3aak/helper/route_healper.dart';
 import 'package:kk_thotix_m3aak/localization/language_constrants.dart';
+import 'package:kk_thotix_m3aak/theme/app_palette.dart';
 import 'package:kk_thotix_m3aak/utill/custom_themes.dart';
 import 'package:kk_thotix_m3aak/utill/dimensions.dart';
 import 'package:kk_thotix_m3aak/utill/images.dart';
@@ -19,48 +20,48 @@ class AddressListScreen extends StatefulWidget {
 }
 
 class _AddressListScreenState extends State<AddressListScreen> {
-  final ScrollController _scrollController = ScrollController();
-  bool isScrolledToEnd = false;
-
-
-
-  void _onScroll() {
-    if (_scrollController.position.atEdge) {
-      isScrolledToEnd = _scrollController.position.pixels == _scrollController.position.maxScrollExtent;
-      setState(() {
-
-      });
-    }
-  }
-
   @override
   void initState() {
     super.initState();
     Provider.of<AddressController>(context, listen: false).getAddressList(all: true);
-    _scrollController.addListener(_onScroll);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(title: getTranslated('addresses', context)),
-      floatingActionButton: isScrolledToEnd ? null : FloatingActionButton(
-          shape:  RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
-          onPressed: () => RouterHelper.getAddNewAddressRoute(isBilling: false),
-          backgroundColor: Theme.of(context).primaryColor,
-          child: Icon(Icons.add, color: Theme.of(context).highlightColor),
+      bottomNavigationBar: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 14),
+          child: PressableScale(
+            onTap: () => RouterHelper.getAddNewAddressRoute(isBilling: false),
+            child: Container(
+              height: 56,
+              decoration: BoxDecoration(
+                gradient: AppPalette.brandGradient,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [BoxShadow(color: AppPalette.primary.withValues(alpha: .35), blurRadius: 18, offset: const Offset(0, 8))],
+              ),
+              child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                const Icon(Icons.add_rounded, color: Colors.white, size: 22),
+                const SizedBox(width: 8),
+                Text(getTranslated('add_new_address', context) ?? '',
+                    style: textBold.copyWith(color: Colors.white, fontSize: Dimensions.fontSizeLarge)),
+              ]),
+            ),
+          ),
+        ),
       ),
-
-
       body: Consumer<AddressController>(
         builder: (context, locationProvider, child) {
-          return  locationProvider.addressList != null? locationProvider.addressList!.isNotEmpty ?
+          return locationProvider.addressList != null ? locationProvider.addressList!.isNotEmpty ?
           RefreshIndicator(onRefresh: () async => await locationProvider.getAddressList(),
             backgroundColor: Theme.of(context).secondaryHeaderColor,
-            child: ListView.builder(padding: const EdgeInsets.all(0),
-              controller: _scrollController,
+            child: ListView.builder(
+              padding: const EdgeInsets.only(top: 8, bottom: 16),
               itemCount: locationProvider.addressList?.length,
-              itemBuilder: (context, index){
+              itemBuilder: (context, index) {
                 return AddressItemWidget(locationProvider: locationProvider, index: index);
               },
             ),
@@ -83,146 +84,150 @@ class AddressItemWidget extends StatelessWidget {
   final AddressController locationProvider;
   final int index;
 
-
   @override
   Widget build(BuildContext context) {
-    return Column(children: [
-      Padding(
-        padding: const EdgeInsets.fromLTRB(Dimensions.paddingSizeDefault, Dimensions.paddingSizeDefault, Dimensions.paddingSizeDefault, 0),
-        child: Container(padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.tertiaryContainer.withValues(alpha: 0.12),
-            borderRadius: BorderRadius.circular(Dimensions.paddingSizeSmall)
-          ),
+    final address = locationProvider.addressList![index];
+    final String rawType = address.addressType ?? '';
+    final String type = rawType.toLowerCase();
+    final bool isOffice = type.contains('office') || type.contains('work');
+    final bool isHome = type.contains('home') || type.contains('permanent');
+    final IconData icon = isOffice ? Icons.work_outline_rounded : isHome ? Icons.home_rounded : Icons.location_on_rounded;
+    final Color color = isOffice ? AppPalette.secondary : isHome ? AppPalette.primary : AppPalette.accent;
+    final String typeLabel = rawType.isEmpty ? '' : '${rawType[0].toUpperCase()}${rawType.substring(1)}';
+    final Color? textColor = Theme.of(context).textTheme.bodyLarge?.color;
+
+    Widget chip(String label, String value) => Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: AppPalette.tint(context),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text.rich(TextSpan(children: [
+        TextSpan(text: '$label  ', style: textRegular.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).hintColor)),
+        TextSpan(text: value, style: textBold.copyWith(fontSize: Dimensions.fontSizeSmall, color: textColor)),
+      ])),
+    );
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      child: FadeSlideIn(
+        index: index,
+        child: GlassContainer(
+          blur: false,
+          radius: 24,
+          padding: const EdgeInsets.all(14),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-
             Row(children: [
-
-              RichText(
-                text: TextSpan(
-                  style: DefaultTextStyle.of(context).style.copyWith(color: Theme.of(context).textTheme.titleMedium?.color),
-                  children: <InlineSpan>[
-                    TextSpan(text: '${locationProvider.addressList![index].addressType?.toUpperCase()} ', style: textBold.copyWith(
-                      color: Theme.of(context).textTheme.bodyLarge?.color,
-                      fontSize: Dimensions.fontSizeSmall,
-                    )),
-
-                    TextSpan(
-                        text: '(${(locationProvider.addressList?[index].isBilling ?? false) ?
-                        getTranslated('billing_address', context) : getTranslated('shipping_address', context)})',
-                        style: textRegular.copyWith(color: Theme.of(context).hintColor, fontSize: Dimensions.fontSizeSmall)
-                    ),
-                  ],
+              Container(
+                width: 46,
+                height: 46,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(colors: [color, color.withValues(alpha: .75)]),
+                  borderRadius: BorderRadius.circular(15),
                 ),
-                textAlign: TextAlign.left,
+                child: Icon(icon, color: Colors.white, size: 22),
               ),
-              const Spacer(),
+              const SizedBox(width: 12),
 
-              PopupMenuButton<String>(
-                clipBehavior: Clip.antiAlias,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(Dimensions.paddingSizeSmall),
+              Expanded(
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Text(typeLabel, maxLines: 1, overflow: TextOverflow.ellipsis,
+                      style: textBold.copyWith(fontSize: Dimensions.fontSizeLarge, color: textColor)),
+                  const SizedBox(height: 3),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: color.withValues(alpha: .12),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      (address.isBilling ?? false)
+                          ? getTranslated('billing_address', context) ?? ''
+                          : getTranslated('shipping_address', context) ?? '',
+                      style: textBold.copyWith(fontSize: Dimensions.fontSizeExtraSmall, color: color),
+                    ),
+                  ),
+                ]),
+              ),
+
+              _AddressAction(
+                icon: Icons.edit_outlined,
+                color: Theme.of(context).primaryColor,
+                label: getTranslated('edit', context) ?? '',
+                onTap: () => RouterHelper.getAddNewAddressRoute(
+                  isBilling: address.isBilling,
+                  address: address,
+                  isEnableUpdate: true,
                 ),
-                padding: EdgeInsets.zero,
-                menuPadding: EdgeInsets.zero,
-                child: Icon(Icons.more_vert, color: Theme.of(context).textTheme.bodyLarge?.color?.withValues(alpha: 0.70)),
-                itemBuilder: (BuildContext context) => [
-                  PopupMenuItem<String>(
-                    value: 'edit',
-                    child: Padding(
-                      padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
-                      child: Row(children: [
-                        const CustomAssetImageWidget(Images.edit, height: Dimensions.homePagePadding, width: Dimensions.homePagePadding),
-                        const SizedBox(width: Dimensions.paddingSizeEight),
-
-                        Text(getTranslated('edit', context)!, style: textRegular,),
-                      ]),
-                    ),
-                  ),
-
-                  PopupMenuItem<String>(
-                    value: 'delete',
-                    child: Padding(
-                      padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
-                      child: Row(children: [
-                        const CustomAssetImageWidget(Images.delete, height: Dimensions.homePagePadding, width: Dimensions.homePagePadding),
-                        const SizedBox(width: Dimensions.paddingSizeEight),
-
-                        Text(getTranslated('delete', context)!, style: textRegular),
-                      ]),
-                    ),
-                  ),
-                ],
-                onSelected: (value) {
-                  if(value == 'edit') {
-                    RouterHelper.getAddNewAddressRoute(
-                      isBilling: locationProvider.addressList?[index].isBilling,
-                      address: locationProvider.addressList?[index],
-                      isEnableUpdate: true,
-                    );
-                  } else if(value == 'delete') {
-                    showModalBottomSheet(backgroundColor: Colors.transparent, context: context, builder: (_)=>
-                        RemoveFromAddressBottomSheet(addressId: locationProvider.addressList![index].id!, index: index));
-                  }
-                },
+              ),
+              const SizedBox(width: 8),
+              _AddressAction(
+                icon: Icons.delete_outline_rounded,
+                color: AppPalette.error,
+                label: getTranslated('delete', context) ?? '',
+                onTap: () => showModalBottomSheet(backgroundColor: Colors.transparent, context: context, builder: (_) =>
+                    RemoveFromAddressBottomSheet(addressId: address.id!, index: index)),
               ),
             ]),
-            const SizedBox(height: Dimensions.paddingSizeSmall),
-
+            const SizedBox(height: 12),
 
             Container(
-              padding: const EdgeInsets.all(Dimensions.paddingSizeExtraSmall),
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               decoration: BoxDecoration(
-                color: Theme.of(context).cardColor,
-                borderRadius: BorderRadius.circular(Dimensions.paddingSizeExtraSmall),
+                color: AppPalette.tint(context),
+                borderRadius: BorderRadius.circular(16),
               ),
-              child: Row(mainAxisAlignment: MainAxisAlignment.start, crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Icon(Icons.location_on, color: Theme.of(context).hintColor, size: Dimensions.paddingSizeDefault),
-                const SizedBox(width: Dimensions.paddingSizeExtraSmall),
-
-                Flexible(child: Text(locationProvider.addressList?[index].address ?? '', style: textRegular.copyWith(
-                  fontSize: Dimensions.fontSizeSmall,
-                  color: Theme.of(context).hintColor,
+              child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Padding(
+                  padding: const EdgeInsets.only(top: 2),
+                  child: Icon(Icons.location_on_outlined, color: Theme.of(context).primaryColor, size: 18),
+                ),
+                const SizedBox(width: 8),
+                Expanded(child: Text(address.address ?? '', style: textRegular.copyWith(
+                  fontSize: Dimensions.fontSizeSmall + 1, height: 1.5, color: textColor,
                 ))),
               ]),
             ),
-            const SizedBox(height: Dimensions.paddingSizeSmall),
 
-            Row(crossAxisAlignment: CrossAxisAlignment.start,children: [
-            
-              Flexible(child: Text.rich(TextSpan(children: [
-                TextSpan(text: '${getTranslated('city', context)} : ', style: textRegular.copyWith(
-                  fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).hintColor,
-                )),
-            
-                TextSpan(text: locationProvider.addressList?[index].city ?? "", style: textRegular.copyWith(
-                  fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).textTheme.bodyLarge?.color,
-                )),
-              ]))),
-
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault).copyWith(top: 3),
-                height: Dimensions.fontSizeSmall,
-                width: 1,
-                color: Theme.of(context).hintColor,
-              ),
-            
-              Flexible(child: Text.rich(TextSpan(children: [
-                TextSpan(text: '${getTranslated('zip', context)} : ', style: textRegular.copyWith(
-                  fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).hintColor,
-                )),
-            
-                TextSpan(text: locationProvider.addressList?[index].zip ?? "", style: textRegular.copyWith(
-                  fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).textTheme.bodyLarge?.color,
-                )),
-              ]))),
-            ]),
+            if ((address.city ?? '').isNotEmpty || (address.zip ?? '').isNotEmpty) ...[
+              const SizedBox(height: 10),
+              Wrap(spacing: 8, runSpacing: 8, children: [
+                if ((address.city ?? '').isNotEmpty) chip(getTranslated('city', context) ?? '', address.city!),
+                if ((address.zip ?? '').isNotEmpty) chip(getTranslated('zip', context) ?? '', address.zip!),
+              ]),
+            ],
           ]),
         ),
       ),
+    );
+  }
+}
 
-      if((locationProvider.addressList?.length ?? 0) <= 5 && index == (locationProvider.addressList?.length ?? 0) - 1)
-        const SizedBox(height: 200),
-    ]);
+class _AddressAction extends StatelessWidget {
+  const _AddressAction({required this.icon, required this.color, required this.label, required this.onTap});
+  final IconData icon;
+  final Color color;
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: label,
+      child: Semantics(
+        button: true,
+        label: label,
+        child: PressableScale(
+          onTap: onTap,
+          child: Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(color: color.withValues(alpha: .12), borderRadius: BorderRadius.circular(14)),
+            child: Icon(icon, color: color, size: 20),
+          ),
+        ),
+      ),
+    );
   }
 }

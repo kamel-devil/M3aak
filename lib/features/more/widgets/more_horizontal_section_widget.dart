@@ -9,6 +9,7 @@ import 'package:kk_thotix_m3aak/features/cart/controllers/cart_controller.dart';
 import 'package:kk_thotix_m3aak/features/auth/controllers/auth_controller.dart';
 import 'package:kk_thotix_m3aak/features/profile/controllers/profile_contrroller.dart';
 import 'package:kk_thotix_m3aak/features/splash/controllers/splash_controller.dart';
+import 'package:kk_thotix_m3aak/theme/app_palette.dart';
 import 'package:kk_thotix_m3aak/utill/dimensions.dart';
 import 'package:kk_thotix_m3aak/utill/images.dart';
 import 'package:provider/provider.dart';
@@ -22,15 +23,17 @@ class MoreHorizontalSection extends StatelessWidget {
 
     return Consumer<ProfileController>(builder: (context, profileProvider,_) {
       final bool isGuestMode = !Provider.of<AuthController>(context, listen: false).isLoggedIn();
-      return SizedBox(height: ResponsiveHelper.isTab(context)? 135 :130, child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeExtraSmall),
+      return SizedBox(height: ResponsiveHelper.isTab(context)? 150 :140, child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSmall),
         child: Center(child: ListView(
+          padding: const EdgeInsets.only(top: 6, bottom: 14),
           scrollDirection:Axis.horizontal,
           shrinkWrap: true,
           physics: const BouncingScrollPhysics(),
           children: [
             SquareButtonWidget(
               image: Images.offerIcon,
+              color: AppPalette.accent,
               title: getTranslated('offers', context),
               navigateTo: null,
               count: 0,
@@ -42,6 +45,7 @@ class MoreHorizontalSection extends StatelessWidget {
 
             if(!isGuestMode && configModel?.walletStatus == 1)SquareButtonWidget(
               image: Images.wallet,
+              color: AppPalette.primary,
               title: getTranslated('wallet', context),
               navigateTo: null,
               onTap: () {
@@ -57,6 +61,7 @@ class MoreHorizontalSection extends StatelessWidget {
 
             if(!isGuestMode && configModel?.loyaltyPointStatus == 1) SquareButtonWidget(
               image: Images.loyaltyPoint,
+              color: AppPalette.warning,
               title: getTranslated('loyalty_point', context),
               onTap: () => RouterHelper.getLoyaltyPointScreenRoute(action: RouteAction.push),
               count: 1,
@@ -69,6 +74,7 @@ class MoreHorizontalSection extends StatelessWidget {
 
             if(!isGuestMode) SquareButtonWidget(
               image: Images.shoppingImage,
+              color: AppPalette.secondary,
               title: getTranslated('orders', context),
               navigateTo: null,
               onTap: () {
@@ -84,6 +90,7 @@ class MoreHorizontalSection extends StatelessWidget {
 
             SquareButtonWidget(
               image: Images.cartImage,
+              color: AppPalette.primaryDeep,
               title: getTranslated('cart', context),
               onTap: () => RouterHelper.getCartScreenRoute(action: RouteAction.push),
               navigateTo: null,
@@ -93,7 +100,7 @@ class MoreHorizontalSection extends StatelessWidget {
 
             Consumer<WishListController>(builder: (context, wishListController, _) {
               return SquareButtonWidget(
-                image: Images.wishlist, title: getTranslated('wishlist', context),
+                image: Images.wishlist, color: const Color(0xFFE5487A), title: getTranslated('wishlist', context),
                 navigateTo: null,
                 onTap: () {
                   RouterHelper.getWishListRoute(action: RouteAction.push);

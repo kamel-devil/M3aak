@@ -1,5 +1,8 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:kk_thotix_m3aak/utill/custom_themes.dart';
+import 'package:kk_thotix_m3aak/theme/app_palette.dart';
+import 'package:kk_thotix_m3aak/common/glass/glass_widgets.dart';
 import 'package:kk_thotix_m3aak/common/basewidget/custom_app_bar_widget.dart';
 import 'package:kk_thotix_m3aak/common/basewidget/custom_button_widget.dart';
 import 'package:kk_thotix_m3aak/common/basewidget/custom_image_widget.dart';
@@ -182,103 +185,79 @@ class _ProfileScreen1State extends State<ProfileScreen1> {
                 _phoneController.text = profile.userInfoModel?.phone ?? '';
                 return profile.userInfoModel != null ?  Column(children: [
 
-                  Stack(
-                    children: [
-                      Container(
-                        height: 140,
-                        decoration: const BoxDecoration(
-                          image: DecorationImage(
-                            image: AssetImage(Images.profileBgImage,),
-                            fit: BoxFit.cover, // Can also use BoxFit.fill, BoxFit.contain, etc.
-                          ),
-                        ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+                    child: FadeSlideIn(child: Container(
+                      padding: const EdgeInsets.all(18),
+                      decoration: BoxDecoration(
+                        gradient: AppPalette.brandGradient,
+                        borderRadius: BorderRadius.circular(28),
+                        boxShadow: [BoxShadow(color: AppPalette.primaryDeep.withValues(alpha: .28), blurRadius: 28, offset: const Offset(0, 12))],
                       ),
-
-                      Positioned.fill(
-                          child: Center(
-                            child: Container(
-                              height: 110, width: 110,
-                              alignment: Alignment.center,
-                              decoration: BoxDecoration(
-                                color: Theme.of(context).cardColor,
-                                border: Border.all(color: Colors.white, width: 3),
-                                shape: BoxShape.circle,),
-                              child: Stack(clipBehavior: Clip.none, children: [
-                                ClipRRect(borderRadius: BorderRadius.circular(50),
-                                  child: file == null ?
-                                  CustomImageWidget(image: "${profile.userInfoModel?.imageFullUrl?.path}",
-                                    height: Dimensions.profileImageSize, fit: BoxFit.cover,width: Dimensions.profileImageSize,) :
-                                  Image.file(file!, width: Dimensions.profileImageSize,
-                                    height: Dimensions.profileImageSize, fit: BoxFit.fill),
-                                ),
-                                Positioned(bottom: 0, right: -5,
-                                  child: Container(
-                                    height: 29, width: 29,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      border: Border.all(
-                                        color: Theme.of(context).cardColor, // Border color
-                                        width: 2.0, // Border width
-                                      ),
-                                    ),
-                                    child: CircleAvatar(backgroundColor: Theme.of(context).primaryColor,
-                                        radius: 14,
-                                        child: IconButton(onPressed: _choose,
-                                            padding: const EdgeInsets.all(0),
-                                            icon: Icon(Icons.camera_alt_sharp,
-                                                color:  Theme.of(context).colorScheme.secondaryContainer, size: 18))),
-                                  ))
-                              ])),
-                          )
-                      ),
-
-
-                      Positioned(
-                        right: 15, top: 15,
-                        child: InkWell(
-                          onTap: () => showModalBottomSheet(backgroundColor: Colors.transparent,
-                              context: context, builder: (_)=>  DeleteAccountBottomSheet(customerId: profile.userID)),
-
-                          child: Container(
-                            height: 30, width: 30,
+                      child: Row(children: [
+                        Stack(clipBehavior: Clip.none, children: [
+                          Container(
+                            width: 80, height: 80,
+                            padding: const EdgeInsets.all(3),
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
-                              border: Border.all(
-                                color: Theme.of(context).primaryColor.withValues(alpha:0.50),
-                                width: 1.0,
-                              ),
-                              color:  Theme.of(context).cardColor,
+                              shape: BoxShape.circle,
+                              color: Colors.white.withValues(alpha: .35),
+                              border: Border.all(color: Colors.white.withValues(alpha: .7), width: 1.5),
                             ),
-                            child: Icon(Icons.more_vert_rounded, color: Theme.of(context).textTheme.bodyLarge?.color),
+                            child: ClipOval(
+                              child: file == null
+                                  ? CustomImageWidget(image: "${profile.userInfoModel?.imageFullUrl?.path}", fit: BoxFit.cover)
+                                  : Image.file(file!, fit: BoxFit.cover),
+                            ),
                           ),
-                        ),
-                      )
-                    ],
+                          PositionedDirectional(
+                            bottom: -2, end: -2,
+                            child: Material(
+                              color: AppPalette.primaryDeep,
+                              shape: const CircleBorder(side: BorderSide(color: Colors.white, width: 2)),
+                              child: InkWell(
+                                customBorder: const CircleBorder(),
+                                onTap: _choose,
+                                child: const SizedBox(width: 34, height: 34,
+                                    child: Icon(Icons.photo_camera_rounded, color: Colors.white, size: 17)),
+                              ),
+                            ),
+                          ),
+                        ]),
+                        const SizedBox(width: 14),
+                        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                          Text('${profile.userInfoModel?.fName ?? ''} ${profile.userInfoModel?.lName ?? ''}'.trim(),
+                              maxLines: 1, overflow: TextOverflow.ellipsis,
+                              style: textBold.copyWith(color: Colors.white, fontSize: Dimensions.fontSizeExtraLarge + 2)),
+                          if ((profile.userInfoModel?.email ?? '').isNotEmpty)
+                            Text(profile.userInfoModel!.email!,
+                                maxLines: 1, overflow: TextOverflow.ellipsis, textDirection: TextDirection.ltr,
+                                style: textRegular.copyWith(color: Colors.white.withValues(alpha: .9), fontSize: Dimensions.fontSizeSmall + 1)),
+                        ])),
+                      ]),
+                    )),
                   ),
 
                   Expanded(
-                    child: Container(padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault, vertical: Dimensions.paddingSizeDefault),
-                      decoration: BoxDecoration(color: Theme.of(context).highlightColor,
-                          borderRadius: const BorderRadius.only(topLeft: Radius.circular(Dimensions.marginSizeDefault),
-                            topRight: Radius.circular(Dimensions.marginSizeDefault),)),
-                      child: ListView(physics: const BouncingScrollPhysics(), children: [
-                        const SizedBox(height: Dimensions.paddingSizeSmall),
-                        CustomTextFieldWidget(
+                      child: ListView(padding: const EdgeInsets.fromLTRB(16, 12, 16, 12), physics: const BouncingScrollPhysics(), children: [
+                        _ProfileSection(index: 1, title: getTranslated('personal_information', context) ?? '', children: [
+                        Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                        Expanded(child: CustomTextFieldWidget(
                             labelText: getTranslated('first_name', context),
                             inputType: TextInputType.name,
                             focusNode: _fNameFocus,
                             nextFocus: _lNameFocus,
                             hintText: profile.userInfoModel?.fName ?? '',
-                            controller: _firstNameController),
-                        const SizedBox(height: Dimensions.paddingSizeLarge),
-
-                        CustomTextFieldWidget(
+                            controller: _firstNameController)),
+                        const SizedBox(width: 10),
+                        Expanded(child: CustomTextFieldWidget(
                             labelText: getTranslated('last_name', context),
                             inputType: TextInputType.name,
                             focusNode: _lNameFocus,
                             nextFocus: _emailFocus,
                             hintText: profile.userInfoModel?.lName,
-                            controller: _lastNameController),
+                            controller: _lastNameController)),
+                        ]),
                         const SizedBox(height: Dimensions.paddingSizeLarge),
 
                         CustomTextFieldWidget(
@@ -345,7 +324,9 @@ class _ProfileScreen1State extends State<ProfileScreen1> {
                         ),
                         const SizedBox(height: Dimensions.paddingSizeLarge),
 
-
+                        ]),
+                        const SizedBox(height: 14),
+                        _ProfileSection(index: 2, title: getTranslated('change_password', context) ?? '', children: [
                         CustomTextFieldWidget(
                             isPassword: true,
                             labelText: getTranslated('password', context),
@@ -364,22 +345,26 @@ class _ProfileScreen1State extends State<ProfileScreen1> {
                             controller: _confirmPasswordController,
                             focusNode: _confirmPasswordFocus,
                             inputAction : TextInputAction.done),
-                        const SizedBox(height: Dimensions.paddingSizeLarge),
-
-
+                        ]),
+                        const SizedBox(height: 6),
+                        Center(child: TextButton(
+                          onPressed: () => showModalBottomSheet(backgroundColor: Colors.transparent,
+                              context: context, builder: (_) => DeleteAccountBottomSheet(customerId: profile.userID)),
+                          style: TextButton.styleFrom(minimumSize: const Size(44, 44)),
+                          child: Text(getTranslated('delete_account', context) ?? '',
+                              style: textBold.copyWith(color: AppPalette.error, fontSize: Dimensions.fontSizeSmall + 1)),
+                        )),
                       ],
                       ),
-                    ),
                   ),
 
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: Dimensions.marginSizeLarge, vertical: Dimensions.marginSizeSmall),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).highlightColor,
-                      borderRadius: const  BorderRadius.only(
-                        topLeft: Radius.circular(Dimensions.radiusSmall),  // Top-left corner radius
-                        topRight: Radius.circular(Dimensions.radiusSmall), // Top-right corner radius
-                      ),
+                      gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [
+                        Theme.of(context).canvasColor.withValues(alpha: 0),
+                        Theme.of(context).canvasColor.withValues(alpha: .95),
+                      ]),
                     ),
                     child: !profile.isLoading ?
                     CustomButton(onTap: _updateUserAccount, buttonText: getTranslated('update_profile', context)) :
@@ -392,6 +377,39 @@ class _ProfileScreen1State extends State<ProfileScreen1> {
             );
           }
         ),
+      ),
+    );
+  }
+}
+
+/// Frosted card grouping related profile fields under a heading.
+class _ProfileSection extends StatelessWidget {
+  const _ProfileSection({required this.title, required this.children, this.index = 0});
+  final String title;
+  final List<Widget> children;
+  final int index;
+
+  @override
+  Widget build(BuildContext context) {
+    final List<Widget> spaced = [];
+    for (final child in children) {
+      if (spaced.isNotEmpty) spaced.add(const SizedBox(height: Dimensions.paddingSizeDefault));
+      spaced.add(child);
+    }
+    return FadeSlideIn(
+      index: index,
+      child: GlassContainer(
+        blur: false,
+        radius: 26,
+        padding: const EdgeInsets.fromLTRB(14, 16, 14, 16),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          Padding(
+            padding: const EdgeInsets.only(bottom: 14),
+            child: Text(title, style: textBold.copyWith(fontSize: Dimensions.fontSizeLarge,
+                color: Theme.of(context).textTheme.bodyLarge?.color)),
+          ),
+          ...spaced,
+        ]),
       ),
     );
   }

@@ -1,17 +1,15 @@
-import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:kk_thotix_m3aak/common/basewidget/show_custom_snakbar_widget.dart';
+import 'package:kk_thotix_m3aak/common/glass/glass_widgets.dart';
 import 'package:kk_thotix_m3aak/features/profile/controllers/profile_contrroller.dart';
 import 'package:kk_thotix_m3aak/features/splash/controllers/splash_controller.dart';
 import 'package:kk_thotix_m3aak/localization/language_constrants.dart';
-import 'package:kk_thotix_m3aak/theme/controllers/theme_controller.dart';
+import 'package:kk_thotix_m3aak/theme/app_palette.dart';
 import 'package:kk_thotix_m3aak/utill/app_constants.dart';
 import 'package:kk_thotix_m3aak/utill/custom_themes.dart';
 import 'package:kk_thotix_m3aak/utill/dimensions.dart';
-import 'package:kk_thotix_m3aak/utill/images.dart';
 import 'package:kk_thotix_m3aak/common/basewidget/custom_app_bar_widget.dart';
-import 'package:kk_thotix_m3aak/features/refer_and_earn/widgets/refer_hint_view.dart';
-import 'package:just_the_tooltip/just_the_tooltip.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -23,115 +21,175 @@ class ReferAndEarnScreen extends StatefulWidget {
 }
 
 class _ReferAndEarnScreenState extends State<ReferAndEarnScreen> {
-  final tooltipController = JustTheController();
   @override
   Widget build(BuildContext context) {
-    var profileController = Provider.of<ProfileController>(context, listen: false);
-    final List<String> shareItem = [Images.share];
-    final List<String> hintList = [getTranslated("invite_your_friends", context)??"",
+    final profileController = Provider.of<ProfileController>(context, listen: false);
+    final String referCode = profileController.userInfoModel?.referCode ?? '';
+    final Color? textColor = Theme.of(context).textTheme.bodyLarge?.color;
+    final List<String> hintList = [
+      getTranslated("invite_your_friends", context) ?? "",
       '${getTranslated('they_register', context)} ${AppConstants.appName} ${getTranslated('with_special_offer', context)}',
-      '${getTranslated('you_made_your_earning', context)}'];
+      '${getTranslated('you_made_your_earning', context)}',
+    ];
+
+    void share() {
+      final refSignup = Provider.of<SplashController>(context, listen: false).configModel?.refSignup ?? '';
+      final appName = AppConstants.appName;
+      final shareText =
+          'Greetings, $appName is the best e-commerce platform in the country. '
+          'If you are new to this website don’t forget to use "$referCode" '
+          'as the referral code while signing up into $appName. '
+          '$refSignup$referCode';
+      SharePlus.instance.share(ShareParams(text: shareText));
+    }
+
     return Scaffold(
       appBar: CustomAppBar(title: '${getTranslated('refer_and_earn', context)}'),
-      body: Stack(children: [
-        Padding(padding:  const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault),
-            child: Column(children: [
-              Padding(padding: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeExtraLarge),
-                  child: Image.asset(Images.referAndEarn, height: MediaQuery.of(context).size.height * 0.2)),
-              const SizedBox(height: Dimensions.paddingSizeDefault,),
-
-              Text('${getTranslated('invite_friend_and_businesses', context)}',
-                  textAlign: TextAlign.center, style: robotoBold.copyWith(
-                      fontSize: Dimensions.fontSizeOverLarge, color: Theme.of(context).primaryColor)),
-              const SizedBox(height: Dimensions.paddingSizeSmall,),
-
-              Text('${getTranslated('copy_your_code', context)}',
-                  textAlign: TextAlign.center, style: textRegular.copyWith(
-                      fontSize: Dimensions.fontSizeDefault, color: Theme.of(context).textTheme.bodyLarge?.color)),
-              const SizedBox(height: Dimensions.paddingSizeExtraLarge,),
-
-              Text('${getTranslated('your_personal_code', context)}', textAlign: TextAlign.center,
-                style: titilliumSemiBold.copyWith(fontSize: Dimensions.fontSizeDefault,
-                    color:  Provider.of<ThemeController>(context, listen: false).darkTheme?
-                    Theme.of(context).hintColor: Theme.of(context).primaryColor.withValues(alpha:.5)),),
-              const SizedBox(height: Dimensions.paddingSizeLarge,),
-
-              DottedBorder(
-                  options: RoundedRectDottedBorderOptions(
-                    padding: const EdgeInsets.all(3),
-                    radius: const Radius.circular(20), dashPattern: const [5, 5],
-                    color: Provider.of<ThemeController>(context, listen: false).darkTheme?
-                    Colors.grey : Theme.of(context).colorScheme.primary.withValues(alpha:0.5),
-                    strokeWidth: 1,
+      body: ListView(
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+        children: [
+          FadeSlideIn(
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [Color(0xFFF5A524), Color(0xFFF08A3C), Color(0xFFE5634F)],
+                ),
+                borderRadius: BorderRadius.circular(28),
+                boxShadow: [BoxShadow(color: const Color(0xFFE5634F).withValues(alpha: .28), blurRadius: 30, offset: const Offset(0, 14))],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(28),
+                child: Stack(children: [
+                  PositionedDirectional(
+                    end: -40,
+                    bottom: -60,
+                    child: Container(
+                      width: 170,
+                      height: 170,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white.withValues(alpha: .12), width: 22),
+                      ),
+                    ),
                   ),
-                  child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                    Expanded(child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault),
-                        child: Text(Provider.of<ProfileController>(context, listen: false).userInfoModel?.referCode??'',
-                            style: textRegular.copyWith(fontSize: Dimensions.fontSizeLarge, color: Theme.of(context).textTheme.bodyLarge?.color)))),
-
-                    JustTheTooltip(
-                      backgroundColor: Colors.black87,
-                      controller: tooltipController,
-                      preferredDirection: AxisDirection.down,
-                      tailLength: 10,
-                      tailBaseWidth: 20,
-                      content: Container(width: 90,
-                          padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
-                          child: Text(getTranslated('copied', context)!,
-                              style: textRegular.copyWith(color: Colors.white, fontSize: Dimensions.fontSizeDefault))),
-                      child: GestureDetector(onTap: () async {
-                        tooltipController.showTooltip();
-                        await Clipboard.setData(ClipboardData(text: profileController.userInfoModel?.referCode??''));
-                      },
-                          child: Container(width: 85, height: 40, alignment: Alignment.center,
-                              decoration: BoxDecoration(
-                                  color:Theme.of(context).colorScheme.primary, borderRadius: BorderRadius.circular(60)),
-                              child: Text('${getTranslated('copy', context)}', style: textRegular.copyWith(
-                                  fontSize: Dimensions.fontSizeExtraLarge, color: Colors.white.withValues(alpha:0.9))))),
-                    )
-                  ])),
-              const SizedBox(height: Dimensions.paddingSizeExtraLarge,),
-
-              Text('${getTranslated('or_share', context)}',
-                  style: textRegular.copyWith(fontSize: Dimensions.fontSizeLarge, color: Theme.of(context).textTheme.bodyLarge?.color)),
-
-              const SizedBox(height: Dimensions.paddingSizeExtraLarge,),
-
-              SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(mainAxisAlignment: MainAxisAlignment.center,
-                      children: shareItem.map((item) => GestureDetector(
-                        onTap: (){
-                          final referCode = Provider.of<ProfileController>(context, listen: false).userInfoModel?.referCode ?? '';
-                          final refSignup = Provider.of<SplashController>(context, listen: false).configModel?.refSignup ?? '';
-                          final appName = AppConstants.appName;
-
-                          final shareText =
-                              'Greetings, $appName is the best e-commerce platform in the country. '
-                              'If you are new to this website don’t forget to use "$referCode" '
-                              'as the referral code while signing up into $appName. '
-                              '$refSignup$referCode';
-
-                          SharePlus.instance.share(ShareParams(text: shareText));
-                        },
-                        child: Container(margin: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeExtraSmall),
-                          child: Image.asset(item, height: 45, width: 45),),
-                      )).toList()))])),
-
-        DraggableScrollableSheet(
-          initialChildSize: 0.1,
-          maxChildSize: (hintList.length + 1.0) * 0.1,
-          minChildSize: 0.1,
-          builder: (context, scrollController) => ListView.builder(
-            controller: scrollController,
-            itemCount: 1,
-            itemBuilder: (BuildContext context, int index) {
-              return ReferHintView(hintList: hintList);
-            },
+                  Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      Container(
+                        width: 54,
+                        height: 54,
+                        decoration: BoxDecoration(color: Colors.white.withValues(alpha: .22), borderRadius: BorderRadius.circular(18)),
+                        child: const Icon(Icons.card_giftcard_rounded, color: Colors.white, size: 28),
+                      ),
+                      const SizedBox(height: 12),
+                      Text('${getTranslated('invite_friend_and_businesses', context)}',
+                          style: textBold.copyWith(fontSize: Dimensions.fontSizeOverLarge, height: 1.35, color: Colors.white)),
+                      const SizedBox(height: 6),
+                      Text('${getTranslated('copy_your_code', context)}',
+                          style: textRegular.copyWith(fontSize: Dimensions.fontSizeDefault, height: 1.6, color: Colors.white.withValues(alpha: .95))),
+                    ]),
+                  ),
+                ]),
+              ),
+            ),
           ),
-        ),
-      ]),
+          const SizedBox(height: 14),
+
+          FadeSlideIn(
+            index: 1,
+            child: GlassContainer(
+              blur: false,
+              radius: 24,
+              padding: const EdgeInsets.all(16),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                Text('${getTranslated('your_personal_code', context)}',
+                    style: textBold.copyWith(fontSize: Dimensions.fontSizeSmall + 1, color: Theme.of(context).hintColor)),
+                const SizedBox(height: 10),
+                Container(
+                  padding: const EdgeInsetsDirectional.fromSTEB(14, 6, 6, 6),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).primaryColor.withValues(alpha: .07),
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(color: Theme.of(context).primaryColor.withValues(alpha: .4)),
+                  ),
+                  child: Row(children: [
+                    Expanded(child: Text(referCode, textDirection: TextDirection.ltr,
+                        style: textBold.copyWith(fontSize: Dimensions.fontSizeExtraLarge, letterSpacing: 3, color: textColor))),
+                    TextButton(
+                      onPressed: () async {
+                        await Clipboard.setData(ClipboardData(text: referCode));
+                        if (context.mounted) showCustomSnackBar(getTranslated('copied', context), context, isError: false);
+                      },
+                      style: TextButton.styleFrom(
+                        minimumSize: const Size(64, 44),
+                        backgroundColor: textColor,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      ),
+                      child: Text(getTranslated('copy', context) ?? '',
+                          style: textBold.copyWith(fontSize: Dimensions.fontSizeSmall + 1, color: Theme.of(context).cardColor)),
+                    ),
+                  ]),
+                ),
+                const SizedBox(height: 12),
+                PressableScale(
+                  onTap: share,
+                  child: Container(
+                    height: 52,
+                    decoration: BoxDecoration(
+                      gradient: AppPalette.brandGradient,
+                      borderRadius: BorderRadius.circular(17),
+                      boxShadow: [BoxShadow(color: AppPalette.primary.withValues(alpha: .3), blurRadius: 16, offset: const Offset(0, 6))],
+                    ),
+                    child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                      const Icon(Icons.ios_share_rounded, color: Colors.white, size: 19),
+                      const SizedBox(width: 8),
+                      Text(getTranslated('share_code', context) ?? '',
+                          style: textBold.copyWith(color: Colors.white, fontSize: Dimensions.fontSizeLarge)),
+                    ]),
+                  ),
+                ),
+              ]),
+            ),
+          ),
+          const SizedBox(height: 14),
+
+          FadeSlideIn(
+            index: 2,
+            child: GlassContainer(
+              blur: false,
+              radius: 24,
+              padding: const EdgeInsets.all(16),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text(getTranslated('how_it_works', context) ?? '',
+                    style: textBold.copyWith(fontSize: Dimensions.fontSizeLarge, color: textColor)),
+                for (int i = 0; i < hintList.length; i++) ...[
+                  const SizedBox(height: 12),
+                  Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    Container(
+                      width: 30,
+                      height: 30,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).primaryColor.withValues(alpha: .12),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Text('${i + 1}', style: textBold.copyWith(color: AppPalette.primaryDeep)),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(child: Padding(
+                      padding: const EdgeInsets.only(top: 5),
+                      child: Text(hintList[i], style: textRegular.copyWith(fontSize: Dimensions.fontSizeDefault, height: 1.5, color: textColor)),
+                    )),
+                  ]),
+                ],
+              ]),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

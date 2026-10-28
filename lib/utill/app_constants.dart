@@ -10,7 +10,7 @@ class AppConstants {
   ///Flutter SDK 3.35.7
   static const LocalCachesTypeEnum cachesType = LocalCachesTypeEnum.all;
 
-  static const String baseUrl = 'https://ma3ak.thotix.net/';
+  static const String baseUrl = 'https://ma3ak.thotix.net';
 
   static const String googleServerClientId =
       '789170580509-dsa96r0sehnk7cs8esask5nrp6nfr8j5.apps.googleusercontent.com';
@@ -275,31 +275,31 @@ class AppConstants {
         languageName: 'Arabic',
         countryCode: 'SA',
         languageCode: 'ar'),
-    LanguageModel(
-        imageUrl: Images.uz,
-        languageName: 'Uzbek',
-        countryCode: 'UZ',
-        languageCode: 'uz'),
-    LanguageModel(
-        imageUrl: Images.ru,
-        languageName: 'Russian',
-        countryCode: 'RU',
-        languageCode: 'ru'),
-    LanguageModel(
-        imageUrl: Images.my,
-        languageName: 'Malay',
-        countryCode: 'MY',
-        languageCode: 'ms'),
-    LanguageModel(
-        imageUrl: Images.id,
-        languageName: 'Indonesian',
-        countryCode: 'ID',
-        languageCode: 'id'),
-    LanguageModel(
-        imageUrl: Images.tr,
-        languageName: 'Turkish',
-        countryCode: 'TR',
-        languageCode: 'tr'),
+    // LanguageModel(
+    //     imageUrl: Images.uz,
+    //     languageName: 'Uzbek',
+    //     countryCode: 'UZ',
+    //     languageCode: 'uz'),
+    // LanguageModel(
+    //     imageUrl: Images.ru,
+    //     languageName: 'Russian',
+    //     countryCode: 'RU',
+    //     languageCode: 'ru'),
+    // LanguageModel(
+    //     imageUrl: Images.my,
+    //     languageName: 'Malay',
+    //     countryCode: 'MY',
+    //     languageCode: 'ms'),
+    // LanguageModel(
+    //     imageUrl: Images.id,
+    //     languageName: 'Indonesian',
+    //     countryCode: 'ID',
+    //     languageCode: 'id'),
+    // LanguageModel(
+    //     imageUrl: Images.tr,
+    //     languageName: 'Turkish',
+    //     countryCode: 'TR',
+    //     languageCode: 'tr'),
     LanguageModel(
         imageUrl: Images.fr,
         languageName: 'French',
